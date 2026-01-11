@@ -49,8 +49,5 @@ public class SanPham {
     @JoinColumn(name = "hang_sx_id", nullable = false)
     private HangSanXuat hangSanXuat;
 
-    @ManyToOne
-    @JoinColumn(name = "doi_tuong_id", nullable = false)
-    private DoiTuongSuDung doiTuongSuDung;
 
 }
