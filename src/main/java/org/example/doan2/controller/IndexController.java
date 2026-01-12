@@ -14,7 +14,8 @@ class IndexController {
 
     @GetMapping("/index")
     public String index(Model model) {
-        model.addAttribute("dsSanPham", this.sanPhamService.getTop15MoiNhat());
+        model.addAttribute("dsLaptop", this.sanPhamService.getLaptop());
+        model.addAttribute("dsPhuKien", this.sanPhamService.getPhuKien());
         return "index";
     }
 }
