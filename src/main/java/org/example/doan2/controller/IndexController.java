@@ -24,9 +24,13 @@ public class IndexController {
     public String index(Model model) {
         model.addAttribute("hangLaptop",
                 hangSanXuatService.getHangByLoai("LAPTOP"));
+        model.addAttribute("hangPhuKien",
+                hangSanXuatService.getHangByLoai("PHU_KIEN"));
 
         model.addAttribute("dsLaptop",
                 sanPhamService.getTop15ByLoai("LAPTOP"));
+        model.addAttribute("dsPhuKien",
+                sanPhamService.getTop15ByLoai("PHU_KIEN"));
 
         return "index";
     }
@@ -49,6 +53,23 @@ public class IndexController {
 
 
         return "fragments/laptop-list :: laptopList";
+    }
+    @GetMapping("/index/phukien")
+    public String loadPhuKien(
+            @RequestParam(required = false) Integer hangId,
+            Model model
+    ) {
+        String loai = "PHU_KIEN";
+
+        if (hangId == null) {
+            model.addAttribute("dsPhuKien",
+                    sanPhamService.getTop15ByLoai(loai));
+        } else {
+            model.addAttribute("dsPhuKien",
+                    sanPhamService.getTop15ByLoaiAndHang(loai, hangId));
+        }
+
+        return "fragments/phukien-list :: phuKienList";
     }
 }
 
