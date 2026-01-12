@@ -48,6 +48,10 @@ public class SanPham {
     @ManyToOne
     @JoinColumn(name = "hang_sx_id", nullable = false)
     private HangSanXuat hangSanXuat;
-
-
+    @ManyToOne
+    @JoinColumn(name = "khuyen_mai_id")
+    private KhuyenMai khuyenMai;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loai_san_pham_id", nullable = false)
+    private LoaiSanPham loaiSanPham;
 }
