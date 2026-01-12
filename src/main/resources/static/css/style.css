@@ -578,6 +578,12 @@
 .breadcrumb .breadcrumb-item.active {
     color: #ffffff !important;
 }
+.product-body {
+    height: 200px;                 /* 🔥 QUYẾT ĐỊNH ĐỘ CAO VIỀN CAM */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
 
 /*** Footer End ***/
