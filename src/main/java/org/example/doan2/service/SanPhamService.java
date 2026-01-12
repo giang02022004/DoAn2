@@ -16,21 +16,31 @@ public class SanPhamService {
         this.sanPhamRepository = sanPhamRepository;
     }
 
-    public List<SanPham> getLaptop() {
+    public List<SanPham> getTop15ByLoaiAndHang(String loai, Integer hangId) {
         Pageable pageable = PageRequest.of(
                 0,
                 15,
                 Sort.by(Sort.Direction.DESC, "id")
         );
-        return this.sanPhamRepository.findByLoaiSanPham_TenLoaiOrderByIdDesc("LAPTOP", pageable).getContent();
+
+        return sanPhamRepository
+                .findByLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(
+                        loai, hangId, pageable
+                )
+                .getContent();
     }
-    public List<SanPham> getPhuKien() {
+
+    // TOP 15 theo LOẠI
+    public List<SanPham> getTop15ByLoai(String loai) {
         Pageable pageable = PageRequest.of(
                 0,
                 15,
                 Sort.by(Sort.Direction.DESC, "id")
         );
-        return this.sanPhamRepository.findByLoaiSanPham_TenLoaiOrderByIdDesc("PHU_KIEN", pageable).getContent();
+
+        return sanPhamRepository
+                .findByLoaiSanPham_TenLoaiOrderByIdDesc(loai, pageable)
+                .getContent();
     }
     //Hết phần hiển thị sản phẩm trên trang chủ
 
