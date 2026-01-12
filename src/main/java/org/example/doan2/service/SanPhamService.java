@@ -16,13 +16,23 @@ public class SanPhamService {
         this.sanPhamRepository = sanPhamRepository;
     }
 
-    public List<SanPham> getTop15MoiNhat() {
+    public List<SanPham> getLaptop() {
         Pageable pageable = PageRequest.of(
                 0,
                 15,
                 Sort.by(Sort.Direction.DESC, "id")
         );
-        return sanPhamRepository.findAll(pageable).getContent();
+        return this.sanPhamRepository.findByLoaiSanPham_TenLoaiOrderByIdDesc("LAPTOP", pageable).getContent();
     }
+    public List<SanPham> getPhuKien() {
+        Pageable pageable = PageRequest.of(
+                0,
+                15,
+                Sort.by(Sort.Direction.DESC, "id")
+        );
+        return this.sanPhamRepository.findByLoaiSanPham_TenLoaiOrderByIdDesc("PHU_KIEN", pageable).getContent();
+    }
+    //Hết phần hiển thị sản phẩm trên trang chủ
+
 
 }
