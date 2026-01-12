@@ -1,0 +1,27 @@
+<div th:fragment="phuKienList">
+  <div class="row g-4">
+
+    <div class="col-md-6 col-lg-4 col-xl-3"
+         th:each="sp : ${dsPhuKien}">
+
+      <div class="rounded position-relative fruite-item">
+
+        <div class="fruite-img">
+          <img th:src="@{'/img/' + ${sp.hinhAnh}}"
+               class="img-fluid w-100"
+               style="height:200px; object-fit:contain;"
+               alt="">
+        </div>
+
+        <div class="p-3 border border-secondary text-center">
+          <h6 th:text="${sp.tenSanPham}"></h6>
+          <p class="fw-bold"
+             th:text="${#numbers.formatDecimal(sp.gia,0,'COMMA',0,'POINT')} + ' VNĐ'">
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
