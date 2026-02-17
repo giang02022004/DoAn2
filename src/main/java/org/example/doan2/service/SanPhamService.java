@@ -2,6 +2,7 @@ package org.example.doan2.service;
 
 import org.example.doan2.entity.SanPham;
 import org.example.doan2.repository.SanPhamRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,4 +46,50 @@ public class SanPhamService {
     //Hết phần hiển thị sản phẩm trên trang chủ
 
 
+    public Page<SanPham> getPageSanPhams(Pageable pageable) {
+        return sanPhamRepository.findAll(pageable);
+    }
+    
+    // Tìm kiếm + Lọc kết hợp (Tên, Hãng, Loại, Giá)
+    public Page<SanPham> searchSanPhamsCombined(String keyword, Integer hangId, String loai, Integer maxPrice, Pageable pageable) {
+        // Xử lý từ khóa tìm kiếm: nếu rỗng hoặc null thì coi như null (bỏ qua điều kiện like)
+        String searchKey = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        
+        // Xử lý loại sản phẩm: nếu rỗng thì coi như null
+        String searchLoai = (loai != null && !loai.trim().isEmpty()) ? loai.trim() : null;
+        
+        return sanPhamRepository.findWithFilters(searchKey, hangId, searchLoai, maxPrice, pageable);
+    }
+
+
+
+    // Lấy danh sách sản phẩm theo giá (nhỏ hơn hoặc bằng maxPrice) và phân trang
+    public Page<SanPham> getPageSanPhamsByPrice(Integer maxPrice, Pageable pageable) {
+        return sanPhamRepository.findByGiaLessThanEqual(maxPrice, pageable);
+    }
+
+    // Lọc theo Hãng
+    public Page<SanPham> getSanPhamsByHang(Integer hangId, Pageable pageable) {
+        return sanPhamRepository.findByHangSanXuat_Id(hangId, pageable);
+    }
+    
+    // Lấy danh sách sản phẩm theo Hãng và Giá (nhỏ hơn hoặc bằng maxPrice)
+    public Page<SanPham> getSanPhamsByHangAndPrice(Integer hangId, Integer maxPrice, Pageable pageable) {
+        return sanPhamRepository.findByHangSanXuat_IdAndGiaLessThanEqual(hangId, maxPrice, pageable);
+    }
+
+    // Lấy chi tiết sản phẩm
+    public SanPham getSanPhamById(Integer id) {
+        return sanPhamRepository.findById(id).orElse(null);
+    }
+    
+    // Lọc theo Hãng và Loại
+    public Page<SanPham> getSanPhamsByHangAndLoai(Integer hangId, String tenLoai, Pageable pageable) {
+        return sanPhamRepository.findByLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(tenLoai, hangId, pageable);
+    }
+
+    // Lấy danh sách sản phẩm theo Hãng, Loại và Giá (nhỏ hơn hoặc bằng maxPrice)
+    public Page<SanPham> getSanPhamsByHangAndLoaiAndPrice(Integer hangId, String tenLoai, Integer maxPrice, Pageable pageable) {
+        return sanPhamRepository.findByLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc(tenLoai, hangId, maxPrice, pageable);
+    }
 }

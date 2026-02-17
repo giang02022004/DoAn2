@@ -6,20 +6,40 @@
 
       <div class="rounded position-relative fruite-item">
 
+        <!-- HÌNH ẢNH -->
         <div class="fruite-img">
           <img th:src="@{'/img/' + ${sp.hinhAnh}}"
-               class="img-fluid w-100"
+               class="img-fluid w-100 rounded-top"
                style="height:200px; object-fit:contain;"
                alt="">
         </div>
 
-        <div class="p-3 border border-secondary text-center">
-          <h6 th:text="${sp.tenSanPham}"></h6>
-          <p class="fw-bold"
-             th:text="${#numbers.formatDecimal(sp.gia,0,'COMMA',0,'POINT')} + ' VNĐ'">
-          </p>
+        <!-- BADGE -->
+        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
+             style="top: 10px; left: 10px;">
+          Laptop
         </div>
 
+        <!-- THÔNG TIN -->
+        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+
+          <!-- TÊN -->
+          <h6 th:text="${sp.tenSanPham}"></h6>
+
+          <!-- GIÁ + NÚT MUA -->
+          <div class="d-flex justify-content-between flex-lg-wrap">
+            <p class="text-dark fs-5 fw-bold mb-0"
+               th:text="${#numbers.formatDecimal(sp.gia,0,'COMMA',0,'POINT')} + ' VNĐ'">
+            </p>
+
+            <a th:href="@{/shop-detail/{id}(id=${sp.id})}"
+               class="btn border border-secondary rounded-pill px-3 text-primary">
+              <i class="fa fa-shopping-bag me-2 text-primary"></i>
+              Mua ngay
+            </a>
+          </div>
+
+        </div>
       </div>
     </div>
 

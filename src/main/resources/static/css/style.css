@@ -1,3 +1,10 @@
+:root {
+    --bs-primary: #2a83e9;
+    --bs-secondary: #FFD400;
+    --bs-success: #2a83e9; /* Force success to blue if used */
+    --bs-info: #2a83e9;
+    --bs-warning: #FFD400;
+}
 
 /*** Spinner Start ***/
 #spinner {
@@ -84,7 +91,7 @@
 .topbar {
     padding: 20px;
     border-radius: 230px 100px;
-    background-color: #2a83e9;
+    background-color: var(--bs-primary);
 }
 
 .topbar .top-info {
@@ -176,6 +183,88 @@
     background: rgba(255, 255, 255, .8);
 }
 /*** Navbar End ***/
+
+/*** Range Input Start ***/
+.price-range-container {
+    padding: 10px 0;
+}
+
+.form-range {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 5px;
+    outline: none;
+    -webkit-appearance: none; /* Remove default styling */
+}
+
+/* Track Styling */
+.form-range::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: #e9ecef;
+    border-radius: 5px;
+}
+
+.form-range::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: #e9ecef;
+    border-radius: 5px;
+}
+
+/* Thumb Styling */
+.form-range::-webkit-slider-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7px; /* Align thumb with track */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    background: #1e6fd9;
+    transform: scale(1.1);
+}
+
+.form-range::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.form-range::-moz-range-thumb:hover {
+    background: #1e6fd9;
+    transform: scale(1.1);
+}
+
+/* Output Label Styling */
+#amount {
+    display: block;
+    margin-top: 10px;
+    color: var(--bs-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: right;
+}
+
+#amount::before {
+    content: "Max Price: ";
+    color: #6c757d;
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+/*** Range Input End ***/
 
 /*** Hero Header ***/
 .hero-header {
@@ -279,7 +368,7 @@
 
 /*** Fruits Start ***/
 .fruite .tab-class .nav-item a.active {
-    background: var(--bs-secondary) !important;
+    background: var(--bs-primary) !important;
 }
 
 .fruite .tab-class .nav-item a.active span {
@@ -292,10 +381,47 @@
 
 .fruite .fruite-categorie .fruite-name a {
     transition: 0.5s;
+    color: var(--bs-primary);
 }
 
 .fruite .fruite-categorie .fruite-name a:hover {
-    color: var(--bs-secondary);
+    color: var(--bs-warning);
+}
+
+/* Sub-category (Brand) List Styling */
+.fruite-categorie ul {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    padding-left: 15px;
+    border-left: 2px solid #eee;
+    margin-left: 10px;
+}
+
+.fruite-categorie ul li {
+    margin-bottom: 2px;
+}
+
+.fruite-categorie ul li a {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #757575; /* Smooth gray */
+    transition: all 0.3s ease;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+.fruite-categorie ul li a:hover {
+    background-color: #f0f4f8;
+    color: var(--bs-primary) !important;
+    padding-left: 15px; /* Slide effect */
+}
+
+.fruite-categorie ul li a.active {
+    background-color: #e6f0ff;
+    color: var(--bs-primary) !important;
+    font-weight: 600;
+    padding-left: 15px;
 }
 
 .fruite .fruite-item {
@@ -495,19 +621,19 @@
     line-height: 35px;
 }
 .logo-brand {
-    color: #FFD400;
+    color: var(--bs-secondary); /* Updated to use variable */
     font-weight: 900;
     letter-spacing: 1px;
     text-shadow: 0 2px 0 rgba(0,0,0,0.15);
 }
 /* Menu hover */
 .navbar-nav .nav-link:hover {
-    color: #2a83e9 !important;
+    color: var(--bs-primary) !important; /* Updated to use variable */
 }
 
 /* Menu active */
 .navbar-nav .nav-link.active {
-    color: #2a83e9 !important;
+    color: var(--bs-primary) !important; /* Updated to use variable */
     font-weight: 700;
 }
 /* FORCE đổi màu dropdown */
@@ -524,23 +650,23 @@
 /* Hover item */
 .navbar .dropdown-menu .dropdown-item:hover {
     background-color: #e6f0ff;
-    color: #2a83e9;
+    color: var(--bs-primary); /* Updated to use variable */
 }
 /* ===== ICON NAVBAR – THEME ĐIỆN MÁY XANH ===== */
 .navbar i,
 .navbar .text-primary {
-    color: #2a83e9 !important;
+    color: var(--bs-primary) !important; /* Updated to use variable */
 }
 
 .navbar a:hover i,
 .navbar a:hover .text-primary {
-    color: #1e6fd9 !important;
+    color: #1e6fd9 !important; /* Slightly darker blue for hover */
 }
 /* HERO TITLE – đổi màu chữ chính */
 /* FORCE đổi màu nút Submit */
 .container.py-5 .btn.btn-primary {
-    background-color: #2a83e9 !important;
-    border-color: #2a83e9 !important;
+    background-color: var(--bs-primary) !important; /* Updated to use variable */
+    border-color: var(--bs-primary) !important; /* Updated to use variable */
 }
 
 .container.py-5 .btn.btn-primary:hover {
@@ -551,7 +677,7 @@
 .navbar .text-primary,
 .hero-section .text-primary,
 .container.py-5 .text-primary {
-    color: #2a83e9 !important;
+    color: var(--bs-primary) !important; /* Updated to use variable */
 }
 /* HERO TITLE – đổi màu chữ chính */
 .hero-header h1.text-primary {
@@ -565,7 +691,7 @@
 }
 /* Breadcrumb link (trang trước) */
 .breadcrumb a {
-    color: #2a83e9 !important;
+    color: var(--bs-primary) !important; /* Updated to use variable */
 }
 
 /* Hover breadcrumb link */
@@ -587,4 +713,22 @@
 
 
 /*** Footer End ***/
+/*** Range Input Start ***/
+.form-range::-webkit-slider-thumb {
+    background: var(--bs-primary);
+}
 
+.form-range::-moz-range-thumb {
+    background: var(--bs-primary);
+}
+
+.form-range::-ms-thumb {
+    background: var(--bs-primary);
+}
+
+#amount {
+    color: var(--bs-primary);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+/*** Range Input End ***/
