@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
     <head>
         <meta charset="utf-8">
-        <title>Fruitables - Register</title>
+        <title>Order Success - Fruitables</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -30,14 +30,25 @@
 
     <body>
 
+        <!-- Spinner Start -->
+        <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50  d-flex align-items-center justify-content-center">
+            <div class="spinner-grow text-primary" role="status"></div>
+        </div>
+        <!-- Spinner End -->
+
+
         <!-- Navbar start -->
-        <!-- Same Navbar as other pages -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
-                         <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
+                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
                         <small class="me-3"><i class="fas fa-phone-alt me-2 text-secondary"></i><a href="tel:19001234" class="text-white">1900 1234</a></small>
+                    </div>
+                    <div class="top-link pe-2">
+                        <a href="#" class="text-white"><small class="text-white mx-2">Chính sách bảo hành</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white mx-2">Điều khoản sử dụng</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white ms-2">Hỗ trợ khách hàng</small></a>
                     </div>
                 </div>
             </div>
@@ -55,13 +66,9 @@
                             <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
-                            <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
                             <a th:href="@{/cart}" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;" th:text="${cartCount}">0</span>
-                            </a>
-                            <a th:href="@{/login}" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
                     </div>
@@ -73,82 +80,47 @@
 
         <!-- Single Page Header start -->
         <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Đăng ký</h1>
-            <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active text-white">Register</li>
-            </ol>
+            <h1 class="text-center text-white display-6">Đặt hàng thành công</h1>
         </div>
         <!-- Single Page Header End -->
 
 
-        <!-- Register Page Start -->
+        <!-- Success Start -->
         <div class="container-fluid py-5">
-            <div class="container py-5">
+            <div class="container py-5 text-center">
                 <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="bg-light rounded p-5">
-                            <h3 class="mb-4 text-center text-primary">Tạo tài khoản mới</h3>
-                            
-                            <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                                Email này đã được đăng ký.
-                            </div>
-
-                            <form th:action="@{/register}" method="post" th:object="${user}">
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Họ và Tên<sup>*</sup></label>
-                                        <input type="text" class="form-control" th:field="*{hoTen}" required>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Email<sup>*</sup></label>
-                                        <input type="email" class="form-control" th:field="*{email}" required>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Mật khẩu<sup>*</sup></label>
-                                        <input type="password" class="form-control" th:field="*{matKhau}" required>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Số điện thoại<sup>*</sup></label>
-                                        <input type="tel" class="form-control" th:field="*{dienThoai}" required>
-                                    </div>
-                                    <div class="col-12 mb-4">
-                                        <label class="form-label">Địa chỉ<sup>*</sup></label>
-                                        <input type="text" class="form-control" th:field="*{diaChi}" required>
-                                    </div>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary border-0 py-3 px-4 text-uppercase w-100 text-white fw-bold shadow-sm hover-elevate">Đăng ký</button>
-                                
-                                <div class="text-center mt-3">
-                                    <p>Đã có tài khoản? <a th:href="@{/login}" class="text-primary fw-bold">Đăng nhập</a></p>
-                                </div>
-                            </form>
-                        </div>
+                    <div class="col-lg-6">
+                        <i class="bi bi-check-circle display-1 text-success mb-4"></i>
+                        <h1 class="display-4 mb-4">Cảm ơn bạn!</h1>
+                        <p class="mb-4 lead">Đơn hàng của bạn đã được đặt thành công. Chúng tôi sẽ liên hệ với bạn sớm nhất để xác nhận đơn hàng.</p>
+                        <a class="btn btn-primary border-0 rounded-pill py-3 px-5 text-white fw-bold shadow-sm" th:href="@{/shop}">Tiếp tục mua sắm</a>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Register Page End -->
+        <!-- Success End -->
 
 
         <!-- Footer Start -->
         <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
             <div class="container py-5">
-                <!-- Footer content -->
-                 <div class="pb-4 mb-4" style="border-bottom: 1px solid rgba(226, 175, 24, 0.5) ;">
-                    <div class="row g-4">
-                        <div class="col-lg-3">
-                            <a href="#">
-                                <h1 class="text-primary mb-0">Fruitables</h1>
-                                <p class="text-secondary mb-0">Fresh products</p>
-                            </a>
+                <div class="row g-5">
+                   <!-- Footer content truncated for brevity -->
+                   <div class="col-lg-3 col-md-6">
+                        <div class="footer-item">
+                            <h4 class="text-light mb-3">Contact</h4>
+                            <p>Email: Example@gmail.com</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Footer End -->
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+
         
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>

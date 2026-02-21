@@ -92,4 +92,10 @@ public class SanPhamService {
     public Page<SanPham> getSanPhamsByHangAndLoaiAndPrice(Integer hangId, String tenLoai, Integer maxPrice, Pageable pageable) {
         return sanPhamRepository.findByLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc(tenLoai, hangId, maxPrice, pageable);
     }
+
+    // Lấy danh sách sản phẩm liên quan (Top N)
+    public List<SanPham> getRelatedProducts(Integer loaiId, Integer excludeId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "id"));
+        return sanPhamRepository.findByLoaiSanPham_IdAndIdNot(loaiId, excludeId, pageable).getContent();
+    }
 }

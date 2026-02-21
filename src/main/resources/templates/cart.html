@@ -7,6 +7,8 @@
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,13 +45,13 @@
             <div class="container topbar d-none d-lg-block">
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
-                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
-                        <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small>
+                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
+                        <small class="me-3"><i class="fas fa-phone-alt me-2 text-secondary"></i><a href="tel:19001234" class="text-white">1900 1234</a></small>
                     </div>
                     <div class="top-link pe-2">
-                        <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
+                        <a href="#" class="text-white"><small class="text-white mx-2">Chính sách bảo hành</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white mx-2">Điều khoản sử dụng</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white ms-2">Hỗ trợ khách hàng</small></a>
                     </div>
                 </div>
             </div>
@@ -63,26 +65,16 @@
                         <div class="navbar-nav mx-auto">
                             <a th:href="@{/index}" class="nav-item nav-link">Home</a>
                             <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/shop-detail}" class="nav-item nav-link">Shop Detail</a>
-
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                                <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                    <a th:href="@{/cart}" class="dropdown-item">Cart</a>
-                                    <a th:href="@{/checkout}" class="dropdown-item">Checkout</a>
-                                    <a th:href="@{/testimonial}" class="dropdown-item">Testimonial</a>
-                                    <a th:href="@{/404}" class="dropdown-item">404 Page</a>
-                                </div>
-                            </div>
-                            <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link active">Cart</a>
+                            <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
                             <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
-                            <a href="#" class="position-relative me-4 my-auto">
+                            <a th:href="@{/cart}" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;" th:text="${cartCount}">0</span>
                             </a>
-                            <a href="#" class="my-auto">
+                            <a th:href="@{/account}" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
@@ -149,6 +141,7 @@
                                 </th>
                                 <td>
                                     <p class="mb-0 mt-4" th:text="${item.name}">Name</p>
+                                    <small th:if="${item.variantInfo != null}" class="text-muted" th:text="${item.variantInfo}">Variant Info</small>
                                 </td>
                                 <td>
                                     <p class="mb-0 mt-4" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Price</p>
@@ -156,23 +149,23 @@
                                 <td>
                                     <div class="input-group quantity mt-4" style="width: 100px;">
                                         <div class="input-group-btn">
-                                            <button class="btn btn-sm btn-minus rounded-circle bg-light border" >
+                                            <button class="btn btn-sm btn-minus rounded-circle bg-light border" th:attr="data-id=${item.id}, data-variant-id=${item.variantId}">
                                             <i class="fa fa-minus"></i>
                                             </button>
                                         </div>
-                                        <input type="text" class="form-control form-control-sm text-center border-0" th:value="${item.quantity}">
+                                        <input type="text" class="form-control form-control-sm text-center border-0" th:value="${item.quantity}" th:attr="data-id=${item.id}, data-variant-id=${item.variantId}">
                                         <div class="input-group-btn">
-                                            <button class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                            <button class="btn btn-sm btn-plus rounded-circle bg-light border" th:attr="data-id=${item.id}, data-variant-id=${item.variantId}">
                                                 <i class="fa fa-plus"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="mb-0 mt-4" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Total</p>
+                                    <p class="mb-0 mt-4" th:id="'item-total-' + ${item.id} + '-' + ${item.variantId}" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Total</p>
                                 </td>
                                 <td>
-                                    <a th:href="@{/cart/remove/{id}(id=${item.id})}" class="btn btn-md rounded-circle bg-light border mt-4" >
+                                    <a th:href="@{/cart/remove/{id}(id=${item.id}, variantId=${item.variantId})}" class="btn btn-md rounded-circle bg-light border mt-4" >
                                         <i class="fa fa-times text-danger"></i>
                                     </a>
                                 </td>
@@ -183,33 +176,37 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-5">
-                    <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Apply Coupon</button>
+                <div class="mt-5 row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                         <div class="bg-light rounded p-4 h-100 shadow-sm border border-0">
+                            <h5 class="mb-4 text-primary"><i class="fas fa-tag me-2"></i>Mã giảm giá</h5>
+                            <div class="d-flex">
+                                <input type="text" class="form-control border-0 py-3 rounded-pill me-3 shadow-sm" placeholder="Nhập mã giảm giá của bạn">
+                                <button class="btn btn-primary border-0 rounded-pill px-4 py-3 text-white fw-bold shadow-sm" type="button">Áp dụng</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-4 justify-content-end">
                     <div class="col-8"></div>
                     <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
-                        <div class="bg-light rounded">
-                            <div class="p-4">
-                                <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
-                                <div class="d-flex justify-content-between mb-4">
-                                    <h5 class="mb-0 me-4">Subtotal:</h5>
-                                    <p class="mb-0" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">$96.00</p>
+                        <div class="bg-light rounded p-4">
+                            <h1 class="display-6 mb-4">Tổng <span class="fw-normal">Giỏ Hàng</span></h1>
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="mb-0 me-4">Tạm tính:</h5>
+                                <p class="mb-0" id="subtotal-price" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</p>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="mb-0 me-4">Giao hàng:</h5>
+                                <div class="">
+                                    <p class="mb-0">Miễn phí vận chuyển</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="mb-0 me-4">Shipping</h5>
-                                    <div class="">
-                                        <p class="mb-0">Flat rate: $3.00</p>
-                                    </div>
-                                </div>
-                                <p class="mb-0 text-end">Shipping to Ukraine.</p>
                             </div>
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
-                                <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">$99.00</p>
+                                <h5 class="mb-0 ps-4 me-4">Tổng cộng</h5>
+                                <p class="mb-0 pe-4 text-primary fw-bold" id="total-price" style="font-size: 1.2rem;" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</p>
                             </div>
-                            <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</button>
+                            <a th:href="@{/checkout}" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 w-100 fw-bold">Tiến hành thanh toán</a>
                         </div>
                     </div>
                 </div>
@@ -325,6 +322,75 @@
 
     <!-- Template Javascript -->
     <script th:src="@{/js/main.js}"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Setup CSRF token cho AJAX
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+            if (csrfToken && csrfHeader) {
+                $.ajaxSetup({
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(csrfHeader, csrfToken);
+                    }
+                });
+            }
+
+            // Listen for clicks on plus/minus buttons
+            $('.quantity button').on('click', function() {
+                var button = $(this);
+                var input = button.closest('.quantity').find('input');
+                var productId = button.data('id');
+                var variantId = button.data('variant-id');
+                var oldVal = parseInt(input.val()) || 1;
+                
+                if (button.hasClass('btn-plus')) {
+                    input.val(oldVal + 1);
+                } else if (button.hasClass('btn-minus') && oldVal > 1) {
+                    input.val(oldVal - 1);
+                }
+                
+                var newQuantity = input.val();
+                updateCart(productId, variantId, newQuantity);
+            });
+
+            $('.quantity input').on('change', function() {
+                 var input = $(this);
+                 var productId = input.data('id');
+                 var variantId = input.data('variant-id');
+                 var newQuantity = input.val();
+                 updateCart(productId, variantId, newQuantity);
+            });
+
+            function updateCart(productId, variantId, quantity) {
+                var data = { productId: productId, quantity: quantity };
+                if (variantId) data.variantId = variantId;
+                
+                $.ajax({
+                    url: '/cart/update',
+                    type: 'POST',
+                    data: data,
+                    success: function(response) {
+                        function formatMoney(amount) {
+                            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + ' VNĐ';
+                        }
+
+                        if (response.itemTotal !== undefined) {
+                             var itemKey = productId + '-' + (variantId || 'null');
+                             $('#item-total-' + itemKey).text(formatMoney(response.itemTotal));
+                        }
+                        
+                        $('#subtotal-price').text(formatMoney(response.totalPrice));
+                        $('#total-price').text(formatMoney(response.totalPrice));
+                         $('.fa-shopping-bag').next('span').text(response.cartCount);
+                    },
+                    error: function(xhr) {
+                        console.error('Error updating cart');
+                    }
+                });
+            }
+        });
+    </script>
     </body>
 
 </html>

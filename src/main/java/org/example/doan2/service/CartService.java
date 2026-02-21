@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CartService {
@@ -21,12 +22,18 @@ public class CartService {
         return cart;
     }
 
+    // So sánh 2 cart item: cùng productId VÀ cùng variantId
+    private boolean isSameItem(CartItem a, CartItem b) {
+        if (!a.getId().equals(b.getId())) return false;
+        return Objects.equals(a.getVariantId(), b.getVariantId());
+    }
+
     // Thêm sản phẩm vào giỏ
     public void addToCart(HttpSession session, CartItem item) {
         List<CartItem> cart = getCart(session);
         boolean exists = false;
         for (CartItem cartItem : cart) {
-            if (cartItem.getId().equals(item.getId())) {
+            if (isSameItem(cartItem, item)) {
                 cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
                 exists = true;
                 break;
@@ -38,18 +45,18 @@ public class CartService {
         session.setAttribute(CART_SESSION_KEY, cart);
     }
 
-    // Xóa sản phẩm khỏi giỏ
-    public void removeFromCart(HttpSession session, Integer productId) {
+    // Xóa sản phẩm khỏi giỏ (theo productId + variantId)
+    public void removeFromCart(HttpSession session, Integer productId, Integer variantId) {
         List<CartItem> cart = getCart(session);
-        cart.removeIf(item -> item.getId().equals(productId));
+        cart.removeIf(item -> item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId));
         session.setAttribute(CART_SESSION_KEY, cart);
     }
 
-    // Cập nhật số lượng
-    public void updateQuantity(HttpSession session, Integer productId, int quantity) {
+    // Cập nhật số lượng (theo productId + variantId)
+    public void updateQuantity(HttpSession session, Integer productId, Integer variantId, int quantity) {
         List<CartItem> cart = getCart(session);
         for (CartItem item : cart) {
-            if (item.getId().equals(productId)) {
+            if (item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId)) {
                 item.setQuantity(quantity);
                 break;
             }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 @Entity
 @Table(name = "san_pham")
 @Getter
@@ -54,4 +55,11 @@ public class SanPham {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loai_san_pham_id", nullable = false)
     private LoaiSanPham loaiSanPham;
+
+    @OneToMany(mappedBy = "sanPham", fetch = FetchType.LAZY)
+    private List<HinhAnhSanPham> danhSachHinhAnh;
+
+    @OneToMany(mappedBy = "sanPham", fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private List<BienTheSanPham> bienTheList;
 }

@@ -26,6 +26,24 @@
 
     <!-- Template Stylesheet -->
     <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <style>
+        .account-sidebar, .account-tab-content { font-family: 'Open Sans', sans-serif; }
+        .account-sidebar { background: #fff; border: 1px solid #ddd; }
+        .sidebar-menu li a { color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-weight: 400; font-size: 14px; }
+        .sidebar-menu li a:hover { background: #f5f5f5; }
+        .sidebar-menu li.active a { background: #f0f0f0; font-weight: 600; border-left: 3px solid var(--bs-primary); }
+        .account-tab-content { display: none; }
+        .account-tab-content.active { display: block; }
+        .account-tab-content h4 { font-family: 'Open Sans', sans-serif; font-size: 18px; font-weight: 600; }
+        .account-tab-content .form-label { font-size: 14px; font-weight: 400; }
+        .account-tab-content .form-control { font-size: 14px; }
+        .order-filter-btn { background: #f5f5f5; color: #555; border: 1px solid #ddd; font-size: 13px; padding: 5px 14px; }
+        .order-filter-btn.active { background: var(--bs-primary); color: #fff; border-color: var(--bs-primary); }
+        .order-card { border: 1px solid #eee; }
+        .sidebar-avatar h6 { font-size: 15px; font-weight: 600; }
+        .sidebar-avatar small { font-size: 13px; }
+    </style>
 </head>
 
 <body>
@@ -42,13 +60,13 @@
         <div class="container topbar d-none d-lg-block">
             <div class="d-flex justify-content-between">
                 <div class="top-info ps-2">
-                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
-                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small>
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
+                    <small class="me-3"><i class="fas fa-phone-alt me-2 text-secondary"></i><a href="tel:19001234" class="text-white">1900 1234</a></small>
                 </div>
                 <div class="top-link pe-2">
-                    <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
+                    <a href="#" class="text-white"><small class="text-white mx-2">Chính sách bảo hành</small>/</a>
+                    <a href="#" class="text-white"><small class="text-white mx-2">Điều khoản sử dụng</small>/</a>
+                    <a href="#" class="text-white"><small class="text-white ms-2">Hỗ trợ khách hàng</small></a>
                 </div>
             </div>
         </div>
@@ -60,29 +78,18 @@
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                     <div class="navbar-nav mx-auto">
-                        <a th:href="@{/index}" class="nav-item nav-link ">Home</a>
+                        <a th:href="@{/index}" class="nav-item nav-link">Home</a>
                         <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                        <a th:href="@{/}" class="nav-item nav-link active">Shop Detail</a>
-
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                <a th:href="@{/cart}" class="dropdown-item">Cart</a>
-                                    <a th:href="@{/checkout}" class="dropdown-item">Checkout</a>
-                                    <a th:href="@{/testimonial}" class="dropdown-item">Testimonial</a>
-                                    <a th:href="@{/404}" class="dropdown-item">404 Page</a>
-                                <a href="profile.html" class="dropdown-item active">My Account</a>
-                            </div>
-                        </div>
-                        <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
+                        <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                        <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                     </div>
                     <div class="d-flex m-3 me-0">
                         <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
                         <a th:href="@{/cart}" class="position-relative me-4 my-auto">
                             <i class="fa fa-shopping-bag fa-2x"></i>
-                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;" th:text="${cartCount}">0</span>
                         </a>
-                        <a href="profile.html" class="my-auto">
+                        <a th:href="@{/account}" class="my-auto">
                             <i class="fas fa-user fa-2x"></i>
                         </a>
                     </div>
@@ -115,266 +122,217 @@
 
     <!-- Single Page Header start -->
     <div class="container-fluid page-header py-5">
-        <h1 class="text-center text-white display-6">My Account</h1>
+        <h1 class="text-center text-white display-6">Tài Khoản Của Tôi</h1>
         <ol class="breadcrumb justify-content-center mb-0">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active text-white">My Account</li>
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active text-white">Tài Khoản</li>
         </ol>
     </div>
     <!-- Single Page Header End -->
 
-
-    <!-- Profile Start -->
+    <!-- Account Section Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="row g-5">
-                
-                <!-- Sidebar Menu -->
+            <div class="row g-4">
+
+                <!-- LEFT SIDEBAR -->
                 <div class="col-lg-3">
-                    <div class="bg-light rounded p-4">
-                        <div class="text-center mb-4">
-                            <img src="img/avatar.jpg" class="img-fluid rounded-circle" style="width: 120px; height: 120px;" alt="Avatar">
-                            <h5 class="mt-3 mb-0">John Doe</h5>
-                            <p class="text-muted mb-0">john.doe@example.com</p>
+                    <div class="account-sidebar rounded overflow-hidden">
+                        <!-- Avatar -->
+                        <div class="sidebar-avatar text-center p-4 bg-light border-bottom">
+                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; background: #e9ecef;">
+                                <i class="fas fa-user fa-2x" style="color: #6D6E72;"></i>
+                            </div>
+                            <h6 class="mb-1" th:text="${user != null ? user.hoTen : 'Khách'}">Tên người dùng</h6>
+                            <small class="text-muted" th:text="${user != null ? user.email : ''}">email@example.com</small>
                         </div>
-                        <hr>
-                        <div class="list-group">
-                            <a href="#profile-info" class="list-group-item list-group-item-action active" data-bs-toggle="list">
-                                <i class="fas fa-user me-2"></i>Profile Information
-                            </a>
-                            <a href="#order-history" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                <i class="fas fa-shopping-bag me-2"></i>Order History
-                            </a>
-                            <a href="#addresses" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                <i class="fas fa-map-marker-alt me-2"></i>Addresses
-                            </a>
-                            <a href="#change-password" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                <i class="fas fa-lock me-2"></i>Change Password
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </a>
-                        </div>
+                        <!-- Menu -->
+                        <ul class="list-unstyled mb-0 sidebar-menu">
+                            <li class="sidebar-tab active" data-tab="profile">
+                                <a href="javascript:void(0);" class="d-flex align-items-center px-4 py-3">
+                                    <i class="fas fa-user me-3 text-primary"></i>
+                                    <span>Thông tin tài khoản</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-tab" data-tab="addresses">
+                                <a href="javascript:void(0);" class="d-flex align-items-center px-4 py-3">
+                                    <i class="fas fa-map-marker-alt me-3 text-primary"></i>
+                                    <span>Sổ địa chỉ</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-tab" data-tab="orders">
+                                <a href="javascript:void(0);" class="d-flex align-items-center px-4 py-3">
+                                    <i class="fas fa-shopping-bag me-3 text-primary"></i>
+                                    <span>Quản lý đơn hàng</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-tab" data-tab="viewed">
+                                <a href="javascript:void(0);" class="d-flex align-items-center px-4 py-3">
+                                    <i class="fas fa-eye me-3 text-primary"></i>
+                                    <span>Sản phẩm đã xem</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-logout">
+                                <a th:href="@{/logout}" class="d-flex align-items-center px-4 py-3 text-danger">
+                                    <i class="fas fa-sign-out-alt me-3"></i>
+                                    <span>Đăng xuất</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Main Content -->
+                <!-- RIGHT CONTENT -->
                 <div class="col-lg-9">
-                    <div class="tab-content bg-light rounded p-5">
-                        
-                        <!-- Profile Information -->
-                        <div class="tab-pane fade show active" id="profile-info">
-                            <h3 class="mb-4">Profile Information</h3>
-                            <form action="#">
+
+                    <!-- Tab: Thông tin tài khoản -->
+                    <div class="account-tab-content active" id="tab-profile">
+                        <div class="bg-light rounded p-4">
+                            <h4 class="mb-4">Thông tin tài khoản</h4>
+                            <form id="profileForm">
                                 <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">First Name<sup>*</sup></label>
-                                        <input type="text" class="form-control" value="John" required>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Họ Tên</label>
+                                        <input type="text" class="form-control" th:value="${user != null ? user.hoTen : ''}" name="fullname" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Last Name<sup>*</sup></label>
-                                        <input type="text" class="form-control" value="Doe" required>
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" th:value="${user != null ? user.email : ''}" name="email" readonly style="background-color: #f8f9fa;">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Email<sup>*</sup></label>
-                                        <input type="email" class="form-control" value="john.doe@example.com" required>
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="text" class="form-control" th:value="${user != null ? user.dienThoai : ''}" name="phone" placeholder="Nhập số điện thoại">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Địa chỉ</label>
+                                        <input type="text" class="form-control" th:value="${user != null ? user.diaChi : ''}" name="address" placeholder="Nhập địa chỉ">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Phone<sup>*</sup></label>
-                                        <input type="tel" class="form-control" value="+1234567890" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Date of Birth</label>
-                                        <input type="date" class="form-control" value="1990-01-01">
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="submit" class="btn border-secondary rounded-pill px-4 py-3 text-primary">Update Profile</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Order History -->
-                        <div class="tab-pane fade" id="order-history">
-                            <h3 class="mb-4">Order History</h3>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Order ID</th>
-                                            <th scope="col">Date</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Total</th>
-                                            <th scope="col">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>#ORD-2024-001</td>
-                                            <td>Nov 20, 2024</td>
-                                            <td><span class="badge bg-success">Delivered</span></td>
-                                            <td>$99.00</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>#ORD-2024-002</td>
-                                            <td>Nov 22, 2024</td>
-                                            <td><span class="badge bg-warning text-dark">Shipping</span></td>
-                                            <td>$135.00</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>#ORD-2024-003</td>
-                                            <td>Nov 25, 2024</td>
-                                            <td><span class="badge bg-info">Processing</span></td>
-                                            <td>$75.50</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>#ORD-2024-004</td>
-                                            <td>Nov 15, 2024</td>
-                                            <td><span class="badge bg-danger">Cancelled</span></td>
-                                            <td>$45.00</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-center mt-4">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination">
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Next">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Addresses -->
-                        <div class="tab-pane fade" id="addresses">
-                            <h3 class="mb-4">My Addresses</h3>
-                            <div class="row g-4">
-                                
-                                <!-- Default Address -->
-                                <div class="col-md-6">
-                                    <div class="border rounded p-4 h-100">
-                                        <div class="d-flex justify-content-between mb-3">
-                                            <h5>Default Address</h5>
-                                            <span class="badge bg-primary">Default</span>
-                                        </div>
-                                        <p class="mb-1"><strong>John Doe</strong></p>
-                                        <p class="mb-1">123 Street Name</p>
-                                        <p class="mb-1">New York, NY 10001</p>
-                                        <p class="mb-3">United States</p>
-                                        <p class="mb-3"><i class="fas fa-phone me-2 text-primary"></i>+1234567890</p>
-                                        <div class="d-flex gap-2">
-                                            <a href="#" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit me-1"></i>Edit
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </a>
+                                        <label class="form-label">Giới tính</label>
+                                        <div class="d-flex gap-4 mt-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderMale" value="1" checked>
+                                                <label class="form-check-label" for="genderMale">Nam</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="0">
+                                                <label class="form-check-label" for="genderFemale">Nữ</label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Secondary Address -->
-                                <div class="col-md-6">
-                                    <div class="border rounded p-4 h-100">
-                                        <div class="d-flex justify-content-between mb-3">
-                                            <h5>Work Address</h5>
-                                        </div>
-                                        <p class="mb-1"><strong>John Doe</strong></p>
-                                        <p class="mb-1">456 Office Boulevard</p>
-                                        <p class="mb-1">Brooklyn, NY 11201</p>
-                                        <p class="mb-3">United States</p>
-                                        <p class="mb-3"><i class="fas fa-phone me-2 text-primary"></i>+1234567891</p>
-                                        <div class="d-flex gap-2">
-                                            <a href="#" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit me-1"></i>Edit
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fas fa-check me-1"></i>Set as Default
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash me-1"></i>Delete
-                                            </a>
-                                        </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input type="date" class="form-control" name="birthday">
                                     </div>
-                                </div>
-
-                                <!-- Add New Address Card -->
-                                <div class="col-md-6">
-                                    <div class="border border-dashed rounded p-4 h-100 d-flex align-items-center justify-content-center">
-                                        <div class="text-center">
-                                            <i class="fas fa-plus fa-3x text-secondary mb-3"></i>
-                                            <h5 class="mb-3">Add New Address</h5>
-                                            <button class="btn border-secondary rounded-pill px-4 py-2 text-primary">
-                                                <i class="fas fa-plus me-2"></i>Add Address
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Change Password -->
-                        <div class="tab-pane fade" id="change-password">
-                            <h3 class="mb-4">Change Password</h3>
-                            <form action="#">
-                                <div class="row g-4">
-                                    <div class="col-12">
-                                        <div class="alert alert-info" role="alert">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            Password must be at least 8 characters long and contain letters and numbers.
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Current Password<sup>*</sup></label>
-                                        <input type="password" class="form-control" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">New Password<sup>*</sup></label>
-                                        <input type="password" class="form-control" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Confirm New Password<sup>*</sup></label>
-                                        <input type="password" class="form-control" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="submit" class="btn border-secondary rounded-pill px-4 py-3 text-primary">
-                                            <i class="fas fa-key me-2"></i>Change Password
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn px-4 py-2" style="background-color: #2a83e9; color: #fff;">
+                                            LƯU THAY ĐỔI
                                         </button>
                                     </div>
                                 </div>
                             </form>
                         </div>
-
                     </div>
+
+                    <!-- Tab: Sổ địa chỉ -->
+                    <div class="account-tab-content" id="tab-addresses">
+                        <div class="bg-light rounded p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">Sổ địa chỉ</h4>
+                                <button class="btn btn-sm px-3 py-2" style="background-color: #2a83e9; color: #fff;">
+                                    <i class="fas fa-plus me-1"></i>Thêm địa chỉ mới
+                                </button>
+                            </div>
+                            <div class="row g-4" th:if="${user != null and user.diaChi != null}">
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-4 bg-white h-100 position-relative">
+                                        <span class="badge bg-primary position-absolute" style="top: 12px; right: 12px;">Mặc định</span>
+                                        <h6 class="fw-bold mb-2" th:text="${user.hoTen}">Tên</h6>
+                                        <p class="text-muted mb-1"><i class="fas fa-phone me-2 text-primary"></i><span th:text="${user.dienThoai != null ? user.dienThoai : 'Chưa cập nhật'}">Phone</span></p>
+                                        <p class="text-muted mb-3"><i class="fas fa-map-marker-alt me-2 text-primary"></i><span th:text="${user.diaChi}">Địa chỉ</span></p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fas fa-edit me-1"></i>Sửa</button>
+                                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="fas fa-trash me-1"></i>Xoá</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${user == null or user.diaChi == null}" class="text-center py-5">
+                                <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Quản lý đơn hàng -->
+                    <div class="account-tab-content" id="tab-orders">
+                        <div class="bg-light rounded p-4">
+                            <h4 class="mb-4">Quản lý đơn hàng</h4>
+
+                            <!-- Status Filter -->
+                            <div class="order-status-filter d-flex flex-wrap gap-2 mb-4">
+                                <button class="btn btn-sm active order-filter-btn" data-status="all">TẤT CẢ</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="PENDING">MỚI</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="PROCESSING">ĐANG XỬ LÝ</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="SHIPPING">ĐANG VẬN CHUYỂN</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="COMPLETED">HOÀN THÀNH</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="CANCELLED">HUỶ</button>
+                            </div>
+
+                            <!-- Order List -->
+                            <div id="orderList">
+                                <div th:if="${orders != null and !orders.isEmpty()}">
+                                    <div th:each="order : ${orders}" class="order-card bg-white rounded-3 border p-4 mb-3" th:attr="data-order-status=${order.trangThai}">
+                                        <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Đơn hàng #<span th:text="${order.id}">1</span></h6>
+                                                <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i><span th:text="${#temporals.format(order.ngayTao, 'dd/MM/yyyy HH:mm')}">01/01/2026</span></small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge rounded-pill px-3 py-2"
+                                                      th:classappend="${order.trangThai == 'PENDING' ? 'bg-warning text-dark' : (order.trangThai == 'PROCESSING' ? 'bg-info text-white' : (order.trangThai == 'SHIPPING' ? 'bg-primary' : (order.trangThai == 'COMPLETED' ? 'bg-success' : 'bg-danger')))}"
+                                                      th:text="${order.trangThai == 'PENDING' ? 'Mới' : (order.trangThai == 'PROCESSING' ? 'Đang xử lý' : (order.trangThai == 'SHIPPING' ? 'Đang vận chuyển' : (order.trangThai == 'COMPLETED' ? 'Hoàn thành' : 'Đã huỷ')))}">
+                                                    Trạng thái
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i><span th:text="${order.tenNguoiNhan}">Người nhận</span></p>
+                                                <p class="mb-0 text-muted"><i class="fas fa-map-marker-alt me-2"></i><span th:text="${order.diaChiNhan}">Địa chỉ</span></p>
+                                            </div>
+                                            <div class="text-end">
+                                                <p class="mb-0 fw-bold text-primary" th:text="${#numbers.formatInteger(order.tongTien, 0, 'POINT') + ' ₫'}">0 ₫</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${orders == null or orders.isEmpty()}" class="text-center py-5" id="noOrdersMsg">
+                                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Bạn chưa có đơn hàng nào.</p>
+                                    <a th:href="@{/shop}" class="btn btn-sm px-3 py-2" style="background-color: #2a83e9; color: #fff;">Mua sắm ngay</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Sản phẩm đã xem -->
+                    <div class="account-tab-content" id="tab-viewed">
+                        <div class="bg-light rounded p-4">
+                            <h4 class="mb-4">Sản phẩm đã xem</h4>
+                            <div class="text-center py-5">
+                                <p class="text-muted mb-3">Quý khách chưa xem sản phẩm nào.</p>
+                                <a th:href="@{/shop}" class="btn btn-sm px-3 py-2" style="background-color: #2a83e9; color: #fff;">TIẾP TỤC MUA HÀNG</a>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-    <!-- Profile End -->
+    <!-- Account Section End -->
 
 
     <!-- Footer Start -->
@@ -481,6 +439,33 @@
 
     <!-- Template Javascript -->
     <script th:src="@{/js/main.js}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Sidebar Tab Switching
+            $('.sidebar-tab').on('click', function() {
+                var tab = $(this).data('tab');
+                $('.sidebar-tab').removeClass('active');
+                $(this).addClass('active');
+                $('.account-tab-content').removeClass('active');
+                $('#tab-' + tab).addClass('active');
+            });
+
+            // Order Status Filtering
+            $('.order-filter-btn').on('click', function() {
+                var status = $(this).data('status');
+                $('.order-filter-btn').removeClass('active');
+                $(this).addClass('active');
+
+                if (status === 'all') {
+                    $('.order-card').show();
+                } else {
+                    $('.order-card').hide();
+                    $('.order-card[data-order-status="' + status + '"]').show();
+                }
+            });
+        });
+    </script>
     </body>
 
 </html>

@@ -91,7 +91,16 @@
 .topbar {
     padding: 20px;
     border-radius: 230px 100px;
-    background-color: var(--bs-primary);
+    background-color: var(--bs-primary) !important; /* Force blue */
+}
+
+/* Ensure bootstrap classes respect our primary color */
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
 }
 
 .topbar .top-info {
@@ -309,7 +318,7 @@
 
 .page-header {
     position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/laptop.png);
+    background: url(../img/laptop.png);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;

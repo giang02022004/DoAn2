@@ -39,6 +39,10 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
             Integer maxPrice,
             Pageable pageable
     );
+
+    // LẤY SẢN PHẨM LIÊN QUAN (Theo loại, trừ sản phẩm hiện tại)
+    Page<SanPham> findByLoaiSanPham_IdAndIdNot(Integer loaiId, Integer excludeId, Pageable pageable);
+
     // TÌM KIẾM KẾT HỢP (Từ khóa + Hãng + Loại + Giá)
     // Nếu tham số truyền vào là NULL, điều kiện đó sẽ bị bỏ qua (luôn đúng)
     @org.springframework.data.jpa.repository.Query("SELECT s FROM SanPham s WHERE " +

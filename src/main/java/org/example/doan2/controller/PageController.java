@@ -2,12 +2,22 @@ package org.example.doan2.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PageController {
 
+    private final org.example.doan2.service.CartService cartService;
+
+    public PageController(org.example.doan2.service.CartService cartService) {
+        this.cartService = cartService;
+    }
+
     @GetMapping("/checkout")
-    public String checkout() {
+    public String checkout(HttpSession session,Model model) {
+        model.addAttribute("cartItems", cartService.getCart(session));
+        model.addAttribute("totalPrice", cartService.getTotalPrice(session));
         return "checkout";
     }
 
@@ -21,13 +31,4 @@ public class PageController {
         return "404";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
-    @GetMapping("/register")
-    public String register() {
-        return "register";
-    }
 }

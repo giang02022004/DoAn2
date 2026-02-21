@@ -29,7 +29,7 @@ public class ChiTietDonHang {
     private SanPham sanPham;
 
     @ManyToOne
-    @JoinColumn(name = "bien_the_id", nullable = false)
+    @JoinColumn(name = "bien_the_id", nullable = true)
     private BienTheSanPham bienThe;
 }
 

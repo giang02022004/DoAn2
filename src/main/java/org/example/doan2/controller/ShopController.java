@@ -1,8 +1,10 @@
 package org.example.doan2.controller;
 
+import org.example.doan2.entity.BienTheSanPham;
 import org.example.doan2.entity.SanPham;
 import org.example.doan2.service.HangSanXuatService;
 import org.example.doan2.service.SanPhamService;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -101,13 +103,21 @@ public class ShopController {
     public String shopDetail(@PathVariable Integer id, Model model) {
         SanPham sanPham = sanPhamService.getSanPhamById(id);
         if (sanPham == null) {
-            return "redirect:/shop"; // Hoặc trang 404
+            return "redirect:/shop";
         }
         model.addAttribute("sanPham", sanPham);
         
-        // Gợi ý sản phẩm cùng loại (Lấy top 5)
-        // Tạm thời lấy tất cả theo loại rồi limit ở view hoặc thêm method service sau
-        // Ở đây mình sẽ chỉ gửi object sanPham qua form
+        // Load biến thể sản phẩm
+        List<BienTheSanPham> bienTheList = sanPham.getBienTheList();
+        model.addAttribute("bienTheList", bienTheList != null ? bienTheList : java.util.Collections.emptyList());
+        
+        // Sản phẩm liên quan
+        List<SanPham> relatedProducts = sanPhamService.getRelatedProducts(
+                sanPham.getLoaiSanPham().getId(),
+                sanPham.getId(),
+                6
+        );
+        model.addAttribute("relatedProducts", relatedProducts);
         
         return "shop-detail";
     }

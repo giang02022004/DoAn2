@@ -14,6 +14,11 @@ $(document).ready(function() {
     
     // Bind click events to brand links
     $('.fruite-categorie a').on('click', function(e) {
+        // If we are NOT on the shop page (no product list), let the link navigate naturally
+        if ($('#product-list').length === 0) {
+            return;
+        }
+
         e.preventDefault();
         
         // Extract params from href if present, or data attributes
@@ -58,11 +63,7 @@ $(document).ready(function() {
     
     // Initialize display if val is 0 or preset
     const initialVal = $('#rangeInput').val();
-    if (initialVal == 0) {
-        $('#amount').text("0 VNĐ (Không lọc)");
-    } else {
-        $('#amount').text(new Intl.NumberFormat('vi-VN').format(initialVal) + ' VNĐ');
-    }
+    $('#amount').text(new Intl.NumberFormat('vi-VN').format(initialVal) + ' VNĐ');
 
     // --- Search Logic ---
     function performSearch(keyword) {
@@ -118,7 +119,7 @@ $(document).ready(function() {
         $('#searchInput').val('');
         $('#modalSearchInput').val('');
         $('#rangeInput').val(0);
-        $('#amount').text("0 VNĐ (Không lọc)");
+        $('#amount').text("0 VNĐ");
         $('#sortItem').val('id_desc');
         $('.fruite-categorie a').removeClass('active text-warning fw-bold');
         
@@ -190,7 +191,7 @@ function renderProducts(products) {
                     <div class="fruite-img">
                         <img src="/img/${sp.hinhAnh}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: cover;">
                     </div>
-                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">${sp.loaiSanPham.tenLoai}</div>
+                    <div class="text-white px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px; background-color: #ffb524;">${sp.loaiSanPham.tenLoai}</div>
                     <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                         <h4>${sp.tenSanPham}</h4>
                         <p>${sp.moTaNgan}</p>

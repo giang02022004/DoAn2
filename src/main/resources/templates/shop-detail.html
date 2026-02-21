@@ -43,13 +43,13 @@
             <div class="container topbar d-none d-lg-block">
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
-                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
-                        <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small>
+                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
+                        <small class="me-3"><i class="fas fa-phone-alt me-2 text-secondary"></i><a href="tel:19001234" class="text-white">1900 1234</a></small>
                     </div>
                     <div class="top-link pe-2">
-                        <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
+                        <a href="#" class="text-white"><small class="text-white mx-2">Chính sách bảo hành</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white mx-2">Điều khoản sử dụng</small>/</a>
+                        <a href="#" class="text-white"><small class="text-white ms-2">Hỗ trợ khách hàng</small></a>
                     </div>
                 </div>
             </div>
@@ -61,27 +61,18 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto">
-                            <a th:href="@{/index}" class="nav-item nav-link ">Home</a>
+                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
                             <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/}" class="nav-item nav-link active">Shop Detail</a>
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                                <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                    <a th:href="@{/cart}" class="dropdown-item">Cart</a>
-                                    <a th:href="@{/checkout}" class="dropdown-item">Checkout</a>
-                                    <a th:href="@{/testimonial}" class="dropdown-item">Testimonial</a>
-                                    <a th:href="@{/404}" class="dropdown-item">404 Page</a>
-                                </div>
-                            </div>
-                            <a th:href="@{/contact}" class="nav-item nav-link">Contact</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
                             <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
-                            <a href="#" class="position-relative me-4 my-auto">
+                            <a th:href="@{/cart}" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;" th:text="${cartCount}">0</span>
                             </a>
-                            <a href="#" class="my-auto">
+                            <a th:href="@{/account}" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
@@ -128,482 +119,330 @@
         <div class="container-fluid py-5 mt-5">
             <div class="container py-5">
                 <div class="row g-4 mb-5">
-                    <div class="col-lg-8 col-xl-9">
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="border rounded">
-                                    <a href="#">
-                                        <img th:src="@{'/img/' + ${sanPham.hinhAnh}}" class="img-fluid rounded" alt="Image">
+                    <!-- PRODUCT DETAIL SECTION -->
+                    <div class="col-12">
+                        <div class="row g-4 bg-white p-4 rounded shadow-sm">
+                            <!-- LEFT: IMAGE GALLERY -->
+                            <div class="col-lg-5">
+                                <div class="pd-image-box border rounded mb-3 text-center p-2" style="background: white;">
+                                    <a id="mainImageLink" th:href="@{'/img/' + ${sanPham.hinhAnh}}" data-lightbox="product-gallery">
+                                        <img id="mainImage" th:src="@{'/img/' + ${sanPham.hinhAnh}}" class="img-fluid" style="max-height: 400px; object-fit: contain;" alt="Product Image">
                                     </a>
                                 </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <h4 class="fw-bold mb-3" th:text="${sanPham.tenSanPham}">Product Name</h4>
-                                <p class="mb-3" th:text="'Category: ' + ${sanPham.loaiSanPham.tenLoai}">Category: Vegetables</p>
-                                <h5 class="fw-bold mb-3" th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">3,35 $</h5>
-                                <div class="d-flex mb-4">
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star"></i>
+                                <div class="d-flex justify-content-center overflow-auto" style="gap: 10px;">
+                                    <div class="thumbnail-item border rounded active-thumb p-1" style="width: 70px; height: 70px; cursor: pointer;"
+                                         th:data-img="${sanPham.hinhAnh}" onclick="changeMainImage(this)">
+                                        <img th:src="@{'/img/' + ${sanPham.hinhAnh}}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                    </div>
+                                    <div th:each="img : ${sanPham.danhSachHinhAnh}" class="thumbnail-item border rounded p-1" style="width: 70px; height: 70px; cursor: pointer;"
+                                         th:data-img="${img.duongDan}" onclick="changeMainImage(this)">
+                                        <img th:src="@{'/img/' + ${img.duongDan}}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                    </div>
                                 </div>
-                                <p class="mb-4" th:text="${sanPham.moTaNgan}">The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic words etc.</p>
-                                <p class="mb-4">Susp endisse ultricies nisi vel quam suscipit. Sabertooth peacock flounder; chain pickerel hatchetfish, pencilfish snailfish</p>
-                                <form th:action="@{/cart/add}" method="post">
-                                    <input type="hidden" name="productId" th:value="${sanPham.id}">
-                                    <div class="input-group quantity mb-5" style="width: 100px;">
-                                        <div class="input-group-btn">
-                                            <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border" >
-                                                <i class="fa fa-minus"></i>
-                                            </button>
-                                        </div>
-                                        <input type="text" name="quantity" class="form-control form-control-sm text-center border-0" value="1">
-                                        <div class="input-group-btn">
-                                            <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                                <i class="fa fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Mua ngay</button>
-                                </form>
                             </div>
-                            <div class="col-lg-12">
-                                <nav>
-                                    <div class="nav nav-tabs mb-3">
-                                        <button class="nav-link active border-white border-bottom-0" type="button" role="tab"
-                                            id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about"
-                                            aria-controls="nav-about" aria-selected="true">Description</button>
-                                        <button class="nav-link border-white border-bottom-0" type="button" role="tab"
-                                            id="nav-mission-tab" data-bs-toggle="tab" data-bs-target="#nav-mission"
-                                            aria-controls="nav-mission" aria-selected="false">Reviews</button>
-                                    </div>
-                                </nav>
-                                <div class="tab-content mb-5">
-                                    <div class="tab-pane active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
-                                        <p th:text="${sanPham.moTaChiTiet}">The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic words etc. 
-                                            Susp endisse ultricies nisi vel quam suscipit </p>
-                                        <div class="px-2">
-                                            <div class="row g-4">
+
+                            <!-- RIGHT: INFO MIX -->
+                            <div class="col-lg-7">
+                                <h1 class="pd-name fw-bold mb-3" style="font-size: 1.5rem; color: #333;" th:text="${sanPham.tenSanPham}">Lenovo Legion 5...</h1>
+
+
+                                <div class="row">
+                                    <!-- INFO LEFT: Price, Buttons -->
+                                    <div class="col-md-7">
+                                        <div class="mb-3">
+                                            <span class="badge bg-success me-2">New 100%</span>
+                                            <span th:if="${sanPham.soLuong > 0}" class="text-success"><i class="fa fa-check-circle"></i> Sẵn hàng</span>
+                                            <span th:if="${sanPham.soLuong <= 0}" class="text-danger"><i class="fa fa-times-circle"></i> Hết hàng</span>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <h2 class="text-danger fw-bold" style="font-size: 1.8rem; font-family: 'Roboto', 'Arial', sans-serif; letter-spacing: 0.5px;" th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">40.690.000đ</h2>
+                                            <p class="text-muted fst-italic small">(Đã bao gồm VAT)</p>
+                                        </div>
+                                        
+                                        <!-- OPTION SELECTION (Cấu hình) - chỉ hiển thị khi có biến thể -->
+                                        <div class="mb-4" th:if="${bienTheList != null and !bienTheList.isEmpty()}">
+                                            <label class="fw-bold mb-2">Cấu hình:</label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <div th:each="bt, iterStat : ${bienTheList}" 
+                                                     class="option-item border rounded p-2 position-relative" 
+                                                     th:classappend="${iterStat.index == 0} ? ' active-option' : ''"
+                                                     th:attr="data-variant-id=${bt.id}, data-gia-them=${bt.giaThem != null ? bt.giaThem : 0}"
+                                                     onclick="selectVariant(this)" 
+                                                     style="width: 100%; max-width: 48%; cursor: pointer;">
+                                                    <div class="small fw-bold text-dark">
+                                                        <span th:text="${bt.cpu}">CPU</span> / <span th:text="${bt.boNho}">RAM</span>
+                                                    </div>
+                                                    <div class="small text-muted">
+                                                        Màu: <span th:text="${bt.mauSac}">Màu sắc</span>
+                                                    </div>
+                                                    <div class="fw-bold text-danger small" 
+                                                         th:text="${#numbers.formatDecimal(sanPham.gia + (bt.giaThem != null ? bt.giaThem : 0), 0, 'COMMA', 0, 'POINT')} + ' đ'">0đ</div>
+                                                    <div class="position-absolute top-0 end-0 p-1">
+                                                        <i class="fa fa-check text-danger check-icon" th:style="${iterStat.index == 0} ? '' : 'display:none'"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="p-3 bg-light rounded mb-4 border border-warning" style="border-style: dashed !important;">
+                                            <div class="d-flex align-items-center text-warning fw-bold mb-2">
+                                                <i class="fa fa-shield-alt me-2 fs-4"></i> Bảo hành
+                                            </div>
+                                            <div class="small text-dark">
+                                                Bảo hành chính hãng 12 tháng tại trung tâm bảo hành toàn quốc.
+                                            </div>
+                                        </div>
+
+                                        <!-- ACTION BUTTONS -->
+                                        <form th:action="@{/cart/add}" method="post">
+                                            <input type="hidden" name="productId" th:value="${sanPham.id}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <input type="hidden" name="variantId" id="selectedVariantId" 
+                                                   th:value="${bienTheList != null and !bienTheList.isEmpty()} ? ${bienTheList[0].id} : ''">
+                                            
+                                            <button type="submit" class="btn btn-danger w-100 py-3 mb-2 rounded fw-bold text-uppercase d-block shadow-sm" style="background: #d70018; border: none;">
+                                                <span class="fs-5">Mua Ngay</span><br>
+                                                <span class="small fw-normal">Giao tận nơi hoặc nhận tại cửa hàng</span>
+                                            </button>
+                                            
+                                            <div class="row g-2">
                                                 <div class="col-6">
-                                                    <div class="row bg-light align-items-center text-center justify-content-center py-2">
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Weight</p>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <p class="mb-0">1 kg</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row text-center align-items-center justify-content-center py-2">
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Country of Origin</p>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Agro Farm</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row bg-light text-center align-items-center justify-content-center py-2">
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Quality</p>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Organic</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row text-center align-items-center justify-content-center py-2">
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Сheck</p>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Healthy</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row bg-light text-center align-items-center justify-content-center py-2">
-                                                        <div class="col-6">
-                                                            <p class="mb-0">Min Weight</p>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <p class="mb-0">250 Kg</p>
-                                                        </div>
-                                                    </div>
+                                                    <a href="#" class="btn btn-primary w-100 py-2 rounded text-white small fw-bold text-center h-100 d-flex flex-column justify-content-center" style="background: #2f80ed; border: none;">
+                                                        <span>TRẢ GÓP QUA THẺ</span>
+                                                        <span class="fw-normal" style="font-size: 0.7rem;">Visa, Master, JCB</span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <a href="#" class="btn btn-primary w-100 py-2 rounded text-white small fw-bold text-center h-100 d-flex flex-column justify-content-center" style="background: #2f80ed; border: none;">
+                                                        <span>TRẢ GÓP TÀI CHÍNH</span>
+                                                        <span class="fw-normal" style="font-size: 0.7rem;">Xét duyệt nhanh</span>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </form>
                                     </div>
-                                    <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
-                                        <div class="d-flex">
-                                            <img src="img/avatar.jpg" class="img-fluid rounded-circle p-3" style="width: 100px; height: 100px;" alt="">
-                                            <div class="">
-                                                <p class="mb-2" style="font-size: 14px;">April 12, 2024</p>
-                                                <div class="d-flex justify-content-between">
-                                                    <h5>Jason Smith</h5>
-                                                    <div class="d-flex mb-3">
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star"></i>
-                                                    </div>
-                                                </div>
-                                                <p>The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic 
-                                                    words etc. Susp endisse ultricies nisi vel quam suscipit </p>
+
+                                    <!-- INFO RIGHT: Store, Gifts -->
+                                    <div class="col-md-5">
+                                        <!-- Store Systems -->
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold border-bottom pb-2 mb-2">Hệ thống cửa hàng</h6>
+                                            <div class="mb-2 small">
+                                                <p class="mb-1 fw-bold text-dark">Cơ sở Thái Hà</p>
+                                                <p class="text-muted mb-1">Số 18, ngõ 121, Thái Hà, Đống Đa, Hà Nội</p>
+                                                <a href="#" class="text-primary text-decoration-none" style="font-size: 0.8rem;">Xem bản đồ</a>
+                                            </div>
+                                            <div class="mb-2 small">
+                                                <p class="mb-1 fw-bold text-dark">Cơ sở Hà Đông</p>
+                                                <p class="text-muted mb-1">Số 56 Trần Phú, Hà Đông, Hà Nội</p>
+                                                <a href="#" class="text-primary text-decoration-none" style="font-size: 0.8rem;">Xem bản đồ</a>
                                             </div>
                                         </div>
-                                        <div class="d-flex">
-                                            <img src="img/avatar.jpg" class="img-fluid rounded-circle p-3" style="width: 100px; height: 100px;" alt="">
-                                            <div class="">
-                                                <p class="mb-2" style="font-size: 14px;">April 12, 2024</p>
-                                                <div class="d-flex justify-content-between">
-                                                    <h5>Sam Peters</h5>
-                                                    <div class="d-flex mb-3">
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star text-secondary"></i>
-                                                        <i class="fa fa-star"></i>
-                                                        <i class="fa fa-star"></i>
-                                                    </div>
-                                                </div>
-                                                <p class="text-dark">The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic 
-                                                    words etc. Susp endisse ultricies nisi vel quam suscipit </p>
+
+                                        <!-- Promotions -->
+                                        <div class="border rounded p-3 mb-4 position-relative mt-4">
+                                            <div class="position-absolute bg-white px-2 fw-bold text-danger" style="top: -12px; left: 10px; font-size: 0.9rem;">
+                                                <i class="fa fa-gift me-1"></i> Quà tặng/Khuyến mãi
                                             </div>
+                                            <ul class="list-unstyled small mb-0 mt-2">
+                                                <li class="mb-2"><i class="fa fa-check-circle text-success me-2"></i> Windows bản quyền theo máy</li>
+                                                <li class="mb-2"><i class="fa fa-check-circle text-success me-2"></i> Miễn phí cân màu màn hình</li>
+                                                <li class="mb-2"><i class="fa fa-check-circle text-success me-2"></i> Balo thời trang cao cấp</li>
+                                                <li class="mb-2"><i class="fa fa-check-circle text-success me-2"></i> Chuột không dây chính hãng</li>
+                                                <li class="mb-2"><i class="fa fa-check-circle text-success me-2"></i> Voucher giảm giá 200k</li>
+                                            </ul>
                                         </div>
-                                    </div>
-                                    <div class="tab-pane" id="nav-vision" role="tabpanel">
-                                        <p class="text-dark">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
-                                            amet diam et eos labore. 3</p>
-                                        <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore.
-                                            Clita erat ipsum et lorem et sit</p>
+                                        
+                                        <!-- Trust Badges -->
+                                        <div class="bg-light p-3 rounded">
+                                            <h6 class="fw-bold mb-3 small text-uppercase">Yên tâm mua sắm</h6>
+                                            <div class="small mb-2"><i class="fa fa-check text-primary me-2"></i>Chất lượng hàng đầu</div>
+                                            <div class="small mb-2"><i class="fa fa-sync text-primary me-2"></i>Đổi mới 15 ngày đầu</div>
+                                            <div class="small mb-2"><i class="fa fa-headset text-primary me-2"></i>Hỗ trợ hậu mãi tốt nhất</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <form action="#">
-                                <h4 class="mb-5 fw-bold">Leave a Reply</h4>
-                                <div class="row g-4">
-                                    <div class="col-lg-6">
-                                        <div class="border-bottom rounded">
-                                            <input type="text" class="form-control border-0 me-4" placeholder="Yur Name *">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="border-bottom rounded">
-                                            <input type="email" class="form-control border-0" placeholder="Your Email *">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="border-bottom rounded my-4">
-                                            <textarea name="" id="" class="form-control border-0" cols="30" rows="8" placeholder="Your Review *" spellcheck="false"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="d-flex justify-content-between py-3 mb-5">
-                                            <div class="d-flex align-items-center">
-                                                <p class="mb-0 me-3">Please rate:</p>
-                                                <div class="d-flex align-items-center" style="font-size: 12px;">
-                                                    <i class="fa fa-star text-muted"></i>
-                                                    <i class="fa fa-star"></i>
-                                                    <i class="fa fa-star"></i>
-                                                    <i class="fa fa-star"></i>
-                                                    <i class="fa fa-star"></i>
-                                                </div>
-                                            </div>
-                                            <a href="#" class="btn border border-secondary text-primary rounded-pill px-4 py-3"> Post Comment</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-xl-3">
-                        <div class="row g-4 fruite">
-                            <div class="col-lg-12">
-                                <div class="input-group w-100 mx-auto d-flex mb-4">
-                                    <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-                                    <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                                </div>
-                                <div class="mb-4">
-                                    <h4>Categories</h4>
-                                    <ul class="list-unstyled fruite-categorie">
-                                        <li>
-                                            <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i>Apples</a>
-                                                <span>(3)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i>Oranges</a>
-                                                <span>(5)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i>Strawbery</a>
-                                                <span>(2)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i>Banana</a>
-                                                <span>(8)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i>Pumpkin</a>
-                                                <span>(5)</span>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <h4 class="mb-4">Featured products</h4>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded" style="width: 100px; height: 100px;">
-                                        <img src="img/featur-1.jpg" class="img-fluid rounded" alt="Image">
+
+                    <!-- TABS & RELATED -->
+                    <div class="col-12 mt-4">
+                        <div class="bg-white rounded shadow-sm p-4">
+                            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-bold text-uppercase" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">Đặc điểm nổi bật</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-bold text-uppercase" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab">Thông số kỹ thuật</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-bold text-uppercase" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">Đánh giá (12)</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                                    <h4 th:text="${sanPham.tenSanPham}" class="mb-3 fw-bold"></h4>
+                                    <div th:utext="${sanPham.moTaChiTiet}" class="details-content">
+                                        <!-- Fallback content if empty -->
+                                        <p>Mô tả chi tiết sản phẩm...</p>
                                     </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
+                                    <div class="text-center mt-3">
+                                        <img th:src="@{'/img/' + ${sanPham.hinhAnh}}" class="img-fluid rounded shadow-sm" style="max-width: 600px;">
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded" style="width: 100px; height: 100px;">
-                                        <img src="img/featur-2.jpg" class="img-fluid rounded" alt="">
+                                <div class="tab-pane fade" id="specs" role="tabpanel">
+                                    <div th:if="${bienTheList != null and !bienTheList.isEmpty()}">
+                                        <table class="table table-striped table-hover small" th:with="spec=${bienTheList[0]}">
+                                            <tbody>
+                                                <tr><th class="w-25">Tên sản phẩm</th><td th:text="${sanPham.tenSanPham}"></td></tr>
+                                                <tr><th>Hãng sản xuất</th><td th:text="${sanPham.hangSanXuat.tenHang}"></td></tr>
+                                                <tr><th>Vi xử lý (CPU)</th><td th:text="${spec.cpu}"></td></tr>
+                                                <tr><th>Bộ nhớ</th><td th:text="${spec.boNho}"></td></tr>
+                                                <tr><th>Màu sắc</th><td th:text="${spec.mauSac}"></td></tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
+                                    <div th:if="${bienTheList == null or bienTheList.isEmpty()}" class="alert alert-info">
+                                        Sản phẩm này chưa có thông số kỹ thuật chi tiết.
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded" style="width: 100px; height: 100px;">
-                                        <img src="img/featur-3.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-4.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-5.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-6.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-center my-4">
-                                    <a href="#" class="btn border border-secondary px-4 py-3 rounded-pill text-primary w-100">Vew More</a>
+                                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                    <div class="alert alert-info">Chưa có đánh giá nào.</div>
                                 </div>
                             </div>
-                            <div class="col-lg-12">
-                                <div class="position-relative">
-                                    <img src="img/banner-fruits.jpg" class="img-fluid w-100 rounded" alt="">
-                                    <div class="position-absolute" style="top: 50%; right: 10px; transform: translateY(-50%);">
-                                        <h3 class="text-secondary fw-bold">Fresh <br> Fruits <br> Banner</h3>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        // Hàm thay đổi hình ảnh chính khi người dùng nhấn vào ảnh nhỏ (thumbnail)
+                        function changeMainImage(element) {
+                            var imagePath = element.getAttribute('data-img');
+                            var fullPath = '/img/' + imagePath;
+                            document.getElementById('mainImage').src = fullPath;
+                            document.getElementById('mainImageLink').href = fullPath;
+                            
+                            var thumbnails = document.querySelectorAll('.thumbnail-item');
+                            thumbnails.forEach(t => {
+                                t.classList.remove('active-thumb');
+                                t.classList.remove('border-primary');
+                            });
+                            element.classList.add('active-thumb');
+                            element.classList.add('border-primary');
+                        }
+
+                        // Hàm xử lý khi người dùng chọn một tùy chọn cấu hình (Option)
+        function selectOption(element) {
+                            // Reset all options
+                            document.querySelectorAll('.option-item').forEach(item => {
+                                item.classList.remove('active-option');
+                                item.style.backgroundColor = '#f9f9f9';
+                                item.querySelector('.check-icon')?.classList.add('d-none'); // Hide check if present directly
+                                // For the mockup structure where check might be wrapped or direct
+                                var wrapper = item.querySelector('.position-absolute i'); 
+                                if(wrapper) wrapper.parentElement.classList.add('d-none');
+                                // Specifically for the first one which might use direct display
+                                if(item.querySelector('.check-icon-wrapper')) {
+                                     item.querySelector('.check-icon-wrapper').classList.add('d-none');
+                                }
+                            });
+
+                            // Set active
+                            element.classList.add('active-option');
+                            element.style.backgroundColor = '#fff';
+                            
+                            // Show check icon
+                            var checkIcon = element.querySelector('.fa-check');
+                            if(checkIcon) {
+                                checkIcon.classList.remove('d-none');
+                                checkIcon.parentElement.classList.remove('d-none');
+                            }
+                        }
+                    </script>
+                    
+                    <style>
+                        .active-thumb {
+                            border-color: #d70018 !important; /* Red border for active */
+                            box-shadow: 0 0 5px rgba(215, 0, 24, 0.5);
+                        }
+                        .thumbnail-item:hover {
+                            opacity: 0.8;
+                        }
+                        .pd-name {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        }
+                        /* Option Styles */
+                        .active-option {
+                            border: 1px solid #d70018 !important;
+                            box-shadow: inset 0 0 0 1px #d70018;
+                            background-color: #fff !important;
+                        }
+                        .option-item:hover {
+                            border-color: #d70018;
+                        }
+                        
+                        /* Tab Styles */
+                        .nav-tabs .nav-link.active {
+                            background-color: #e7f1ff !important;
+                            color: #0d6efd !important;
+                            border-color: #dee2e6 #dee2e6 #fff;
+                        }
+                        /* Style cho các tab link (đã sửa lỗi ngoặc nhọn thừa) */
+                        .nav-tabs .nav-link {
+                            color: #495057;
+                            border-color: #e9ecef #e9ecef #dee2e6;
+                        }
+                        
+                        /* Carousel Fixes */
+                        .vesitable-item {
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            background: #fff;
+                        }
+                        .vesitable-img img {
+                            height: 230px; /* Fixed height for images */
+                            object-fit: cover; /* Maintain aspect ratio */
+                            width: 100%;
+                        }
+                        .vesitable-item .p-4 {
+                            flex-grow: 1;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .vesitable-item .d-flex.justify-content-between {
+                            margin-top: auto; /* Push price/button to bottom */
+                        }
+                    </style>
+                </div>
+    <!-- Related products -->
+    <div class="container-fluid vesitable py-5">
+        <div class="container py-5">
+            <h1 class="fw-bold mb-4">Sản phẩm liên quan</h1>
+            <div class="owl-carousel vegetable-carousel justify-content-center">
+                <div th:each="related : ${relatedProducts}" class="border border-primary rounded position-relative vesitable-item">
+                    <div class="vesitable-img">
+                        <a th:href="@{'/shop-detail/' + ${related.id}}">
+                            <img th:src="@{'/img/' + ${related.hinhAnh}}" class="img-fluid w-100 rounded-top" alt="">
+                        </a>
+                    </div>
+                    <div class="text-white px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px; background-color: #ffb524;" th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(related.loaiSanPham.tenLoai, '_', ' ')))}">Type</div>
+                    <div class="p-4 pb-0 rounded-bottom">
+                        <h4 th:text="${related.tenSanPham}" class="text-truncate" style="max-width: 250px;">Product Name</h4>
+                        <p th:text="${related.moTaNgan}" class="text-truncate" style="max-width: 250px;">Description</p>
+                        <div class="d-flex justify-content-between flex-lg-wrap">
+                            <p class="text-dark fs-5 fw-bold mb-0" th:text="${#numbers.formatDecimal(related.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</p>
+                            <a th:href="@{'/shop-detail/' + ${related.id}}" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>
-                <h1 class="fw-bold mb-0">Related products</h1>
-                <div class="vesitable">
-                    <div class="owl-carousel vegetable-carousel justify-content-center">
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Parsely</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$4.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-1.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Parsely</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$4.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-3.png" class="img-fluid w-100 rounded-top bg-light" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Banana</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-4.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Bell Papper</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Potatoes</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Parsely</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Potatoes</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border border-primary rounded position-relative vesitable-item">
-                            <div class="vesitable-img">
-                                <img src="img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                            </div>
-                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                            <div class="p-4 pb-0 rounded-bottom">
-                                <h4>Parsely</h4>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                    <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Related products End -->
             </div>
         </div>
         <!-- Single Product End -->
@@ -716,6 +555,34 @@
 
     <!-- Template Javascript -->
     <script th:src="@{/js/main.js}"></script>
+    
+    <script th:inline="javascript">
+        // Giá gốc của sản phẩm
+        var basePrice = /*[[${sanPham.gia}]]*/ 0;
+        
+        function selectVariant(el) {
+            // Bỏ active tất cả
+            document.querySelectorAll('.option-item').forEach(function(item) {
+                item.classList.remove('active-option');
+                var icon = item.querySelector('.check-icon');
+                if (icon) icon.style.display = 'none';
+            });
+            // Active phần tử được click
+            el.classList.add('active-option');
+            var icon = el.querySelector('.check-icon');
+            if (icon) icon.style.display = '';
+            
+            // Cập nhật hidden input variantId
+            var variantId = el.getAttribute('data-variant-id');
+            document.getElementById('selectedVariantId').value = variantId;
+            
+            // Cập nhật giá hiển thị
+            var giaThem = parseInt(el.getAttribute('data-gia-them')) || 0;
+            var totalPrice = basePrice + giaThem;
+            var formattedPrice = totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' đ';
+            document.querySelector('.text-danger.fw-bold[style*="font-size: 1.8rem"]').textContent = formattedPrice;
+        }
+    </script>
     </body>
 
 </html>
