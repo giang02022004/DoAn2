@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, pageHeader, content)">
+<head>
+    <meta charset="utf-8">
+    <title th:replace="${title}"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts - Roboto like Material -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Raleway:wght@700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #eeeeee;
+            color: #3C4858;
+            margin: 0;
+        }
+
+        /* ──────────── SIDEBAR ──────────── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: 260px; height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 8px rgba(0,0,0,.12);
+            display: flex; flex-direction: column;
+            z-index: 1000; overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 20px 28px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-family: 'Raleway', sans-serif;
+            font-weight: 800; font-size: 18px;
+            color: #3C4858; letter-spacing: .5px;
+        }
+        .sidebar-brand span { color: #2a83e9; }
+        .sidebar-brand small {
+            display: block; font-size: 11px; color: #aaa;
+            font-family: 'Roboto', sans-serif; font-weight: 400;
+            margin-top: 2px;
+        }
+        .sidebar-nav { flex: 1; padding: 12px 0; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 28px; color: #777; font-size: 14px;
+            font-weight: 500; text-decoration: none;
+            border-radius: 0; transition: all .2s;
+        }
+        .sidebar-nav a .nav-icon {
+            width: 20px; text-align: center; font-size: 15px;
+        }
+        .sidebar-nav a:hover { color: #3C4858; background: #f9f9f9; }
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, #2a83e9, #1a6cc8);
+            color: #fff; border-radius: 6px;
+            margin: 2px 14px; padding: 12px 14px;
+            box-shadow: 0 4px 12px rgba(42,131,233,.45);
+        }
+        .sidebar-nav a.active .nav-icon { color: #fff; }
+        .sidebar-footer {
+            padding: 16px 28px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .sidebar-footer a {
+            color: #aaa; font-size: 13px; display: flex;
+            align-items: center; gap: 10px; text-decoration: none;
+        }
+        .sidebar-footer a:hover { color: #555; }
+
+        /* ──────────── TOPBAR ──────────── */
+        .topbar {
+            position: sticky; top: 0; z-index: 900;
+            background: rgba(238,238,238,.95);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar .page-title {
+            font-size: 18px; font-weight: 300;
+            color: #999; letter-spacing: .5px; margin: 0;
+        }
+        .topbar .top-actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .search-box {
+            display: flex; align-items: center;
+            background: #fff; border-radius: 30px;
+            padding: 6px 16px; gap: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.08);
+            min-width: 200px;
+        }
+        .topbar .search-box input {
+            border: none; outline: none; font-size: 14px; color: #555;
+            background: transparent; width: 100%;
+        }
+        .topbar .search-box i { color: #aaa; }
+        .top-icon-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: transparent; border: none; cursor: pointer;
+            color: #777; font-size: 16px; display: flex;
+            align-items: center; justify-content: center;
+            transition: background .2s;
+        }
+        .top-icon-btn:hover { background: rgba(0,0,0,.06); }
+
+        /* ──────────── MAIN ──────────── */
+        .main-area {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            width: calc(100% - 260px); /* FIX: take up remaining space */
+        }
+        .main-content { padding: 28px 30px; flex: 1; }
+
+        /* ──────────── STAT CARDS ──────────── */
+        .stat-card {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.08);
+            padding: 20px 22px 16px;
+            position: relative;
+            margin-top: 30px; /* room for floating icon */
+        }
+        .stat-icon-box {
+            position: absolute;
+            top: -22px; left: 22px;
+            width: 64px; height: 64px;
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: #fff;
+            box-shadow: 0 6px 16px rgba(0,0,0,.2);
+        }
+        .stat-icon-box.orange  { background: linear-gradient(135deg,#ff9800,#fb8c00); }
+        .stat-icon-box.green   { background: linear-gradient(135deg,#4caf50,#388e3c); }
+        .stat-icon-box.red     { background: linear-gradient(135deg,#f44336,#d32f2f); }
+        .stat-icon-box.teal    { background: linear-gradient(135deg,#2a83e9,#1a6cc8); }
+        .stat-icon-box.purple  { background: linear-gradient(135deg,#9c27b0,#7b1fa2); }
+
+        .stat-values { text-align: right; }
+        .stat-values .stat-label { color: #999; font-size: 13px; font-weight: 500; }
+        .stat-values .stat-num  { font-size: 26px; font-weight: 300; color: #3C4858; }
+
+        .stat-footer {
+            border-top: 1px solid #eee; margin-top: 14px;
+            padding-top: 10px; font-size: 12px; color: #999;
+        }
+        .stat-footer strong { color: #4caf50; }
+        .stat-footer.warn strong { color: #f44336; }
+
+        /* ──────────── CHART CARDS ──────────── */
+        .chart-card {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.08);
+            overflow: visible;
+        }
+        .chart-card .chart-header {
+            margin: -20px 14px 0;
+            border-radius: 6px;
+            padding: 18px 20px;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(0,0,0,.2);
+        }
+        .chart-header.green  { background: linear-gradient(135deg,#66bb6a,#388e3c); }
+        .chart-header.orange { background: linear-gradient(135deg,#ffa726,#f57c00); }
+        .chart-header.red    { background: linear-gradient(135deg,#ef5350,#c62828); }
+        .chart-header.blue   { background: linear-gradient(135deg,#42a5f5,#1565c0); }
+
+        .chart-body-text { padding: 18px 20px; }
+        .chart-body-text h6 { font-size: 14px; font-weight: 500; color: #3C4858; }
+        .chart-body-text p  { font-size: 13px; color: #999; margin: 3px 0 0; }
+
+        .chart-footer {
+            border-top: 1px solid #eee;
+            padding: 10px 20px; font-size: 12px; color: #999;
+        }
+
+        /* Fake sparkline using CSS bars */
+        .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+        .sparkline span {
+            flex: 1; background: rgba(255,255,255,.3);
+            border-radius: 2px 2px 0 0;
+            animation: growUp .6s ease forwards;
+        }
+        @keyframes growUp { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); } }
+
+        .sparkline-line {
+            position: relative; height: 60px;
+            display: flex; align-items: center;
+        }
+        .sparkline-svg { width: 100%; height: 60px; }
+
+        /* ──────────── TABLES ──────────── */
+        .mat-card {
+            background: #fff; border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        }
+        .mat-card-header {
+            padding: 18px 22px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mat-card-header h5 { font-size: 16px; font-weight: 500; color: #3C4858; margin: 0; }
+        .mat-card-header p  { font-size: 13px; color: #aaa; margin: 4px 0 0; }
+        .mat-table { width: 100%; border-collapse: collapse; }
+        .mat-table th {
+            text-align: left; padding: 12px 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; border-bottom: 1px solid #f0f0f0;
+        }
+        .mat-table td { padding: 13px 20px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .mat-table tr:last-child td { border-bottom: none; }
+        .mat-table tr:hover td { background: #fafafa; }
+
+        /* ──────────── BADGE ──────────── */
+        .mat-badge {
+            padding: 4px 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 500;
+        }
+        .mat-badge.warning  { background:#fff3e0; color:#e65100; }
+        .mat-badge.success  { background:#e8f5e9; color:#2e7d32; }
+        .mat-badge.info     { background:#e3f2fd; color:#1565c0; }
+        .mat-badge.danger   { background:#fde8e8; color:#c62828; }
+
+        /* ──────────── BUTTONS ──────────── */
+        .btn-material {
+            border: none; border-radius: 4px;
+            padding: 8px 20px; font-size: 13px; font-weight: 500;
+            letter-spacing: .5px; cursor: pointer; transition: all .2s;
+            text-transform: uppercase;
+        }
+        .btn-material.primary { background: #2a83e9; color: #fff; box-shadow: 0 3px 10px rgba(42,131,233,.4); }
+        .btn-material.primary:hover { background: #1a6cc8; }
+        .btn-material.warning { background: #ff9800; color: #fff; }
+        .btn-material.danger  { background: #f44336; color: #fff; }
+
+        /* Footer */
+        .admin-footer {
+            background: #fff; border-top: 1px solid #e0e0e0;
+            text-align: center; padding: 14px;
+            font-size: 12px; color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<div style="display:flex; width:100%; min-height:100vh;">
+    <!-- ════════ SIDEBAR ════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            Laptop<span>Shop</span>
+            <small>Quản Trị Hệ Thống</small>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin}"          th:classappend="${activeMenu=='dashboard'?'active':''}">
+                <span class="nav-icon"><i class="fas fa-th"></i></span> Dashboard
+            </a>
+            <a th:href="@{/admin/products}" th:classappend="${activeMenu=='products' ?'active':''}">
+                <span class="nav-icon"><i class="fas fa-laptop"></i></span> Sản Phẩm
+            </a>
+            <a th:href="@{/admin/orders}"   th:classappend="${activeMenu=='orders'   ?'active':''}">
+                <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span> Đơn Hàng
+            </a>
+            <a th:href="@{/admin/employees}" th:classappend="${activeMenu=='employees'?'active':''}">
+                <span class="nav-icon"><i class="fas fa-id-badge"></i></span> Nhân Viên
+            </a>
+            <a th:href="@{/admin/users}"    th:classappend="${activeMenu=='users'    ?'active':''}">
+                <span class="nav-icon"><i class="fas fa-users"></i></span> Khách Hàng
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/}"><i class="fas fa-arrow-left"></i> Về trang chủ</a>
+        </div>
+    </aside>
+
+    <!-- ════════ MAIN ════════ -->
+    <div class="main-area">
+        <!-- Topbar -->
+        <div class="topbar">
+            <h2 class="page-title" th:replace="${pageHeader}"></h2>
+            <div class="top-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm...">
+                </div>
+                <div class="dropdown">
+                    <button class="top-icon-btn" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-lg"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                        <li><a class="dropdown-item" th:href="@{/admin/profile}"><i class="fas fa-user me-2 text-primary"></i>Hồ Sơ</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="main-content">
+            <div th:replace="${content}"></div>
+        </div>
+
+        <div class="admin-footer">
+            &copy; 2026 <strong>LaptopShop</strong> &mdash; Admin Panel
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

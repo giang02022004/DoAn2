@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Sản Phẩm &mdash; Admin</title></head>
+<body>
+    <span id="pageHeader">Quản Lý Sản Phẩm</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+        <div class="mat-card">
+            <!-- Card header -->
+            <div class="mat-card-header d-flex justify-content-between align-items-center"
+                 style="background:linear-gradient(135deg,#2a83e9,#1a6cc8);border-radius:6px 6px 0 0;padding:16px 22px;">
+                <div>
+                    <h5 class="mb-0 text-white"><i class="fas fa-laptop me-2"></i>Danh Sách Sản Phẩm</h5>
+                    <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Quản lý tất cả sản phẩm trong hệ thống</p>
+                </div>
+                <a th:href="@{/admin/products/create}" class="btn btn-warning btn-sm fw-semibold text-white">
+                    <i class="fas fa-plus me-1"></i>Thêm Sản Phẩm
+                </a>
+            </div>
+
+            <!-- Search bar -->
+            <form th:action="@{/admin/products}" method="get" class="d-flex align-items-center gap-2 flex-wrap p-3 border-bottom bg-light">
+                <input type="text" name="keyword" th:value="${currentKeyword}" class="form-control" placeholder="Tìm kiếm tên sản phẩm..." style="max-width:260px;">
+                <select name="categoryId" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
+                    <option value="">-- Lọc theo hãng --</option>
+                    <!-- Vòng lặp hiển thị danh sách các Hãng Sản Xuất (Categories) để làm bộ lọc -->
+                    <option th:each="cat : ${categories}" 
+                            th:value="${cat.id}" 
+                            th:text="${cat.tenHang}"
+                            th:selected="${cat.id == currentCategoryId}">
+                    </option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm text-white">
+                    <i class="fas fa-search me-1"></i>Tìm
+                </button>
+            </form>
+
+            <!-- Table -->
+            <table class="mat-table w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hình Ảnh</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Giá Bán</th>
+                        <th>Tồn Kho</th>
+                        <th>Hãng</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lặp qua danh sách ${products} từ AdminController để hiển thị từng sản phẩm -->
+                    <tr th:each="product : ${products}" th:if="${not #lists.isEmpty(products)}">
+                        <td style="font-weight: 500;" th:text="${'#' + product.id}">#1</td>
+                        <td>
+                            <!-- Sử dụng th:src cộng chuỗi để trỏ đúng thư mục chứa ảnh (/img/...) -->
+                            <img th:src="@{'/img/' + ${product.hinhAnh}}" alt="" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px; border: 1px solid #eee; padding: 2px;">
+                        </td>
+                        <td style="font-weight: 500; color: #333;" th:text="${product.tenSanPham}">Tên SP</td>
+                        <td style="font-weight: 600; color: #e53935;" th:text="${#numbers.formatDecimal(product.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">10,000 ₫</td>
+                        <td>
+                            <!-- Hiện tại chưa có cột tồn kho trong DB nên để mặc định -->
+                            <span style="background: #e8f5e9; color: #4caf50; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">Còn hàng</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border p-2 text-wrap" th:text="${product.hangSanXuat.tenHang}">Hãng</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <!-- Nút Sửa (đã gắn link truyền ID sản phẩm sang form edit.html) -->
+                                <a th:href="@{|/admin/products/edit/${product.id}|}" class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 12px;" title="Sửa sản phẩm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <!-- Nút Xoá (tương lai sẽ nối link) -->
+                                <button class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 12px;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Hiển thị khi không có sản phẩm nào -->
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-box-open fa-3x d-block mb-3 opacity-25"></i>
+                            Chưa có sản phẩm nào trong hệ thống
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

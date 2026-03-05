@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Thêm Sản Phẩm &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Thêm Sản Phẩm Mới</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+            <div class="mat-card">
+                <div class="mat-card-header d-flex justify-content-between align-items-center"
+                     style="background:linear-gradient(135deg,#f57c00,#ff9800);border-radius:6px 6px 0 0;padding:16px 22px;">
+                    <div>
+                        <h5 class="mb-0 text-white"><i class="fas fa-plus-circle me-2"></i>Tạo Thông Tin Sản Phẩm Mới</h5>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Điền đầy đủ thông tin bên dưới để thêm sản phẩm vào cửa hàng</p>
+                    </div>
+                    <a th:href="@{/admin/products}" class="btn btn-light btn-sm fw-semibold text-dark">
+                        <i class="fas fa-arrow-left me-1"></i>Quay Lại
+                    </a>
+                </div>
+
+                <div class="p-4">
+                    <!-- Form thêm mới sản phẩm -->
+                    <form th:action="@{/admin/products/store}" method="post" enctype="multipart/form-data">
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Tên Sản Phẩm -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tên Sản Phẩm <span class="text-danger">*</span></label>
+                                    <input type="text" name="tenSanPham" class="form-control" placeholder="Nhập tên sản phẩm..." required>
+                                </div>
+                                
+                                <div class="row">
+                                    <!-- Giá -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Giá Bán (VNĐ) <span class="text-danger">*</span></label>
+                                        <input type="number" name="gia" class="form-control" placeholder="0" required min="0">
+                                    </div>
+                                    <!-- Số Lượng -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Số Lượng Nhập <span class="text-danger">*</span></label>
+                                        <input type="number" name="soLuong" class="form-control" placeholder="0" required min="0">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Hãng Sản Xuất -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Hãng Sản Xuất <span class="text-danger">*</span></label>
+                                        <select name="hangSanXuat.id" class="form-select" required>
+                                            <option value="">-- Chọn Hãng --</option>
+                                            <option th:each="cat : ${categories}" 
+                                                    th:value="${cat.id}" 
+                                                    th:text="${cat.tenHang}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <!-- Loại Sản Phẩm -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Loại Sản Phẩm <span class="text-danger">*</span></label>
+                                        <select name="loaiSanPham.id" class="form-select" required>
+                                            <option value="">-- Chọn Loại --</option>
+                                            <option th:each="type : ${types}" 
+                                                    th:value="${type.id}" 
+                                                    th:text="${type.tenLoai == 'LAPTOP' ? 'Laptop' : (type.tenLoai == 'PHU_KIEN' ? 'Phụ Kiện' : type.tenLoai)}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Hình Ảnh (File Input) -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tải Lên Hình Ảnh <span class="text-danger">*</span></label>
+                                    <input type="file" name="imageFile" accept="image/*" class="form-control" required>
+                                    <small class="text-muted">Ghi chú: Vui lòng chọn ảnh định dạng JPG, PNG, WEBP...</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="alert alert-info py-2 small">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Trạng thái mặc định là "Còn Hàng".
+                                    Ngày tạo sẽ được tự động ghi nhận khi bạn nhấn nút Thêm mới.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mô Tả Ngắn -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô Tả Ngắn</label>
+                            <textarea name="moTaNgan" class="form-control" rows="3" placeholder="Giới thiệu sơ lược về sản phẩm..."></textarea>
+                        </div>
+
+                        <!-- Mô Tả Chi Tiết -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô Tả Chi Tiết</label>
+                            <textarea name="moTaChiTiet" class="form-control" rows="8" placeholder="Thông số kỹ thuật hoặc bài viết đánh giá chi tiết..."></textarea>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/admin/products}" class="btn btn-secondary">Hủy Bỏ</a>
+                            <button type="submit" class="btn btn-warning text-dark fw-bold">
+                                <i class="fas fa-plus me-1"></i>Thêm Mới
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

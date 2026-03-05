@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Đơn Hàng &mdash; Admin</title></head>
+<body>
+    <span id="pageHeader">Quản Lý Đơn Hàng</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+        <div class="mat-card">
+            <!-- Card header -->
+            <div class="mat-card-header d-flex justify-content-between align-items-center"
+                 style="background:linear-gradient(135deg,#ff9800,#f57c00);border-radius:6px 6px 0 0;padding:16px 22px;">
+                <div>
+                    <h5 class="mb-0 text-white"><i class="fas fa-shopping-cart me-2"></i>Danh Sách Đơn Hàng</h5>
+                    <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Xem và xử lý tất cả đơn hàng</p>
+                </div>
+                <input type="text" class="form-control form-control-sm"
+                       style="max-width:220px;border-radius:20px;"
+                       placeholder="Tìm mã / tên khách...">
+            </div>
+
+            <!-- Status filter tabs -->
+            <div class="d-flex align-items-center gap-2 flex-wrap p-3 border-bottom bg-light">
+               <a th:href="@{/admin/orders(status='all')}" 
+                  th:class="${currentStatus == 'all'} ? 'btn btn-primary btn-sm rounded-pill' : 'btn btn-outline-secondary btn-sm rounded-pill'">
+                  Tất cả
+               </a>
+               <a th:href="@{/admin/orders(status='Chờ xác nhận')}" 
+                  th:class="${currentStatus == 'Chờ xác nhận'} ? 'btn btn-primary btn-sm rounded-pill' : 'btn btn-outline-secondary btn-sm rounded-pill'">
+                  Chờ xác nhận
+               </a>
+               <a th:href="@{/admin/orders(status='Đang giao')}" 
+                  th:class="${currentStatus == 'Đang giao'} ? 'btn btn-primary btn-sm rounded-pill' : 'btn btn-outline-secondary btn-sm rounded-pill'">
+                  Đang giao
+               </a>
+               <a th:href="@{/admin/orders(status='Đã hoàn thành')}" 
+                  th:class="${currentStatus == 'Đã hoàn thành'} ? 'btn btn-primary btn-sm rounded-pill' : 'btn btn-outline-secondary btn-sm rounded-pill'">
+                  Đã hoàn thành
+               </a>
+               <a th:href="@{/admin/orders(status='Đã hủy')}" 
+                  th:class="${currentStatus == 'Đã hủy'} ? 'btn btn-danger btn-sm rounded-pill' : 'btn btn-outline-danger btn-sm rounded-pill'">
+                  Đã hủy
+               </a>
+            </div>
+
+            <!-- Table -->
+            <table class="mat-table w-100">
+                <thead>
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Người Nhận</th>
+                        <th>Điện Thoại</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th>Ngày Đặt</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lặp qua danh sách ${orders} từ AdminController để hiển thị từng đơn hàng -->
+                    <tr th:each="order : ${orders}" th:if="${not #lists.isEmpty(orders)}">
+                        <td style="font-weight: 500;" th:text="${'#' + order.id}">#1</td>
+                        <td>
+                            <div style="font-weight: 500; color: #333;" th:text="${order.tenNguoiNhan}">Nguyễn Văn A</div>
+                            <!-- Format ngày tháng với #temporals.format -->
+                            <div style="font-size: 11px; color: #888;" th:text="${#temporals.format(order.ngayTao, 'dd/MM/yyyy HH:mm')}">10/10/2023</div>
+                        </td>
+                        <td th:text="${order.dienThoaiNhan}">0123456789</td>
+                        <td style="font-weight: 600; color: #e53935;" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">10,000,000 ₫</td>
+                        <td>
+                            <!-- Render badge trạng thái tuỳ vào giá trị trong db rực rỡ với màu sắc -->
+                            <span th:if="${order.trangThai == 'Đã hoàn thành'}" style="background: #e8f5e9; color: #4caf50; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                <i class="fas fa-check-circle me-1"></i>Hoàn thành
+                            </span>
+                            <span th:if="${order.trangThai == 'Chờ xác nhận'}" style="background: #fff3e0; color: #ff9800; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                <i class="fas fa-clock me-1"></i>Chờ xác nhận
+                            </span>
+                            <span th:if="${order.trangThai == 'Đang giao'}" style="background: #e3f2fd; color: #2196f3; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                <i class="fas fa-truck me-1"></i>Đang giao
+                            </span>
+                            <span th:if="${order.trangThai == 'Đã hủy'}" style="background: #ffebee; color: #f44336; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                <i class="fas fa-times-circle me-1"></i>Đã hủy
+                            </span>
+                            <span th:unless="${order.trangThai == 'Đã hoàn thành' or order.trangThai == 'Chờ xác nhận' or order.trangThai == 'Đang giao' or order.trangThai == 'Đã hủy'}" th:text="${order.trangThai}">Khác</span>
+                        </td>
+                        <td th:text="${#temporals.format(order.ngayTao, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <!-- Form nhỏ gọn gàng trực tiếp ấn nạp DB đổi trạng thái đơn hàng -->
+                            <form th:action="@{/admin/orders/update-status}" method="post" class="d-flex gap-1 align-items-center">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <select name="trangThai" class="form-select form-select-sm" style="width: 130px; font-size: 12px;">
+                                    <option value="Chờ xác nhận" th:selected="${order.trangThai == 'Chờ xác nhận'}">Chờ xác nhận</option>
+                                    <option value="Đang giao" th:selected="${order.trangThai == 'Đang giao'}">Đang giao</option>
+                                    <option value="Đã hoàn thành" th:selected="${order.trangThai == 'Đã hoàn thành'}">Đã hoàn thành</option>
+                                    <option value="Đã hủy" th:selected="${order.trangThai == 'Đã hủy'}">Đã hủy</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 12px;">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <!-- Hiển thị khi không có đơn hàng nào -->
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-clipboard-list fa-3x d-block mb-3 opacity-25"></i>
+                            Hiện tại chưa có đơn hàng nào
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

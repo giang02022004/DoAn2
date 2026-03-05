@@ -15,9 +15,10 @@ public class PageController {
     }
 
     @GetMapping("/checkout")
-    public String checkout(HttpSession session,Model model) {
-        model.addAttribute("cartItems", cartService.getCart(session));
-        model.addAttribute("totalPrice", cartService.getTotalPrice(session));
+    public String checkout(HttpSession session, Model model, java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        model.addAttribute("cartItems", cartService.getCart(session, email));
+        model.addAttribute("totalPrice", cartService.getTotalPrice(session, email));
         return "checkout";
     }
 

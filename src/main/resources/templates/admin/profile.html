@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Hồ Sơ &mdash; Admin</title></head>
+<body>
+    <span id="pageHeader">Hồ Sơ Cá Nhân</span>
+
+    <div id="content">
+        <div class="mx-auto" style="padding-top:10px; max-width:860px;">
+        <div class="row g-4">
+
+            <!-- ─── Profile Card ─── -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="border-radius:12px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-1" style="color:#1a1a2e;">Hồ Sơ</h5>
+                        <p class="text-muted small mb-4">Cập nhật thông tin cá nhân của bạn</p>
+
+                        <!-- Avatar row -->
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;">
+                                <span th:text="${#strings.length(user.hoTen) > 0 ? #strings.toUpperCase(#strings.substring(user.hoTen,0,2)) : 'AD'}">AD</span>
+                            </div>
+                            <div>
+                                <label for="avatarInput" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-camera me-1"></i>Đổi ảnh đại diện
+                                </label>
+                                <input type="file" id="avatarInput" accept="image/*" class="d-none">
+                                <p class="text-muted small mb-0 mt-1">JPG, PNG hoặc GIF. Tối đa 2MB.</p>
+                            </div>
+                        </div>
+
+                        <hr class="mb-4">
+
+                        <!-- Update info form -->
+                        <form th:action="@{/admin/profile/update}" method="post">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Họ và Tên</label>
+                                    <input type="text" name="hoTen" class="form-control" th:value="${user.hoTen}" placeholder="Nguyễn Văn A">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Số Điện Thoại</label>
+                                    <input type="text" name="dienThoai" class="form-control" th:value="${user.dienThoai}" placeholder="0912345678">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Email</label>
+                                <input type="email" class="form-control bg-light" th:value="${user.email}" disabled>
+                                <div class="form-text">Email không thể thay đổi</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Địa Chỉ</label>
+                                <textarea name="diaChi" class="form-control" rows="4" placeholder="Nhập địa chỉ..." th:text="${user.diaChi}"></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn px-4 py-2 fw-semibold text-white"
+                                        style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:8px;">
+                                    Lưu Thay Đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Change Password Card ─── -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="border-radius:12px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-1" style="color:#1a1a2e;">Bảo Mật</h5>
+                        <p class="text-muted small mb-4">Thay đổi mật khẩu đăng nhập của bạn</p>
+
+                        <hr class="mb-4">
+
+                        <form th:action="@{/admin/profile/change-password}" method="post">
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Mật Khẩu Hiện Tại</label>
+                                    <input type="password" name="currentPassword" class="form-control" placeholder="••••••••">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Mật Khẩu Mới</label>
+                                    <input type="password" name="newPassword" class="form-control" placeholder="••••••••">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Xác Nhận Mật Khẩu</label>
+                                    <input type="password" name="confirmPassword" class="form-control" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn px-4 py-2 fw-semibold text-white"
+                                        style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:8px;">
+                                    Cập Nhật Mật Khẩu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+
+        <!-- Toast notifications -->
+        <div th:if="${success}" id="toast"
+             style="position:fixed;bottom:28px;right:28px;background:#6366f1;color:#fff;padding:14px 22px;border-radius:10px;box-shadow:0 6px 20px rgba(99,102,241,.35);font-size:14px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-check-circle"></i><span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" id="toast"
+             style="position:fixed;bottom:28px;right:28px;background:#ef4444;color:#fff;padding:14px 22px;border-radius:10px;box-shadow:0 6px 20px rgba(239,68,68,.35);font-size:14px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-exclamation-circle"></i><span th:text="${error}"></span>
+        </div>
+    </div>
+
+    <style>
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.2rem rgba(99,102,241,.2);
+        }
+    </style>
+    <script>
+        const toast = document.getElementById('toast');
+        if (toast) setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .5s'; }, 3000);
+    </script>
+</body>
+</html>

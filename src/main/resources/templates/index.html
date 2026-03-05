@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
     <head>
         <meta charset="utf-8">
-        <title>Fruitables - Vegetable Website Template</title>
+        <title>Laptopshop - Vegetable Website Template</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -54,12 +54,12 @@
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a th:href="@{/index}" class="navbar-brand"><h1 class="display-6 logo-brand">Fruitables</h1></a>
+                    <a th:href="@{/index}" class="navbar-brand"><h1 class="display-6 logo-brand">Laptopshop</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-                        <div class="navbar-nav mx-auto">
+                        <div class="navbar-nav mx-auto fs-5 fw-medium">
                             <a th:href="@{/}" class="nav-item nav-link active">Home</a>
                             <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
                             <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
@@ -118,11 +118,15 @@
                         <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
                             <div class="carousel-inner" role="listbox">
                                 <div class="carousel-item active rounded">
-                                    <img src="img/hero1.png" class="img-fluid w-100 h-100 bg-secondary rounded" style="object-fit: cover;" alt="First slide">
+                                    <img src="img/laptop/rogces20211_FOYX.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop gaming">
                                     <a href="#" class="btn px-4 py-2 text-white rounded">Laptop</a>
                                 </div>
                                 <div class="carousel-item rounded">
-                                    <img src="img/laptop.png" class="img-fluid w-100 h-100 rounded" style="object-fit: cover;" alt="Second slide">
+                                    <img src="img/laptop/file-poster-banner-quang-cao-laptop-14-demo.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop 14">
+                                    <a href="#" class="btn px-4 py-2 text-white rounded">Khuyến Mãi</a>
+                                </div>
+                                <div class="carousel-item rounded">
+                                    <img src="img/laptop/photo-1-15470930389662024470690.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop hiện đại">
                                     <a href="#" class="btn px-4 py-2 text-white rounded">Phụ Kiện</a>
                                 </div>
                             </div>
@@ -245,25 +249,24 @@
                             <h1>Sản phẩm mới nhất</h1>
                         </div>
                         <div class="col-lg-8 text-end">
-                            <ul class="nav nav-pills mb-4" id="phukien-menu">
+                            <ul class="nav nav-pills d-inline-flex text-center mb-5" id="phukien-menu">
 
                                 <li class="nav-item">
                                     <a href="#"
-                                       class="nav-link active"
+                                       class="d-flex m-2 py-2 rounded-pill bg-warning"
                                        onclick="loadPhuKien(null, this); return false;">
-                                        Tất cả
+                                        <span class="text-dark" style="width:130px;">Tất cả</span>
                                     </a>
                                 </li>
 
                                 <li class="nav-item" th:each="hang : ${hangPhuKien}">
                                     <a href="#"
-                                       class="nav-link"
+                                       class="d-flex m-2 py-2 rounded-pill bg-light"
                                        th:attr="data-hang-id=${hang.id}"
                                        onclick="loadPhuKien(this.getAttribute('data-hang-id'), this); return false;">
-                                        <span th:text="${hang.tenHang}"></span>
+                                        <span class="text-dark" th:text="${hang.tenHang}" style="width:130px;"></span>
                                     </a>
                                 </li>
-
                             </ul>
 
                         </div>
@@ -384,8 +387,8 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="position-relative mx-auto">
-                                <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Your Email">
-                                <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Subscribe Now</button>
+                                <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Nhập email của bạn...">
+                                <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Đăng Ký</button>
                             </div>
                         </div>
                         <div class="col-lg-3">
@@ -408,33 +411,33 @@
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="d-flex flex-column text-start footer-item">
-                            <h4 class="text-light mb-3">Shop Info</h4>
-                            <a class="btn-link" href="">About Us</a>
-                            <a class="btn-link" href="">Contact Us</a>
-                            <a class="btn-link" href="">Privacy Policy</a>
+                            <h4 class="text-light mb-3">Thông Tin Cửa Hàng</h4>
+                            <a class="btn-link" href="">Giới Thiệu</a>
+                            <a class="btn-link" href="">Liên Hệ</a>
+                            <a class="btn-link" href="">Chính Sách Bảo Mật</a>
                             <a class="btn-link" href="">Terms & Condition</a>
-                            <a class="btn-link" href="">Return Policy</a>
+                            <a class="btn-link" href="">Chính Sách Đổi Trả</a>
                             <a class="btn-link" href="">FAQs & Help</a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="d-flex flex-column text-start footer-item">
                             <h4 class="text-light mb-3">Account</h4>
-                            <a class="btn-link" href="">My Account</a>
-                            <a class="btn-link" href="">Shop details</a>
-                            <a class="btn-link" href="">Shopping Cart</a>
-                            <a class="btn-link" href="">Wishlist</a>
-                            <a class="btn-link" href="">Order History</a>
-                            <a class="btn-link" href="">International Orders</a>
+                            <a class="btn-link" href="">Tài Khoản Của Tôi</a>
+                            <a class="btn-link" href="">Chi Tiết Sản Phẩm</a>
+                            <a class="btn-link" href="">Giỏ Hàng</a>
+                            <a class="btn-link" href="">Yêu Thích</a>
+                            <a class="btn-link" href="">Lịch Sử Đơn Hàng</a>
+                            <a class="btn-link" href="">Đơn Hàng Quốc Tế</a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="footer-item">
                             <h4 class="text-light mb-3">Contact</h4>
-                            <p>Address: 1429 Netus Rd, NY 48247</p>
-                            <p>Email: Example@gmail.com</p>
-                            <p>Phone: +0123 4567 8910</p>
-                            <p>Payment Accepted</p>
+                            <p>Địa Chỉ: 123 Nguyễn Huệ, Q.1, TP.HCM</p>
+                            <p>Email: laptopshop@gmail.com</p>
+                            <p>Điện Thoại: 0798 021 794</p>
+                            <p>Phương Thức Thanh Toán</p>
                             <img src="img/payment.png" class="img-fluid" alt="">
                         </div>
                     </div>
@@ -448,13 +451,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Your Site Name</a>, All right reserved.</span>
+                        <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Laptopshop</a>, All right reserved.</span>
                     </div>
                     <div class="col-md-6 my-auto text-center text-md-end text-white">
                         <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
                         <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
                         <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
-                        Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
+                        
                     </div>
                 </div>
             </div>
@@ -518,10 +521,15 @@
                         document.getElementById('phukien-area').innerHTML = html;
                     });
 
-                document.querySelectorAll('#phukien-menu .nav-link')
-                    .forEach(a => a.classList.remove('active'));
+                // đổi màu menu
+                document.querySelectorAll('#phukien-menu a')
+                    .forEach(a => {
+                        a.classList.remove('bg-warning');
+                        a.classList.add('bg-light');
+                    });
 
-                el.classList.add('active');
+                el.classList.remove('bg-light');
+                el.classList.add('bg-warning');
             }
         </script>
 

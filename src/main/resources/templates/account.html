@@ -1,12 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>My Account - Fruitables</title>
+    <title>Tài Khoản Của Tôi - Laptopshop</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,12 +74,12 @@
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a th:href="@{/index}" class="navbar-brand"><h1 class="display-6 logo-brand">Fruitables</h1></a>
+                <a th:href="@{/index}" class="navbar-brand"><h1 class="display-6 logo-brand">Laptopshop</h1></a>
                 <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars text-primary"></span>
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto">
+                    <div class="navbar-nav mx-auto fs-5 fw-medium">
                         <a th:href="@{/index}" class="nav-item nav-link">Home</a>
                         <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
                         <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
@@ -166,10 +168,10 @@
                                     <span>Quản lý đơn hàng</span>
                                 </a>
                             </li>
-                            <li class="sidebar-tab" data-tab="viewed">
+                            <li class="sidebar-tab" data-tab="password">
                                 <a href="javascript:void(0);" class="d-flex align-items-center px-4 py-3">
-                                    <i class="fas fa-eye me-3 text-primary"></i>
-                                    <span>Sản phẩm đã xem</span>
+                                    <i class="fas fa-lock me-3 text-primary"></i>
+                                    <span>Đổi mật khẩu</span>
                                 </a>
                             </li>
                             <li class="sidebar-logout">
@@ -207,23 +209,7 @@
                                         <label class="form-label">Địa chỉ</label>
                                         <input type="text" class="form-control" th:value="${user != null ? user.diaChi : ''}" name="address" placeholder="Nhập địa chỉ">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Giới tính</label>
-                                        <div class="d-flex gap-4 mt-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="gender" id="genderMale" value="1" checked>
-                                                <label class="form-check-label" for="genderMale">Nam</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="0">
-                                                <label class="form-check-label" for="genderFemale">Nữ</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Ngày sinh</label>
-                                        <input type="date" class="form-control" name="birthday">
-                                    </div>
+
                                     <div class="col-12 mt-4">
                                         <button type="submit" class="btn px-4 py-2" style="background-color: #2a83e9; color: #fff;">
                                             LƯU THAY ĐỔI
@@ -239,9 +225,6 @@
                         <div class="bg-light rounded p-4">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="mb-0">Sổ địa chỉ</h4>
-                                <button class="btn btn-sm px-3 py-2" style="background-color: #2a83e9; color: #fff;">
-                                    <i class="fas fa-plus me-1"></i>Thêm địa chỉ mới
-                                </button>
                             </div>
                             <div class="row g-4" th:if="${user != null and user.diaChi != null}">
                                 <div class="col-md-6">
@@ -251,8 +234,7 @@
                                         <p class="text-muted mb-1"><i class="fas fa-phone me-2 text-primary"></i><span th:text="${user.dienThoai != null ? user.dienThoai : 'Chưa cập nhật'}">Phone</span></p>
                                         <p class="text-muted mb-3"><i class="fas fa-map-marker-alt me-2 text-primary"></i><span th:text="${user.diaChi}">Địa chỉ</span></p>
                                         <div class="d-flex gap-2">
-                                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fas fa-edit me-1"></i>Sửa</button>
-                                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="fas fa-trash me-1"></i>Xoá</button>
+                                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 btn-edit-address"><i class="fas fa-edit me-1"></i>Sửa</button>
                                         </div>
                                     </div>
                                 </div>
@@ -282,7 +264,7 @@
                             <!-- Order List -->
                             <div id="orderList">
                                 <div th:if="${orders != null and !orders.isEmpty()}">
-                                    <div th:each="order : ${orders}" class="order-card bg-white rounded-3 border p-4 mb-3" th:attr="data-order-status=${order.trangThai}">
+                                    <div th:each="order : ${orders}" class="order-card bg-white rounded-3 border p-4 mb-3" style="cursor:pointer;" th:attr="data-order-status=${order.trangThai},data-order-id=${order.id}" onclick="showOrderDetail(this.getAttribute('data-order-id'))">,data-order-id=${order.id}" onclick="showOrderDetail(this.getAttribute('data-order-id'))">
                                         <div class="d-flex justify-content-between align-items-start flex-wrap">
                                             <div>
                                                 <h6 class="fw-bold mb-1">Đơn hàng #<span th:text="${order.id}">1</span></h6>
@@ -317,14 +299,31 @@
                         </div>
                     </div>
 
-                    <!-- Tab: Sản phẩm đã xem -->
-                    <div class="account-tab-content" id="tab-viewed">
+                    <!-- Tab: Đổi mật khẩu -->
+                    <div class="account-tab-content" id="tab-password">
                         <div class="bg-light rounded p-4">
-                            <h4 class="mb-4">Sản phẩm đã xem</h4>
-                            <div class="text-center py-5">
-                                <p class="text-muted mb-3">Quý khách chưa xem sản phẩm nào.</p>
-                                <a th:href="@{/shop}" class="btn btn-sm px-3 py-2" style="background-color: #2a83e9; color: #fff;">TIẾP TỤC MUA HÀNG</a>
-                            </div>
+                            <h4 class="mb-4">Đổi mật khẩu</h4>
+                            <form id="changePasswordForm">
+                                <div class="row g-4" style="max-width: 500px;">
+                                    <div class="col-12">
+                                        <label class="form-label">Mật khẩu hiện tại</label>
+                                        <input type="password" class="form-control" name="oldPassword" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Mật khẩu mới</label>
+                                        <input type="password" class="form-control" name="newPassword" required minlength="6">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Xác nhận mật khẩu mới</label>
+                                        <input type="password" class="form-control" name="confirmPassword" required minlength="6">
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn px-4 py-2" style="background-color: #2a83e9; color: #fff;">
+                                            ĐỔI MẬT KHẨU
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
@@ -342,14 +341,14 @@
                 <div class="row g-4">
                     <div class="col-lg-3">
                         <a href="#">
-                            <h1 class="text-primary mb-0">Fruitables</h1>
-                            <p class="text-secondary mb-0">Fresh products</p>
+                            <h1 class="text-primary mb-0">Laptopshop</h1>
+                            <p class="text-secondary mb-0">Laptop & Phụ Kiện Chính Hãng</p>
                         </a>
                     </div>
                     <div class="col-lg-6">
                         <div class="position-relative mx-auto">
-                            <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Your Email">
-                            <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Subscribe Now</button>
+                            <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Nhập email của bạn...">
+                            <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Đăng Ký</button>
                         </div>
                     </div>
                     <div class="col-lg-3">
@@ -365,41 +364,41 @@
             <div class="row g-5">
                 <div class="col-lg-3 col-md-6">
                     <div class="footer-item">
-                        <h4 class="text-light mb-3">Why People Like us!</h4>
+                        <h4 class="text-light mb-3">Tại Sao Chọn Chúng Tôi?</h4>
                         <p class="mb-4">typesetting, remaining essentially unchanged. It was
                             popularised in the 1960s with the like Aldus PageMaker including of Lorem Ipsum.</p>
-                        <a href="" class="btn border-secondary py-2 px-4 rounded-pill text-primary">Read More</a>
+                        <a href="" class="btn border-secondary py-2 px-4 rounded-pill text-primary">Xem Thêm</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="d-flex flex-column text-start footer-item">
-                        <h4 class="text-light mb-3">Shop Info</h4>
-                        <a class="btn-link" href="">About Us</a>
-                        <a class="btn-link" href="">Contact Us</a>
-                        <a class="btn-link" href="">Privacy Policy</a>
+                        <h4 class="text-light mb-3">Thông Tin Cửa Hàng</h4>
+                        <a class="btn-link" href="">Giới Thiệu</a>
+                        <a class="btn-link" href="">Liên Hệ</a>
+                        <a class="btn-link" href="">Chính Sách Bảo Mật</a>
                         <a class="btn-link" href="">Terms & Condition</a>
-                        <a class="btn-link" href="">Return Policy</a>
+                        <a class="btn-link" href="">Chính Sách Đổi Trả</a>
                         <a class="btn-link" href="">FAQs & Help</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="d-flex flex-column text-start footer-item">
                         <h4 class="text-light mb-3">Account</h4>
-                        <a class="btn-link" href="">My Account</a>
-                        <a class="btn-link" href="">Shop details</a>
-                        <a class="btn-link" href="">Shopping Cart</a>
-                        <a class="btn-link" href="">Wishlist</a>
-                        <a class="btn-link" href="">Order History</a>
-                        <a class="btn-link" href="">International Orders</a>
+                        <a class="btn-link" href="">Tài Khoản Của Tôi</a>
+                        <a class="btn-link" href="">Chi Tiết Sản Phẩm</a>
+                        <a class="btn-link" href="">Giỏ Hàng</a>
+                        <a class="btn-link" href="">Yêu Thích</a>
+                        <a class="btn-link" href="">Lịch Sử Đơn Hàng</a>
+                        <a class="btn-link" href="">Đơn Hàng Quốc Tế</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="footer-item">
                         <h4 class="text-light mb-3">Contact</h4>
-                        <p>Address: 1429 Netus Rd, NY 48247</p>
-                        <p>Email: Example@gmail.com</p>
-                        <p>Phone: +0123 4567 8910</p>
-                        <p>Payment Accepted</p>
+                        <p>Địa Chỉ: 123 Nguyễn Huệ, Q.1, TP.HCM</p>
+                        <p>Email: laptopshop@gmail.com</p>
+                        <p>Điện Thoại: 0798 021 794</p>
+                        <p>Phương Thức Thanh Toán</p>
                         <img src="img/payment.png" class="img-fluid" alt="">
                     </div>
                 </div>
@@ -413,10 +412,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Your Site Name</a>, All right reserved.</span>
+                    <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Laptopshop</a>, All right reserved.</span>
                 </div>
                 <div class="col-md-6 my-auto text-center text-md-end text-white">
-                    Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
+                    
                 </div>
             </div>
         </div>
@@ -428,7 +427,21 @@
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 
-        
+    <!-- Order Detail Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #2a83e9; color: #fff;">
+                    <h5 class="modal-title" id="orderDetailTitle">Chi tiết đơn hàng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailBody">
+                    <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -441,6 +454,57 @@
     <script th:src="@{/js/main.js}"></script>
 
     <script>
+        function formatMoney(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + ' ₫';
+        }
+
+        function showOrderDetail(orderId) {
+            var modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+            $('#orderDetailTitle').text('Chi tiết đơn hàng #' + orderId);
+            $('#orderDetailBody').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+            modal.show();
+
+            $.get('/account/order/' + orderId, function(data) {
+                if (!data.success) {
+                    $('#orderDetailBody').html('<div class="alert alert-danger">Không tìm thấy đơn hàng</div>');
+                    return;
+                }
+                var statusMap = {
+                    'PENDING': '<span class="badge bg-warning text-dark">Mới</span>',
+                    'PROCESSING': '<span class="badge bg-info text-white">Đang xử lý</span>',
+                    'SHIPPING': '<span class="badge bg-primary">Đang vận chuyển</span>',
+                    'COMPLETED': '<span class="badge bg-success">Hoàn thành</span>',
+                    'CANCELLED': '<span class="badge bg-danger">Đã huỷ</span>'
+                };
+                var html = '<div class="mb-3 p-3 bg-light rounded">';
+                html += '<div class="row"><div class="col-md-6">';
+                html += '<p class="mb-1"><strong><i class="fas fa-user me-2"></i>Người nhận:</strong> ' + data.tenNguoiNhan + '</p>';
+                html += '<p class="mb-1"><strong><i class="fas fa-phone me-2"></i>SĐT:</strong> ' + (data.sdtNhan || 'N/A') + '</p>';
+                html += '<p class="mb-0"><strong><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ:</strong> ' + data.diaChiNhan + '</p>';
+                html += '</div><div class="col-md-6 text-end">';
+                html += '<p class="mb-1">Trạng thái: ' + (statusMap[data.trangThai] || data.trangThai) + '</p>';
+                html += '<p class="mb-0 fw-bold text-primary" style="font-size:1.2rem">Tổng: ' + formatMoney(data.tongTien) + '</p>';
+                html += '</div></div></div>';
+
+                html += '<table class="table table-hover align-middle small">';
+                html += '<thead class="table-light"><tr><th style="width:60px">Ảnh</th><th>Sản phẩm</th><th class="text-center">SL</th><th class="text-end">Đơn giá</th><th class="text-end">Thành tiền</th></tr></thead><tbody>';
+                for (var i = 0; i < data.items.length; i++) {
+                    var item = data.items[i];
+                    html += '<tr>';
+                    html += '<td><img src="/img/' + item.image + '" class="rounded" style="width:50px;height:50px;object-fit:cover"></td>';
+                    html += '<td><strong>' + item.productName + '</strong>';
+                    if (item.variantInfo) html += '<br><small class="text-muted">' + item.variantInfo + '</small>';
+                    html += '</td>';
+                    html += '<td class="text-center">' + item.quantity + '</td>';
+                    html += '<td class="text-end">' + formatMoney(item.price) + '</td>';
+                    html += '<td class="text-end fw-bold">' + formatMoney(item.total) + '</td>';
+                    html += '</tr>';
+                }
+                html += '</tbody></table>';
+                $('#orderDetailBody').html(html);
+            });
+        }
+
         $(document).ready(function() {
             // Sidebar Tab Switching
             $('.sidebar-tab').on('click', function() {
@@ -463,6 +527,76 @@
                     $('.order-card').hide();
                     $('.order-card[data-order-status="' + status + '"]').show();
                 }
+            });
+            // Profile Form Submit
+            $('#profileForm').on('submit', function(e) {
+                e.preventDefault();
+                var csrfToken = $('meta[name="_csrf"]').attr('content');
+                var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+                $.ajax({
+                    url: '/account/update',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    beforeSend: function(xhr) {
+                        if (csrfToken && csrfHeader) {
+                            xhr.setRequestHeader(csrfHeader, csrfToken);
+                        }
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            alert('Cập nhật thành công!');
+                            location.reload();
+                        } else {
+                            alert(res.message || 'Có lỗi xảy ra');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                    }
+                });
+            });
+
+            // Address card "Sửa" button -> switch to profile tab
+            $(document).on('click', '.btn-edit-address', function() {
+                $('.sidebar-tab').removeClass('active');
+                $('.sidebar-tab[data-tab="profile"]').addClass('active');
+                $('.account-tab-content').removeClass('active');
+                $('#tab-profile').addClass('active');
+                $('input[name="address"]').focus();
+            });
+
+            // Change Password Form Submit
+            $('#changePasswordForm').on('submit', function(e) {
+                e.preventDefault();
+                var newPass = $('input[name="newPassword"]').val();
+                var confirmPass = $('input[name="confirmPassword"]').val();
+                if (newPass !== confirmPass) {
+                    alert('Mật khẩu mới không khớp!');
+                    return;
+                }
+                var csrfToken = $('meta[name="_csrf"]').attr('content');
+                var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+                $.ajax({
+                    url: '/account/change-password',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    beforeSend: function(xhr) {
+                        if (csrfToken && csrfHeader) {
+                            xhr.setRequestHeader(csrfHeader, csrfToken);
+                        }
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            alert('Đổi mật khẩu thành công! Kiểm tra email của bạn để xác nhận.');
+                            $('#changePasswordForm')[0].reset();
+                        } else {
+                            alert(res.message || 'Có lỗi xảy ra');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                    }
+                });
             });
         });
     </script>

@@ -1,0 +1,336 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Admin &mdash; Dashboard</title></head>
+<body>
+    <span id="pageHeader">Material Dashboard</span>
+
+    <div id="content">
+
+        <!-- ─── Stat Cards (row 1) ─── -->
+        <!-- Logic: Sử dụng th:text="${biến}" để render giá trị lấy từ Model (được nạp bên AdminController) -->
+        <div class="row g-4 mb-5" style="padding-top:10px;">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon-box orange"><i class="fas fa-database"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Tổng Đơn Hàng</div>
+                        <!-- Hiển thị tổng số lượng đơn hàng -->
+                        <div class="stat-num" th:text="${totalOrders}">0</div>
+                    </div>
+                    <div class="stat-footer">
+                        <strong><i class="fas fa-arrow-up"></i> Cập nhật</strong>&ensp;từ database
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon-box green"><i class="fas fa-coins"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Doanh Thu</div>
+                        <!-- Sử dụng numbers.formatDecimal để định dạng số tiền có dấu phẩy ngăn cách hàng nghìn -->
+                        <div class="stat-num" style="font-size:20px;" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                    </div>
+                    <div class="stat-footer">
+                        <strong><i class="fas fa-clock"></i>&ensp;24 giờ qua</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon-box red"><i class="fas fa-laptop"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Sản Phẩm</div>
+                        <div class="stat-num" th:text="${totalProducts}">0</div>
+                    </div>
+                    <div class="stat-footer">
+                        <i class="fas fa-tag"></i>&ensp;Trong kho
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon-box teal"><i class="fas fa-users"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Khách Hàng</div>
+                        <div class="stat-num" th:text="${totalCustomers}">0</div>
+                    </div>
+                    <div class="stat-footer">
+                        <i class="fas fa-sync"></i>&ensp;Vừa cập nhật
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Chart cards (row 2) ─── -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header green">
+                        <!-- Fake line sparkline -->
+                        <svg class="sparkline-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
+                            <polyline fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"
+                                points="0,50 30,38 60,42 90,20 120,28 160,10 200,16"/>
+                        </svg>
+                    </div>
+                    <div class="chart-body-text">
+                        <h6>Đơn Hàng Theo Ngày</h6>
+                        <p><strong style="color:#4caf50;"><i class="fas fa-long-arrow-alt-up"></i> 0%</strong> tăng hôm nay.</p>
+                    </div>
+                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header orange">
+                        <div class="sparkline">
+                            <span style="height:30%"></span><span style="height:55%"></span>
+                            <span style="height:40%"></span><span style="height:70%"></span>
+                            <span style="height:60%"></span><span style="height:85%"></span>
+                            <span style="height:75%"></span><span style="height:95%"></span>
+                            <span style="height:80%"></span><span style="height:65%"></span>
+                            <span style="height:90%"></span><span style="height:70%"></span>
+                        </div>
+                    </div>
+                    <div class="chart-body-text">
+                        <h6>Sản Phẩm Bán Chạy</h6>
+                        <p>Hiệu suất tháng này</p>
+                    </div>
+                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header red">
+                        <svg class="sparkline-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
+                            <polyline fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"
+                                points="0,10 30,20 60,15 90,35 120,28 160,45 200,50"/>
+                        </svg>
+                    </div>
+                    <div class="chart-body-text">
+                        <h6>Đơn Hàng Đã Hủy</h6>
+                        <p>Hiệu suất chiến dịch cuối</p>
+                    </div>
+                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Bottom row ─── -->
+        <div class="row g-4">
+            <!-- Monthly Statistics Chart - Thiết kế mới -->
+            <div class="col-lg-8">
+                <div style="background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;">
+                    <!-- Header với gradient và mini-stats -->
+                    <div style="background:linear-gradient(135deg,#1e3c72,#2a5298);padding:20px 24px;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                            <div>
+                                <div style="color:rgba(255,255,255,.65);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">
+                                    <i class="fas fa-chart-line me-1"></i>Phân Tích Doanh Thu
+                                </div>
+                                <div style="color:#fff;font-size:22px;font-weight:700;" th:text="${#numbers.formatInteger(totalRevenue,0,'COMMA') + ' ₫'}">0 ₫</div>
+                                <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:2px;">Tổng doanh thu 12 tháng gần nhất</div>
+                            </div>
+                            <div style="display:flex;gap:20px;">
+                                <!-- Mini stat: Tổng đơn -->
+                                <div style="text-align:center;">
+                                    <div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:2px;">Tổng Đơn</div>
+                                    <div style="color:#fff;font-size:18px;font-weight:700;" th:text="${totalOrders}">0</div>
+                                </div>
+                                <div style="width:1px;background:rgba(255,255,255,.2);"></div>
+                                <!-- Mini stat: Sản phẩm -->
+                                <div style="text-align:center;">
+                                    <div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:2px;">Sản Phẩm</div>
+                                    <div style="color:#fff;font-size:18px;font-weight:700;" th:text="${totalProducts}">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Vùng biểu đồ -->
+                    <div style="padding:24px;background:#fff;">
+                        <canvas id="monthlyChart" style="max-height:260px;"></canvas>
+                    </div>
+                    <!-- Footer -->
+                    <div style="padding:10px 24px 14px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;">
+                        <i class="fas fa-circle" style="color:#10b981;font-size:8px;"></i>
+                        Dữ liệu thực từ database — tự động cập nhật theo đơn hàng
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders table -->
+            <div class="col-lg-4">
+                <div class="mat-card">
+                    <div class="mat-card-header" style="background:linear-gradient(135deg,#ff9800,#f57c00);border-radius:6px 6px 0 0;padding:16px 22px;">
+                        <h5 style="color:#fff;margin:0;"><i class="fas fa-receipt me-2"></i>Đơn Hàng Mới</h5>
+                        <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px;">Danh sách đơn hàng gần đây</p>
+                    </div>
+                    <table class="mat-table w-100">
+                        <thead>
+                            <tr>
+                                <th style="color:#ff9800;">ID</th>
+                                <th style="color:#ff9800;">Khách Hàng</th>
+                                <th style="color:#ff9800;">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Vòng lặp th:each duyệt qua danh sách ${recentOrders} từ controller.
+                                 th:if kiểm tra điều kiện danh sách không rỗng -->
+                            <!-- Hiển thị khi có dữ liệu -->
+                            <tr th:each="order : ${recentOrders}" th:if="${not #lists.isEmpty(recentOrders)}">
+                                <td style="font-weight: 500;" th:text="${'#' + order.id}">#1</td>
+                                <td>
+                                    <div style="font-weight: 500; color: #333;" th:text="${order.tenNguoiNhan}">Khách Hàng</div>
+                                    <div style="font-size: 11px; color: #888;" th:text="${order.dienThoaiNhan}">0123456789</div>
+                                </td>
+                                <td>
+                                    <span th:if="${order.trangThai == 'Đã hoàn thành'}" style="background: #e8f5e9; color: #4caf50; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                        <i class="fas fa-check-circle me-1"></i>Hoàn thành
+                                    </span>
+                                    <span th:if="${order.trangThai == 'Chờ xác nhận'}" style="background: #fff3e0; color: #ff9800; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                        <i class="fas fa-clock me-1"></i>Chờ xác nhận
+                                    </span>
+                                    <span th:if="${order.trangThai == 'Đã hủy'}" style="background: #ffebee; color: #f44336; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                        <i class="fas fa-times-circle me-1"></i>Đã hủy
+                                    </span>
+                                    <span th:unless="${order.trangThai == 'Đã hoàn thành' or order.trangThai == 'Chờ xác nhận' or order.trangThai == 'Đã hủy'}" th:text="${order.trangThai}">Khác</span>
+                                </td>
+                            </tr>
+                            <!-- Hiển thị khi trống -->
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td colspan="3" class="text-center py-4 text-muted" style="font-size:13px;">
+                                    <i class="fas fa-inbox fa-2x d-block mb-2" style="opacity:.2;"></i>
+                                    Chưa có đơn hàng nào
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Chart.js ─── -->
+        <!-- Bước 1: Dùng th:inline để Thymeleaf nhúng dữ liệu từ Model vào biến JS -->
+        <script th:inline="javascript">
+            const chartLabels      = /*[[${chartLabels}]]*/ [];
+            const chartRevenueData = /*[[${chartRevenues}]]*/ [];
+            const chartOrderData   = /*[[${chartOrderCounts}]]*/ [];
+        </script>
+
+        <!-- Bước 2: Load Chart.js rồi khởi tạo biểu đồ với thiết kế mới -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+
+            // Tạo màu gradient cho đường doanh thu (xanh dương đậm → trong suốt)
+            const revenueGradient = ctx.createLinearGradient(0, 0, 0, 260);
+            revenueGradient.addColorStop(0, 'rgba(42, 82, 152, 0.5)');
+            revenueGradient.addColorStop(1, 'rgba(42, 82, 152, 0.02)');
+
+            new Chart(ctx, {
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            // Dataset 1: Doanh thu - dạng Area chart (line + fill)
+                            type: 'line',
+                            label: 'Doanh Thu (VNĐ)',
+                            data: chartRevenueData,
+                            borderColor: '#2a5298',
+                            borderWidth: 2.5,
+                            backgroundColor: revenueGradient,
+                            fill: true,
+                            tension: 0.4,          // Bo cong đường line
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#2a5298',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            // Dataset 2: Số đơn hàng - dạng Bar chart bo góc
+                            type: 'bar',
+                            label: 'Số Đơn Hàng',
+                            data: chartOrderData,
+                            backgroundColor: 'rgba(16,185,129,0.75)',  // Xanh lá hiện đại
+                            borderColor: '#10b981',
+                            borderWidth: 0,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                            yAxisID: 'yOrders'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                font: { size: 12, family: "'Inter','Segoe UI',sans-serif" },
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 16,
+                                color: '#64748b'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15,23,42,0.9)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 12, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(tooltipCtx) {
+                                    if (tooltipCtx.dataset.label.includes('Doanh')) {
+                                        // Hiển thị doanh thu với dấu chấm ngàn
+                                        return '  Doanh thu: ' + tooltipCtx.parsed.y.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                    return '  Số đơn: ' + tooltipCtx.parsed.y + ' đơn';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { font: { size: 11 }, color: '#94a3b8' }
+                        },
+                        y: {
+                            position: 'left',
+                            grid: { color: '#f1f5f9', lineWidth: 1 },
+                            border: { display: false, dash: [4, 4] },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 11 },
+                                callback: function(v) {
+                                    // Rút gọn: từ 1.000.000 → "1tr"
+                                    if (v >= 1000000) return (v / 1000000).toFixed(0) + 'tr';
+                                    return v;
+                                }
+                            }
+                        },
+                        yOrders: {
+                            type: 'linear', position: 'right',
+                            grid: { drawOnChartArea: false },
+                            border: { display: false },
+                            ticks: {
+                                color: '#10b981',
+                                font: { size: 11 },
+                                callback: function(v) { return v + ' đơn'; }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+
+</body>
+</html>
+

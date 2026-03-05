@@ -741,3 +741,9 @@
     font-size: 1.2rem;
 }
 /*** Range Input End ***/
+
+/*** Custom Navbar Font Size ***/
+.navbar-light .navbar-nav .nav-link {
+    font-size: 18px !important;
+    font-weight: 500;
+}

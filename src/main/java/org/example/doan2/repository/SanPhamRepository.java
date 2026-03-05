@@ -6,8 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-
+import java.util.List;
 
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     // LẤY TOP 15 THEO LOẠI
@@ -54,7 +53,16 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
             @org.springframework.data.repository.query.Param("keyword") String keyword,
             @org.springframework.data.repository.query.Param("hangId") Integer hangId,
             @org.springframework.data.repository.query.Param("loai") String loai,
-            @org.springframework.data.repository.query.Param("maxPrice") Integer maxPrice,
+    @org.springframework.data.repository.query.Param("maxPrice") Integer maxPrice,
             Pageable pageable
     );
+
+    // Tìm sản phẩm theo tên (không phân trang - dùng cho Admin)
+    List<SanPham> findByTenSanPhamContainingIgnoreCase(String tenSanPham);
+
+    // Lọc sản phẩm theo Hãng Sản Xuất (không phân trang - dùng cho Admin)
+    List<SanPham> findByHangSanXuat_Id(Integer hangId);
+
+    // Lọc sản phẩm theo cả Tên và Hãng Sản Xuất (không phân trang - Admin)
+    List<SanPham> findByTenSanPhamContainingIgnoreCaseAndHangSanXuat_Id(String tenSanPham, Integer hangId);
 }

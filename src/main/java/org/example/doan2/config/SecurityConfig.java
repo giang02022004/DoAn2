@@ -1,6 +1,5 @@
 package org.example.doan2.config;
 
-import org.example.doan2.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,16 +7,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
+    public SecurityConfig(CustomLoginSuccessHandler customLoginSuccessHandler) {
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
     }
+
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -25,18 +26,32 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AccessDeniedHandler customAccessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.sendRedirect(request.getContextPath() + "/");
+        };
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                .requestMatchers("/checkout/**").authenticated()
+                                // Khu vực /admin/** chỉ cấp phép duy nhất cho tài khoản mang quyền ADMIN
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                
+                                // Khu vực Thanh toán (/checkout) và Tài khoản khách hàng (/account) 
+                                // bây giờ được siết chặt: CHỈ Khách Hàng mới được phép vào. Admin đứng ngoài.
+                                .requestMatchers("/checkout/**", "/account/**").hasRole("CUSTOMER")
+                                
+                                // Những trang còn lại (ngắm sản phẩm, trang chủ...) thì mở cửa tự do
                                 .anyRequest().permitAll()
                 )
                 .formLogin(
                         form -> form
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/checkout")
+                                .successHandler(customLoginSuccessHandler)  // Redirect thông minh theo role
                                 .permitAll()
                 )
                 .logout(
@@ -45,6 +60,9 @@ public class SecurityConfig {
                                 .logoutSuccessUrl("/login?logout")
                                 .logoutRequestMatcher(request -> request.getServletPath().equals("/logout"))
                                 .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(customAccessDeniedHandler())
                 );
         return http.build();
     }

@@ -28,67 +28,76 @@ public class OrderService {
     private final SanPhamRepository sanPhamRepository;
     private final NguoiDungRepository nguoiDungRepository;
     private final BienTheSanPhamRepository bienTheSanPhamRepository;
+    private final EmailService emailService;
 
     public OrderService(DonHangRepository donHangRepository, 
                         ChiTietDonHangRepository chiTietDonHangRepository, 
                         CartService cartService, 
                         SanPhamRepository sanPhamRepository,
                         NguoiDungRepository nguoiDungRepository,
-                        BienTheSanPhamRepository bienTheSanPhamRepository) {
+                        BienTheSanPhamRepository bienTheSanPhamRepository,
+                        EmailService emailService) {
         this.donHangRepository = donHangRepository;
         this.chiTietDonHangRepository = chiTietDonHangRepository;
         this.cartService = cartService;
         this.sanPhamRepository = sanPhamRepository;
         this.nguoiDungRepository = nguoiDungRepository;
         this.bienTheSanPhamRepository = bienTheSanPhamRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
     public void placeOrder(CheckoutDTO checkoutDTO, HttpSession session, String authenticatedEmail) {
-        List<CartItem> cartItems = cartService.getCart(session);
+        
+        List<CartItem> cartItems = cartService.getCart(session, authenticatedEmail);
+
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new RuntimeException("Giỏ hàng đang trống!");
         }
 
-        // Lấy thông tin người dùng đã đăng nhập
-        NguoiDung user = nguoiDungRepository.findByEmail(authenticatedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        NguoiDung user = null;
+        if (authenticatedEmail != null) {
+            user = nguoiDungRepository.findByEmail(authenticatedEmail).orElse(null);
+        }
 
         DonHang donHang = new DonHang();
         donHang.setNguoiDung(user);
         donHang.setTenNguoiNhan(checkoutDTO.getHo() + " " + checkoutDTO.getTen());
-        donHang.setDienThoaiNhan(checkoutDTO.getSoDienThoai());
         donHang.setDiaChiNhan(checkoutDTO.getDiaChi() + ", " + checkoutDTO.getQuanHuyen() + ", " + checkoutDTO.getThanhPho());
+        donHang.setDienThoaiNhan(checkoutDTO.getSoDienThoai());
         donHang.setEmailNhan(checkoutDTO.getEmail());
         donHang.setGhiChu(checkoutDTO.getGhiChu());
         donHang.setPhuongThucThanhToan(checkoutDTO.getPaymentMethod());
-        donHang.setTrangThaiThanhToan("UNPAID");
-        donHang.setTrangThai("PENDING");
+        donHang.setTrangThai("Chờ xác nhận");
+        donHang.setTrangThaiThanhToan("Chưa thanh toán");
         donHang.setNgayTao(LocalDateTime.now());
         donHang.setNgayCapNhat(LocalDateTime.now());
-        donHang.setTongTien(cartService.getTotalPrice(session));
+        donHang.setTongTien(cartService.getTotalPrice(session, authenticatedEmail));
 
-        donHangRepository.save(donHang);
+        donHang = donHangRepository.save(donHang);
 
         for (CartItem item : cartItems) {
             ChiTietDonHang chiTiet = new ChiTietDonHang();
             chiTiet.setDonHang(donHang);
-            SanPham sp = sanPhamRepository.findById(item.getId()).orElseThrow();
+            
+            SanPham sp = sanPhamRepository.findById(item.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
             chiTiet.setSanPham(sp);
-            chiTiet.setGia(item.getPrice());
-            chiTiet.setSoLuong(item.getQuantity());
-
-            // Nếu có biến thể → set biến thể + trừ tồn kho biến thể
+            
             if (item.getVariantId() != null) {
                 BienTheSanPham bienThe = bienTheSanPhamRepository.findById(item.getVariantId()).orElse(null);
+                chiTiet.setBienThe(bienThe);
+                
                 if (bienThe != null) {
-                    chiTiet.setBienThe(bienThe);
                     // Trừ tồn kho biến thể
                     bienThe.setSoLuong(bienThe.getSoLuong() - item.getQuantity());
                     bienThe.setDaBan((bienThe.getDaBan() == null ? 0 : bienThe.getDaBan()) + item.getQuantity());
                     bienTheSanPhamRepository.save(bienThe);
                 }
             }
+
+            chiTiet.setGia(item.getPrice());
+            chiTiet.setSoLuong(item.getQuantity());
 
             chiTietDonHangRepository.save(chiTiet);
             
@@ -98,6 +107,9 @@ public class OrderService {
             sanPhamRepository.save(sp);
         }
 
-        cartService.clearCart(session);
+        // Gửi email xác nhận đặt hàng HTML đến email khách điền trên form (chứ không phải email tài khoản đăng nhập)
+        emailService.sendOrderConfirmationEmail(checkoutDTO.getEmail(), donHang, cartItems);
+
+        cartService.clearCart(session, authenticatedEmail);
     }
 }

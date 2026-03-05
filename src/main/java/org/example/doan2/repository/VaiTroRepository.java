@@ -6,7 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository truy vấn bảng vai_tro.
+ * Dùng cho việc gán quyền khi đăng ký tài khoản mới.
+ */
 @Repository
 public interface VaiTroRepository extends JpaRepository<VaiTro, Integer> {
+
+    /**
+     * Tìm vai trò theo tên (ví dụ: "ADMIN", "CUSTOMER").
+     */
     Optional<VaiTro> findByTenVaiTro(String tenVaiTro);
 }

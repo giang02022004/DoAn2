@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Nhân Viên &mdash; Admin</title></head>
+<body>
+    <span id="pageHeader">Quản Lý Nhân Viên</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+
+        <!-- Stat mini-cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-4">
+                <div class="stat-card">
+                    <div class="stat-icon-box teal"><i class="fas fa-user-tie"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Tổng Nhân Viên</div>
+                        <div class="stat-num">0</div>
+                    </div>
+                    <div class="stat-footer"><i class="fas fa-users"></i>&ensp;Đang hoạt động</div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="stat-card">
+                    <div class="stat-icon-box green"><i class="fas fa-user-shield"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Quản Trị Viên</div>
+                        <div class="stat-num">0</div>
+                    </div>
+                    <div class="stat-footer"><i class="fas fa-lock"></i>&ensp;Quyền Admin</div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="stat-card">
+                    <div class="stat-icon-box orange"><i class="fas fa-user-cog"></i></div>
+                    <div class="stat-values">
+                        <div class="stat-label">Nhân Viên Thường</div>
+                        <div class="stat-num">0</div>
+                    </div>
+                    <div class="stat-footer"><i class="fas fa-user"></i>&ensp;Vai trò: STAFF</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee table -->
+        <div class="mat-card">
+            <!-- Card header -->
+            <div class="mat-card-header d-flex justify-content-between align-items-center"
+                 style="background:linear-gradient(135deg,#9c27b0,#7b1fa2);border-radius:6px 6px 0 0;padding:16px 22px;">
+                <div>
+                    <h5 class="mb-0 text-white"><i class="fas fa-id-badge me-2"></i>Danh Sách Nhân Viên</h5>
+                    <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Quản lý tài khoản nhân viên và phân quyền</p>
+                </div>
+                <button class="btn btn-warning btn-sm fw-semibold text-white">
+                    <i class="fas fa-user-plus me-1"></i>Thêm Nhân Viên
+                </button>
+            </div>
+
+            <!-- Search bar -->
+            <div class="d-flex align-items-center gap-2 flex-wrap p-3 border-bottom bg-light">
+                <input type="text" class="form-control" placeholder="Tìm tên, email nhân viên..." style="max-width:280px;">
+                <select class="form-select" style="max-width:180px;">
+                    <option value="">-- Lọc theo vai trò --</option>
+                    <option value="ADMIN">Quản Trị Viên</option>
+                    <option value="STAFF">Nhân Viên</option>
+                </select>
+                <button class="btn btn-primary btn-sm text-white">
+                    <i class="fas fa-search me-1"></i>Tìm
+                </button>
+            </div>
+
+            <!-- Table -->
+            <table class="mat-table w-100">
+                <thead>
+                    <tr>
+                        <th width="6%">ID</th>
+                        <th width="8%">Avatar</th>
+                        <th width="22%">Họ Tên</th>
+                        <th width="25%">Email</th>
+                        <th width="14%">Điện Thoại</th>
+                        <th width="12%">Vai Trò</th>
+                        <th width="13%">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-tie fa-3x d-block mb-3 opacity-25"></i>
+                            Kết nối dữ liệu đang được phát triển…
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        </div>
+    </div>
+</body>
+</html>

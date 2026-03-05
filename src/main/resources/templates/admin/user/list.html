@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head><title>Khách Hàng &mdash; Admin</title></head>
+<body>
+    <span id="pageHeader">Quản Lý Khách Hàng</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+        <div class="mat-card">
+            <!-- Card header -->
+            <div class="mat-card-header d-flex justify-content-between align-items-center"
+                 style="background:linear-gradient(135deg,#4caf50,#388e3c);border-radius:6px 6px 0 0;padding:16px 22px;">
+                <div>
+                    <h5 class="mb-0 text-white"><i class="fas fa-users me-2"></i>Danh Sách Tài Khoản</h5>
+                    <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Quản lý khách hàng đã đăng ký</p>
+                </div>
+                <input type="text" class="form-control form-control-sm"
+                       style="max-width:220px;border-radius:20px;"
+                       placeholder="Tìm tên, email...">
+            </div>
+
+            <!-- Search bar -->
+            <div class="d-flex align-items-center gap-2 flex-wrap p-3 border-bottom bg-light">
+                <input type="text" class="form-control" placeholder="Tìm tên hoặc email..." style="max-width:280px;">
+                <select class="form-select" style="max-width:180px;">
+                    <option value="">-- Lọc theo vai trò --</option>
+                    <option value="ADMIN">Quản Trị Viên</option>
+                    <option value="CUSTOMER">Khách Hàng</option>
+                </select>
+                <button class="btn btn-success btn-sm text-white">
+                    <i class="fas fa-search me-1"></i>Tìm
+                </button>
+            </div>
+
+            <!-- Table -->
+            <table class="mat-table w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Họ Tên</th>
+                        <th>Email</th>
+                        <th>Điện Thoại</th>
+                        <th>Vai Trò</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-friends fa-3x d-block mb-3 opacity-25"></i>
+                            Dữ liệu sẽ được kết nối ở bước tiếp theo
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

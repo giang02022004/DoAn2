@@ -28,6 +28,6 @@ public class ChiTietGioHang {
     private SanPham sanPham;
 
     @ManyToOne
-    @JoinColumn(name = "bien_the_id", nullable = false)
+    @JoinColumn(name = "bien_the_id")
     private BienTheSanPham bienThe;
 }

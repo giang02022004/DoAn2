@@ -20,7 +20,8 @@ public class GlobalModelAttributes {
     // Giúp hiển thị số lượng sản phẩm trong giỏ hàng trên Header (icon giỏ hàng) ở TẤT CẢ các trang
     // mà không cần phải thêm thủ công trong từng Controller.
     @ModelAttribute("cartCount")
-    public int getCartCount(HttpSession session) {
-        return cartService.getCount(session);
+    public int getCartCount(HttpSession session, java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        return cartService.getCount(session, email);
     }
 }

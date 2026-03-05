@@ -33,10 +33,11 @@ public class CartController {
 
     // Hiển thị giỏ hàng
     @GetMapping
-    public String viewCart(HttpSession session, Model model) {
-        List<CartItem> cart = cartService.getCart(session);
+    public String viewCart(HttpSession session, Model model, java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        List<CartItem> cart = cartService.getCart(session, email);
         model.addAttribute("cartItems", cart);
-        model.addAttribute("totalPrice", cartService.getTotalPrice(session));
+        model.addAttribute("totalPrice", cartService.getTotalPrice(session, email));
         return "cart";
     }
 
@@ -45,7 +46,9 @@ public class CartController {
     public String addToCart(@RequestParam Integer productId, 
                             @RequestParam(defaultValue = "1") int quantity,
                             @RequestParam(required = false) Integer variantId,
-                            HttpSession session) {
+                            HttpSession session,
+                            java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
         SanPham sp = sanPhamService.getSanPhamById(productId);
         if (sp != null) {
             Integer price = sp.getGia();
@@ -60,7 +63,7 @@ public class CartController {
             }
 
             CartItem item = new CartItem(sp.getId(), sp.getTenSanPham(), price, quantity, sp.getHinhAnh(), variantId, variantInfo);
-            cartService.addToCart(session, item);
+            cartService.addToCart(session, email, item);
         }
         return "redirect:/cart";
     }
@@ -69,8 +72,10 @@ public class CartController {
     @GetMapping("/remove/{id}")
     public String removeFromCart(@PathVariable Integer id,
                                  @RequestParam(required = false) Integer variantId,
-                                 HttpSession session) {
-        cartService.removeFromCart(session, id, variantId);
+                                 HttpSession session,
+                                 java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        cartService.removeFromCart(session, email, id, variantId);
         return "redirect:/cart";
     }
 
@@ -80,10 +85,12 @@ public class CartController {
     public Map<String, Object> updateQuantity(@RequestParam Integer productId,
                                                @RequestParam(required = false) Integer variantId,
                                                @RequestParam int quantity,
-                                               HttpSession session) {
-        cartService.updateQuantity(session, productId, variantId, quantity);
+                                               HttpSession session,
+                                               java.security.Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        cartService.updateQuantity(session, email, productId, variantId, quantity);
         
-        List<CartItem> cart = cartService.getCart(session);
+        List<CartItem> cart = cartService.getCart(session, email);
         CartItem currentItem = cart.stream()
                 .filter(item -> item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId))
                 .findFirst()
@@ -93,8 +100,8 @@ public class CartController {
         if (currentItem != null) {
             response.put("itemTotal", currentItem.getTotalPrice());
         }
-        response.put("totalPrice", cartService.getTotalPrice(session));
-        response.put("cartCount", cartService.getCount(session));
+        response.put("totalPrice", cartService.getTotalPrice(session, email));
+        response.put("cartCount", cartService.getCount(session, email));
         return response;
     }
 }
