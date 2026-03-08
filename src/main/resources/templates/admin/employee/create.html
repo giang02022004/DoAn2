@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Thêm Nhân Sự &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Thêm Nhân Sự Mới</span>
+    <div id="content">
+        <div class="row pt-4 justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+                    <div class="card-header border-bottom py-4 bg-white text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 64px; height: 64px;">
+                            <i class="fas fa-user-plus fs-3"></i>
+                        </div>
+                        <h4 class="mb-1 fw-bolder text-dark">Tạo Tài Khoản Nhân Sự Mới</h4>
+                        <p class="text-muted small mb-0">Vui lòng điền đầy đủ các thông tin để cấp quyền quản trị.</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <!-- Hiển thị thông báo lỗi nếu có -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+                            <i class="fas fa-exclamation-triangle me-2"></i> <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        
+                        <form th:action="@{/admin/employees/store( _csrf=${_csrf.token} )}" method="post" enctype="multipart/form-data">
+                            <div class="row g-4">
+                                <div class="col-12 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">1. Thông Tin Cơ Bản</div>
+                                
+                                <!-- Họ tên -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control focus-ring focus-ring-success" id="hoTen" name="hoTen" required placeholder="Họ Tên" style="border-radius: 10px;">
+                                        <label for="hoTen" class="text-muted"><i class="fas fa-id-card me-2"></i> Họ và Tên <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Số điện thoại -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control focus-ring focus-ring-success" id="dienThoai" name="dienThoai" required placeholder="Số điện thoại" style="border-radius: 10px;">
+                                        <label for="dienThoai" class="text-muted"><i class="fas fa-phone-alt me-2"></i> Số Điện Thoại <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mt-4 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">2. Thông Tin Đăng Nhập & Quyền</div>
+
+                                <!-- Email Đăng Nhập -->
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control focus-ring focus-ring-success" id="email" name="email" required placeholder="Email đăng nhập" style="border-radius: 10px;">
+                                        <label for="email" class="text-muted"><i class="fas fa-envelope me-2"></i> Email tài khoản <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-text mt-2"><i class="fas fa-info-circle me-1 text-primary"></i> Nhân viên sẽ sử dụng Email này để truy cập vào hệ thống.</div>
+                                </div>
+                                
+                                <!-- Mật Khẩu -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="password" class="form-control focus-ring focus-ring-success" id="matKhau" name="matKhau" required placeholder="Mật khẩu" minlength="6" style="border-radius: 10px;">
+                                        <label for="matKhau" class="text-muted"><i class="fas fa-key me-2"></i> Mật khẩu bảo mật <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Phân Role -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select name="vaiTroId" id="vaiTroId" class="form-select border-success focus-ring focus-ring-success" required style="border-radius: 10px; background-color: rgba(25, 135, 84, 0.03);">
+                                            <option value="" disabled selected>-- Chọn quyền hạn --</option>
+                                            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.moTa + ' (' + role.tenVaiTro + ')'}"></option>
+                                        </select>
+                                        <label for="vaiTroId" class="text-success fw-bold"><i class="fas fa-user-shield me-2"></i> Phân Quyền <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mt-4 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">3. Hình Ảnh Đại Diện</div>
+
+                                <!-- Ảnh Đại Diện -->
+                                <div class="col-12">
+                                    <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                                        <label for="anhDaiDienFile" class="form-label text-muted fw-bold mb-2"><i class="fas fa-camera me-2 text-secondary"></i>Tải lên Ảnh Đại Diện <span class="fw-normal text-muted">(Tuỳ chọn)</span></label>
+                                        <input class="form-control focus-ring focus-ring-success" type="file" id="anhDaiDienFile" name="anhDaiDienFile" accept="image/png, image/jpeg, image/webp" style="border-radius: 10px;">
+                                        <div class="form-text mt-2"><i class="fas fa-info-circle me-1 text-primary"></i> Hình ảnh nên có tỉ lệ vuông (1:1), định dạng JPG, PNG hoặc WEBP.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Nút Lưu -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a th:href="@{/admin/employees}" class="btn btn-light border px-4 rounded-pill hover-translate" style="font-weight: 500;">
+                                    <i class="fas fa-arrow-left me-2"></i> Hủy Bỏ
+                                </a>
+                                <button type="submit" class="btn px-5 rounded-pill shadow-sm text-white hover-translate" style="background: linear-gradient(135deg, #1abc9c, #16a085); font-weight: 600;">
+                                    <i class="fas fa-check-circle me-2"></i> Khởi Tạo Tài Khoản
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .hover-translate { transition: transform 0.2s ease; }
+                .hover-translate:hover { transform: translateY(-2px); }
+                .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                    color: #16a085 !important;
+                }
+            </style>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

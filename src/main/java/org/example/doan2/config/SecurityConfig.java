@@ -9,8 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
@@ -37,12 +40,15 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                // Khu vực /admin/** chỉ cấp phép duy nhất cho tài khoản mang quyền ADMIN
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                // 1. CỔNG VÀO KHU VỰC QUẢN TRỊ (/admin/**)
+                                // Cho phép cả ADMIN (Quản trị cao nhất) và EMPLOYEE (Nhân sự vận hành) được đi qua cánh cổng chung này.
+                                // Tính bảo mật phân lớp: Mặc dù EMPLOYEE qua được cổng này, nhưng khi truy cập vào từng chức năng cụ thể
+                                // (ví dụ: quản lý nhân sự, xem doanh thu), hệ thống sẽ kiểm tra thêm thẻ @PreAuthorize trên từng Controller để bắt giữ lại nếu vi phạm.
+                                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "EMPLOYEE")
                                 
-                                // Khu vực Thanh toán (/checkout) và Tài khoản khách hàng (/account) 
+                                // Khu vực Thanh toán (/checkout, /vnpay) và Tài khoản khách hàng (/account)
                                 // bây giờ được siết chặt: CHỈ Khách Hàng mới được phép vào. Admin đứng ngoài.
-                                .requestMatchers("/checkout/**", "/account/**").hasRole("CUSTOMER")
+                                .requestMatchers("/checkout/**", "/account/**", "/vnpay/**").hasRole("CUSTOMER")
                                 
                                 // Những trang còn lại (ngắm sản phẩm, trang chủ...) thì mở cửa tự do
                                 .anyRequest().permitAll()

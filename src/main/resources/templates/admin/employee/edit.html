@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Sửa Thông Tin Nhân Sự &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Cập Nhật Thông Tin Nhân Sự</span>
+    <div id="content">
+        <div class="row pt-4 justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+                    <div class="card-header border-bottom py-4 bg-white text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle mb-3" style="width: 64px; height: 64px;">
+                            <i class="fas fa-user-edit fs-3"></i>
+                        </div>
+                        <h4 class="mb-1 fw-bolder text-dark">Chỉnh Sửa Thông Tin Nhân Sự</h4>
+                        <p class="text-muted small mb-0">Cập nhật hồ sơ và phân quyền quản trị.</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <!-- Thông tin cá nhân cơ bản (readonly) -->
+                        <div class="d-flex align-items-center mb-5 p-3 rounded-4 shadow-sm border" style="background: linear-gradient(to right, #ffffff, #f8f9fa);">
+                            <img th:if="${employee.anhDaiDien != null}" th:src="@{'/img/' + ${employee.anhDaiDien}}" style="width:64px;height:64px;object-fit:cover;" class="rounded-circle me-3 border shadow-sm">
+                            <div th:unless="${employee.anhDaiDien != null}" class="bg-light border shadow-sm rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                                <i class="fas fa-user-tie fa-2x text-muted"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 fw-bold text-dark" th:text="${employee.hoTen}">Tên Nhân Viên</h5>
+                                <div class="text-muted small"><i class="fas fa-envelope text-warning me-1"></i> <span th:text="${employee.email}"></span></div>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/admin/employees/update( _csrf=${_csrf.token} )}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" th:value="${employee.id}">
+                            
+                            <div class="row g-4">
+                                <div class="col-12 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">1. Thông Tin Cập Nhật</div>
+                                
+                                <!-- Họ tên -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control focus-ring focus-ring-warning" id="hoTen" name="hoTen" th:value="${employee.hoTen}" required placeholder="Họ Tên" style="border-radius: 10px;">
+                                        <label for="hoTen" class="text-muted"><i class="fas fa-id-card me-2"></i> Họ và Tên <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Số điện thoại -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control focus-ring focus-ring-warning" id="dienThoai" name="dienThoai" th:value="${employee.dienThoai}" required placeholder="Số điện thoại" style="border-radius: 10px;">
+                                        <label for="dienThoai" class="text-muted"><i class="fas fa-phone-alt me-2"></i> Số Điện Thoại <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mt-4 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">2. Quyền Truy Cập & Bảo Mật</div>
+
+                                <!-- Phân Role -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select name="vaiTroId" id="vaiTroId" class="form-select border-warning focus-ring focus-ring-warning" required style="border-radius: 10px; background-color: rgba(255, 193, 7, 0.03);">
+                                            <option th:each="role : ${roles}" 
+                                                    th:value="${role.id}" 
+                                                    th:text="${role.moTa + ' (' + role.tenVaiTro + ')'}"
+                                                    th:selected="${role.id == employee.vaiTro.id}">
+                                            </option>
+                                        </select>
+                                        <label for="vaiTroId" class="text-warning fw-bold"><i class="fas fa-user-shield me-2 text-warning"></i> Phân Quyền <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+
+                                
+
+                                <div class="col-12 mt-4 text-muted text-uppercase small fw-bold mb-n2" style="letter-spacing: 0.8px;">3. Hình Ảnh Đại Diện</div>
+
+                                <!-- Ảnh Đại Diện -->
+                                <div class="col-12">
+                                    <div class="p-3 border rounded shadow-sm" style="background-color: #fcfdfd;">
+                                        <label for="anhDaiDienFile" class="form-label text-muted fw-bold mb-2"><i class="fas fa-camera me-2 text-warning"></i>Cập nhật Ảnh Đại Diện Mới <span class="fw-normal text-muted">(Tuỳ chọn)</span></label>
+                                        <input class="form-control focus-ring focus-ring-warning" type="file" id="anhDaiDienFile" name="anhDaiDienFile" accept="image/png, image/jpeg, image/webp" style="border-radius: 10px;">
+                                        <div class="form-text mt-2"><i class="fas fa-info-circle me-1 text-primary"></i> Hình ảnh mới sẽ thay thế ảnh cũ (nếu có). Nên dùng ảnh vuông (1:1).</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Nút Lưu -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a th:href="@{/admin/employees}" class="btn btn-light border px-4 rounded-pill hover-translate" style="font-weight: 500;">
+                                    <i class="fas fa-arrow-left me-2"></i> Hủy Cập Nhật
+                                </a>
+                                <button type="submit" class="btn px-5 rounded-pill shadow-sm text-white hover-translate" style="background: linear-gradient(135deg, #f39c12, #e67e22); font-weight: 600;">
+                                    <i class="fas fa-save me-2"></i> Lưu Thay Đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .hover-translate { transition: transform 0.2s ease; }
+                .hover-translate:hover { transform: translateY(-2px); }
+                .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                    color: #e67e22 !important;
+                }
+            </style>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

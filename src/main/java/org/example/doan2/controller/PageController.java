@@ -17,7 +17,16 @@ public class PageController {
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model, java.security.Principal principal) {
         String email = principal != null ? principal.getName() : null;
-        model.addAttribute("cartItems", cartService.getCart(session, email));
+        var cartItems = cartService.getCart(session, email);
+        
+        // [BẢO MẬT/LOGIC] Lớp 1: Kiểm tra giỏ hàng trống.
+        // Ngăn chặn người dùng cố tình gõ URL /checkout khi giỏ hàng chưa có sản phẩm.
+        // Nếu giỏ hàng trống, tự động đá ngược về trang /cart để xem giỏ.
+        if (cartItems == null || cartItems.isEmpty()) {
+            return "redirect:/cart";
+        }
+        
+        model.addAttribute("cartItems", cartItems);
         model.addAttribute("totalPrice", cartService.getTotalPrice(session, email));
         return "checkout";
     }

@@ -33,5 +33,6 @@ public class BienTheSanPham {
 
     @ManyToOne
     @JoinColumn(name = "san_pham_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private SanPham sanPham;
 }

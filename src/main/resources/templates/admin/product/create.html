@@ -59,7 +59,7 @@
                                     <!-- Loại Sản Phẩm -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-bold">Loại Sản Phẩm <span class="text-danger">*</span></label>
-                                        <select name="loaiSanPham.id" class="form-select" required>
+                                        <select name="loaiSanPham.id" id="loaiSanPhamSelect" class="form-select" required onchange="toggleVariantSection()">
                                             <option value="">-- Chọn Loại --</option>
                                             <option th:each="type : ${types}" 
                                                     th:value="${type.id}" 
@@ -69,15 +69,110 @@
                                     </div>
                                 </div>
 
-                                <!-- Hình Ảnh (File Input) -->
+                                <!-- Bỏ đi single input cũ vì ta đã chuyển input sang form bên phải -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Tải Lên Hình Ảnh <span class="text-danger">*</span></label>
-                                    <input type="file" name="imageFile" accept="image/*" class="form-control" required>
-                                    <small class="text-muted">Ghi chú: Vui lòng chọn ảnh định dạng JPG, PNG, WEBP...</small>
+                                    <label class="form-label fw-bold mb-2">Thông tin Hình Ảnh <span class="text-danger">*</span></label>
+                                    <p class="text-muted small">Vui lòng tải lên 1 ảnh chính và tối đa 4 ảnh phụ ở cột bên phải.</p>
                                 </div>
                             </div>
                             
+                            <script>
+                                function triggerFileInput(index) {
+                                    document.getElementById('imageInput_' + index).click();
+                                }
+
+                                function previewSelectedBox(event, index) {
+                                    var file = event.target.files[0];
+                                    if (!file) return;
+
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        var box = document.getElementById('previewBox_' + index);
+                                        var text = document.getElementById('previewText_' + index);
+                                        
+                                        // Xóa ảnh cũ nếu có
+                                        var oldImg = box.querySelector('img');
+                                        if (oldImg) oldImg.remove();
+                                        
+                                        // Thêm ảnh mới
+                                        var img = document.createElement('img');
+                                        img.src = e.target.result;
+                                        img.style.width = '100%';
+                                        img.style.height = '100%';
+                                        img.style.objectFit = 'cover';
+                                        
+                                        box.appendChild(img);
+                                        if (text) text.style.display = 'none';
+                                        
+                                        box.classList.remove('bg-light');
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            </script>
+                            
                             <div class="col-md-4">
+                                <!-- Box Hiển Thị Ảnh Cập Nhật Lên -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light fw-bold">Album Ảnh Sản Phẩm</div>
+                                    <div class="card-body text-center p-2">
+                                        
+                                        <!-- Ảnh Đại Diện Chính (Index 0) -->
+                                        <div class="mb-2">
+                                            <label class="small fw-bold text-muted mb-1">Ảnh Đại Diện (Bắt buộc)</label>
+                                            <div id="previewBox_0" class="border rounded bg-light cursor-pointer position-relative overflow-hidden preview-box-main" 
+                                                 style="height: 180px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                 onclick="triggerFileInput(0)" title="Nhấn để chọn ảnh chính">
+                                                <span id="previewText_0" class="text-muted small"><i class="fas fa-image fa-2x mb-2 d-block"></i> Chọn Ảnh</span>
+                                            </div>
+                                            <input type="file" name="imageFiles" id="imageInput_0" accept="image/*" class="d-none" onchange="previewSelectedBox(event, 0)">
+                                        </div>
+
+                                        <!-- 4 Ảnh Phụ (Index 1-4) -->
+                                        <div class="mt-3">
+                                            <label class="small fw-bold text-muted mb-1">Ảnh Phụ (Tùy chọn)</label>
+                                            <div class="row g-2">
+                                                <!-- Box 1 -->
+                                                <div class="col-3">
+                                                    <div id="previewBox_1" class="border rounded bg-light cursor-pointer position-relative overflow-hidden preview-box-sub" 
+                                                         style="height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         onclick="triggerFileInput(1)">
+                                                        <span id="previewText_1" class="text-muted" style="font-size: 0.7rem;"><i class="fas fa-plus"></i></span>
+                                                    </div>
+                                                    <input type="file" name="imageFiles" id="imageInput_1" accept="image/*" class="d-none" onchange="previewSelectedBox(event, 1)">
+                                                </div>
+                                                <!-- Box 2 -->
+                                                <div class="col-3">
+                                                    <div id="previewBox_2" class="border rounded bg-light cursor-pointer position-relative overflow-hidden preview-box-sub" 
+                                                         style="height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         onclick="triggerFileInput(2)">
+                                                        <span id="previewText_2" class="text-muted" style="font-size: 0.7rem;"><i class="fas fa-plus"></i></span>
+                                                    </div>
+                                                    <input type="file" name="imageFiles" id="imageInput_2" accept="image/*" class="d-none" onchange="previewSelectedBox(event, 2)">
+                                                </div>
+                                                <!-- Box 3 -->
+                                                <div class="col-3">
+                                                    <div id="previewBox_3" class="border rounded bg-light cursor-pointer position-relative overflow-hidden preview-box-sub" 
+                                                         style="height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         onclick="triggerFileInput(3)">
+                                                        <span id="previewText_3" class="text-muted" style="font-size: 0.7rem;"><i class="fas fa-plus"></i></span>
+                                                    </div>
+                                                    <input type="file" name="imageFiles" id="imageInput_3" accept="image/*" class="d-none" onchange="previewSelectedBox(event, 3)">
+                                                </div>
+                                                <!-- Box 4 -->
+                                                <div class="col-3">
+                                                    <div id="previewBox_4" class="border rounded bg-light cursor-pointer position-relative overflow-hidden preview-box-sub" 
+                                                         style="height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         onclick="triggerFileInput(4)">
+                                                        <span id="previewText_4" class="text-muted" style="font-size: 0.7rem;"><i class="fas fa-plus"></i></span>
+                                                    </div>
+                                                    <input type="file" name="imageFiles" id="imageInput_4" accept="image/*" class="d-none" onchange="previewSelectedBox(event, 4)">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
                                 <div class="alert alert-info py-2 small">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Trạng thái mặc định là "Còn Hàng".
@@ -85,6 +180,77 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- CẤU HÌNH BIẾN THỂ (Chỉ hiển thị khi chọn Laptop) -->
+                        <div id="variantSection" class="card mb-4" style="display: none; border: 1px solid #ff9800;">
+                            <div class="card-header text-white fw-bold d-flex justify-content-between align-items-center"
+                                 style="background: linear-gradient(135deg, #f57c00, #ff9800); border-radius: 6px 6px 0 0;">
+                                <span><i class="fas fa-microchip me-2"></i>Cấu Hình Biến Thể (Dành riêng cho Laptop)</span>
+                                <button type="button" class="btn btn-sm btn-light fw-bold" style="color: #f57c00;" onclick="addVariantRow()">
+                                    <i class="fas fa-plus me-1"></i> Thêm Cấu Hình
+                                </button>
+                            </div>
+                            <div class="card-body bg-light" id="variantContainer">
+                                <!-- Các hàng biến thể sẽ được thêm bằng Javascript vào đây -->
+                                <div class="text-center text-muted small fst-italic py-3" id="noVariantText">
+                                    Chưa có cấu hình nào. Hãy bấm "Thêm Cấu Hình" để tạo.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lưng Javascript xử lý Biến Thể -->
+                        <script>
+                            function toggleVariantSection() {
+                                var select = document.getElementById("loaiSanPhamSelect");
+                                var text = select.options[select.selectedIndex].text.toLowerCase();
+                                var variantSection = document.getElementById("variantSection");
+                                
+                                if (text.includes("laptop")) {
+                                    variantSection.style.display = "block";
+                                } else {
+                                    variantSection.style.display = "none";
+                                    document.getElementById("variantContainer").innerHTML = '<div class="text-center text-muted small fst-italic py-3" id="noVariantText">Chưa có cấu hình nào. Hãy bấm "Thêm Cấu Hình" để tạo.</div>';
+                                }
+                            }
+
+                            function addVariantRow() {
+                                var container = document.getElementById("variantContainer");
+                                var noVariantText = document.getElementById("noVariantText");
+                                if (noVariantText) noVariantText.remove();
+
+                                var rowId = 'variant_' + Date.now();
+                                var html = `
+                                    <div class="row g-2 align-items-end mb-3 pb-3 border-bottom variant-row" id="${rowId}">
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold mb-1">Tên CPU</label>
+                                            <input type="text" name="cpus" class="form-control form-control-sm" placeholder="VD: Intel Core i5" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold mb-1">RAM & Ổ Cứng</label>
+                                            <input type="text" name="boNhos" class="form-control form-control-sm" placeholder="VD: 8GB - 256GB SSD" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label small fw-bold mb-1">Màu Sắc</label>
+                                            <input type="text" name="mauSacs" class="form-control form-control-sm" placeholder="VD: Bạc" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label small fw-bold mb-1">Giá Cộng Thêm</label>
+                                            <input type="number" name="giaThems" class="form-control form-control-sm" value="0" required min="0">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label small fw-bold mb-1">Tồn Kho</label>
+                                            <input type="number" name="soLuongBienThes" class="form-control form-control-sm" value="1" required min="1">
+                                        </div>
+                                        <div class="col-md-1 text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="document.getElementById('${rowId}').remove()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                container.insertAdjacentHTML('beforeend', html);
+                            }
+                        </script>
 
                         <!-- Mô Tả Ngắn -->
                         <div class="mb-3">

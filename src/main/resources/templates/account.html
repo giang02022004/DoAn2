@@ -254,17 +254,17 @@
                             <!-- Status Filter -->
                             <div class="order-status-filter d-flex flex-wrap gap-2 mb-4">
                                 <button class="btn btn-sm active order-filter-btn" data-status="all">TẤT CẢ</button>
-                                <button class="btn btn-sm order-filter-btn" data-status="PENDING">MỚI</button>
-                                <button class="btn btn-sm order-filter-btn" data-status="PROCESSING">ĐANG XỬ LÝ</button>
-                                <button class="btn btn-sm order-filter-btn" data-status="SHIPPING">ĐANG VẬN CHUYỂN</button>
-                                <button class="btn btn-sm order-filter-btn" data-status="COMPLETED">HOÀN THÀNH</button>
-                                <button class="btn btn-sm order-filter-btn" data-status="CANCELLED">HUỶ</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="Chờ thanh toán">CHỜ THANH TOÁN</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="Chờ xác nhận">CHỜ XÁC NHẬN</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="Đang giao">ĐANG VẬN CHUYỂN</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="Đã hoàn thành">HOÀN THÀNH</button>
+                                <button class="btn btn-sm order-filter-btn" data-status="Đã hủy">HUỶ</button>
                             </div>
 
                             <!-- Order List -->
                             <div id="orderList">
                                 <div th:if="${orders != null and !orders.isEmpty()}">
-                                    <div th:each="order : ${orders}" class="order-card bg-white rounded-3 border p-4 mb-3" style="cursor:pointer;" th:attr="data-order-status=${order.trangThai},data-order-id=${order.id}" onclick="showOrderDetail(this.getAttribute('data-order-id'))">,data-order-id=${order.id}" onclick="showOrderDetail(this.getAttribute('data-order-id'))">
+                                    <div th:each="order : ${orders}" class="order-card bg-white rounded-3 border p-4 mb-3" style="cursor:pointer;" th:attr="data-order-status=${order.trangThai},data-order-id=${order.id}" onclick="showOrderDetail(this.getAttribute('data-order-id'))">
                                         <div class="d-flex justify-content-between align-items-start flex-wrap">
                                             <div>
                                                 <h6 class="fw-bold mb-1">Đơn hàng #<span th:text="${order.id}">1</span></h6>
@@ -272,8 +272,8 @@
                                             </div>
                                             <div class="text-end">
                                                 <span class="badge rounded-pill px-3 py-2"
-                                                      th:classappend="${order.trangThai == 'PENDING' ? 'bg-warning text-dark' : (order.trangThai == 'PROCESSING' ? 'bg-info text-white' : (order.trangThai == 'SHIPPING' ? 'bg-primary' : (order.trangThai == 'COMPLETED' ? 'bg-success' : 'bg-danger')))}"
-                                                      th:text="${order.trangThai == 'PENDING' ? 'Mới' : (order.trangThai == 'PROCESSING' ? 'Đang xử lý' : (order.trangThai == 'SHIPPING' ? 'Đang vận chuyển' : (order.trangThai == 'COMPLETED' ? 'Hoàn thành' : 'Đã huỷ')))}">
+                                                      th:classappend="${order.trangThai == 'Chờ thanh toán' ? 'bg-secondary text-white' : (order.trangThai == 'Chờ xác nhận' ? 'bg-warning text-dark' : (order.trangThai == 'Đang giao' ? 'bg-primary' : (order.trangThai == 'Đã hoàn thành' ? 'bg-success' : 'bg-danger')))}"
+                                                      th:text="${order.trangThai}">
                                                     Trạng thái
                                                 </span>
                                             </div>
@@ -470,11 +470,11 @@
                     return;
                 }
                 var statusMap = {
-                    'PENDING': '<span class="badge bg-warning text-dark">Mới</span>',
-                    'PROCESSING': '<span class="badge bg-info text-white">Đang xử lý</span>',
-                    'SHIPPING': '<span class="badge bg-primary">Đang vận chuyển</span>',
-                    'COMPLETED': '<span class="badge bg-success">Hoàn thành</span>',
-                    'CANCELLED': '<span class="badge bg-danger">Đã huỷ</span>'
+                    'Chờ thanh toán': '<span class="badge bg-secondary text-white">Chờ thanh toán</span>',
+                    'Chờ xác nhận': '<span class="badge bg-warning text-dark">Chờ xác nhận</span>',
+                    'Đang giao': '<span class="badge bg-primary">Đang giao</span>',
+                    'Đã hoàn thành': '<span class="badge bg-success">Đã hoàn thành</span>',
+                    'Đã hủy': '<span class="badge bg-danger">Đã huỷ</span>'
                 };
                 var html = '<div class="mb-3 p-3 bg-light rounded">';
                 html += '<div class="row"><div class="col-md-6">';

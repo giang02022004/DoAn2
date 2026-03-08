@@ -71,10 +71,14 @@
                                 <a th:href="@{|/admin/products/edit/${product.id}|}" class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 12px;" title="Sửa sản phẩm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <!-- Nút Xoá (tương lai sẽ nối link) -->
-                                <button class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 12px;">
+                                <!-- Nút Xoá -->
+                                <a th:href="@{|/admin/products/delete/${product.id}|}" 
+                                   class="btn btn-sm btn-outline-danger" 
+                                   style="padding: 2px 8px; font-size: 12px;" 
+                                   title="Xoá sản phẩm"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Thao tác này không thể hoàn tác!');">
                                     <i class="fas fa-trash-alt"></i>
-                                </button>
+                                </a>
                             </div>
                         </td>
                     </tr>

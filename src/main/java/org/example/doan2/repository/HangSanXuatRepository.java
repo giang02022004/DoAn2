@@ -15,4 +15,8 @@ public interface HangSanXuatRepository extends JpaRepository<HangSanXuat, Intege
         WHERE sp.loaiSanPham.tenLoai = :tenLoai
     """)
     List<HangSanXuat> findHangByLoaiSanPham(@Param("tenLoai") String tenLoai);
+
+    // Lấy tất cả Hãng chưa bị xoá mềm
+    @Query("SELECT h FROM HangSanXuat h WHERE h.trangThai IS NULL OR h.trangThai = 'ACTIVE'")
+    List<HangSanXuat> findAllActive();
 }

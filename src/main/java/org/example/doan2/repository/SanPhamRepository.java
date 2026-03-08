@@ -65,4 +65,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
     // Lọc sản phẩm theo cả Tên và Hãng Sản Xuất (không phân trang - Admin)
     List<SanPham> findByTenSanPhamContainingIgnoreCaseAndHangSanXuat_Id(String tenSanPham, Integer hangId);
+
+    // LẤY SẢN PHẨM SẮP HẾT HÀNG (Sắp xếp theo số lượng tăng dần)
+    List<SanPham> findTop5ByOrderBySoLuongAsc();
 }

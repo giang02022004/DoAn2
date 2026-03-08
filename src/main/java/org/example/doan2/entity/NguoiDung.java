@@ -43,6 +43,9 @@ public class NguoiDung {
     @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
+    @Column(name = "trang_thai")
+    private String trangThai = "ACTIVE";
+
     @ManyToOne
     @JoinColumn(name = "vai_tro_id", nullable = false)
     private VaiTro vaiTro;

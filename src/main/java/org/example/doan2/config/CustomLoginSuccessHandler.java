@@ -24,7 +24,11 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication) throws IOException {
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
-        if (roles.contains("ROLE_ADMIN")) {
+        // KỊCH BẢN ĐIỀU HƯỚNG:
+        // Cả ADMIN (Quản trị viên) và EMPLOYEE (Nhân viên) đều thuộc khối Quản lý.
+        // Do đó, khi đăng nhập thành công, hệ thống sẽ tự động dẫn họ vào thẳng cổng không gian quản trị "/admin".
+        // (Lưu ý: Sau khi vào "/admin", các quyền hạn chi tiết bên trong sẽ tiếp tục bị kiểm tra tiếp bởi @PreAuthorize)
+        if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_EMPLOYEE")) {
             response.sendRedirect(request.getContextPath() + "/admin");
         } else {
             response.sendRedirect(request.getContextPath() + "/");

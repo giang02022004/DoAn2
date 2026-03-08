@@ -25,10 +25,10 @@ public class SanPham {
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
-    @Column(name = "mo_ta_chi_tiet", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "mo_ta_chi_tiet", columnDefinition = "TEXT")
     private String moTaChiTiet;
 
-    @Column(name = "mo_ta_ngan", nullable = false)
+    @Column(name = "mo_ta_ngan")
     private String moTaNgan;
 
     @Column(name = "so_luong", nullable = false)

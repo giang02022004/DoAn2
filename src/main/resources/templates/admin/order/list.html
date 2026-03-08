@@ -85,18 +85,23 @@
                         <td th:text="${#temporals.format(order.ngayTao, 'dd/MM/yyyy')}"></td>
                         <td>
                             <!-- Form nhỏ gọn gàng trực tiếp ấn nạp DB đổi trạng thái đơn hàng -->
-                            <form th:action="@{/admin/orders/update-status}" method="post" class="d-flex gap-1 align-items-center">
-                                <input type="hidden" name="orderId" th:value="${order.id}">
-                                <select name="trangThai" class="form-select form-select-sm" style="width: 130px; font-size: 12px;">
-                                    <option value="Chờ xác nhận" th:selected="${order.trangThai == 'Chờ xác nhận'}">Chờ xác nhận</option>
-                                    <option value="Đang giao" th:selected="${order.trangThai == 'Đang giao'}">Đang giao</option>
-                                    <option value="Đã hoàn thành" th:selected="${order.trangThai == 'Đã hoàn thành'}">Đã hoàn thành</option>
-                                    <option value="Đã hủy" th:selected="${order.trangThai == 'Đã hủy'}">Đã hủy</option>
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 12px;">
-                                    <i class="fas fa-save"></i>
-                                </button>
-                            </form>
+                            <div class="d-flex align-items-center gap-2">
+                                <a th:href="@{/admin/orders/detail/{id}(id=${order.id})}" class="btn btn-sm btn-outline-dark" style="padding: 2px 8px; font-size: 12px;" title="Xem chi tiết đơn hàng">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form th:action="@{/admin/orders/update-status}" method="post" class="d-flex gap-1 align-items-center m-0">
+                                    <input type="hidden" name="orderId" th:value="${order.id}">
+                                    <select name="trangThai" class="form-select form-select-sm" style="width: 130px; font-size: 12px;">
+                                        <option value="Chờ xác nhận" th:selected="${order.trangThai == 'Chờ xác nhận'}">Chờ xác nhận</option>
+                                        <option value="Đang giao" th:selected="${order.trangThai == 'Đang giao'}">Đang giao</option>
+                                        <option value="Đã hoàn thành" th:selected="${order.trangThai == 'Đã hoàn thành'}">Đã hoàn thành</option>
+                                        <option value="Đã hủy" th:selected="${order.trangThai == 'Đã hủy'}">Đã hủy</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary" style="padding: 2px 8px; font-size: 12px;" title="Cập nhật trạng thái">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <!-- Hiển thị khi không có đơn hàng nào -->

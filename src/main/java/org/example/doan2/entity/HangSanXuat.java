@@ -18,4 +18,14 @@ public class HangSanXuat {
 
     @Column(name = "mo_ta", nullable = false)
     private String moTa;
+
+    @Column(name = "trang_thai")
+    private String trangThai = "ACTIVE"; // "ACTIVE" or "DELETED"
+
+    @PrePersist
+    public void prePersist() {
+        if (this.trangThai == null) {
+            this.trangThai = "ACTIVE";
+        }
+    }
 }

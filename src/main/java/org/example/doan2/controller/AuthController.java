@@ -47,11 +47,12 @@ public class AuthController {
         
         user.setMatKhau(passwordEncoder.encode(user.getMatKhau()));
         user.setLoaiTaiKhoan("CUSTOMER");
+        user.setTrangThai("ACTIVE");
         user.setNgayTao(LocalDateTime.now());
         user.setNgayCapNhat(LocalDateTime.now());
         
         VaiTro role = vaiTroRepository.findByTenVaiTro("CUSTOMER")
-                .or(() -> vaiTroRepository.findById(1))
+                .or(() -> vaiTroRepository.findById(2))
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         user.setVaiTro(role);
 

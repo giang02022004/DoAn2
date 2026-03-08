@@ -1,5 +1,4 @@
 package org.example.doan2.service;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.example.doan2.dto.CartItem;
@@ -15,10 +14,8 @@ import org.example.doan2.repository.DonHangRepository;
 import org.example.doan2.repository.NguoiDungRepository;
 import org.example.doan2.repository.SanPhamRepository;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Service
 public class OrderService {
 
@@ -111,5 +108,110 @@ public class OrderService {
         emailService.sendOrderConfirmationEmail(checkoutDTO.getEmail(), donHang, cartItems);
 
         cartService.clearCart(session, authenticatedEmail);
+    }
+
+    /**
+     * Đặt đơn hàng dành riêng cho luồng thanh toán VNPay.
+     *
+     * Khác với placeOrder() thông thường (COD), phương thức này:
+     *   - Lưu đơn hàng với trạng thái "Chờ thanh toán" (chờ VNPay xác nhận)
+     *   - KHÔNG xóa giỏ hàng (chỉ xóa sau khi VNPay callback thành công)
+     *   - KHÔNG gửi email (email gửi sau khi VNPay xác nhận)
+     *
+     * @return ID của đơn hàng vừa tạo (để chuyển sang trang VNPay)
+     */
+    @Transactional
+    public int datDonHangChoThanhToan(CheckoutDTO thongTinDatHang, HttpSession phienLam, String emailDangNhap) {
+
+        List<CartItem> danhSachSanPhamGiohang = cartService.getCart(phienLam, emailDangNhap);
+
+        if (danhSachSanPhamGiohang.isEmpty()) {
+            throw new RuntimeException("Giỏ hàng đang trống!");
+        }
+
+        NguoiDung nguoiDung = null;
+        if (emailDangNhap != null) {
+            nguoiDung = nguoiDungRepository.findByEmail(emailDangNhap).orElse(null);
+        }
+
+        // Tạo đơn hàng với trạng thái "Chờ thanh toán" — chưa hoàn tất
+        DonHang donHangMoi = new DonHang();
+        donHangMoi.setNguoiDung(nguoiDung);
+        donHangMoi.setTenNguoiNhan(thongTinDatHang.getHo() + " " + thongTinDatHang.getTen());
+        donHangMoi.setDiaChiNhan(thongTinDatHang.getDiaChi() + ", " + thongTinDatHang.getQuanHuyen() + ", " + thongTinDatHang.getThanhPho());
+        donHangMoi.setDienThoaiNhan(thongTinDatHang.getSoDienThoai());
+        donHangMoi.setEmailNhan(thongTinDatHang.getEmail());
+        donHangMoi.setGhiChu(thongTinDatHang.getGhiChu());
+        donHangMoi.setPhuongThucThanhToan("VNPay");
+        donHangMoi.setTrangThai("Chờ thanh toán");
+        donHangMoi.setTrangThaiThanhToan("Chưa thanh toán");
+        donHangMoi.setNgayTao(LocalDateTime.now());
+        donHangMoi.setNgayCapNhat(LocalDateTime.now());
+        donHangMoi.setTongTien(cartService.getTotalPrice(phienLam, emailDangNhap));
+
+        donHangMoi = donHangRepository.save(donHangMoi);
+
+        // Lưu chi tiết từng sản phẩm trong giỏ hàng vào đơn hàng
+        for (CartItem sanPhamTrongGio : danhSachSanPhamGiohang) {
+            ChiTietDonHang chiTietDonHang = new ChiTietDonHang();
+            chiTietDonHang.setDonHang(donHangMoi);
+
+            SanPham sp = sanPhamRepository.findById(sanPhamTrongGio.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+            chiTietDonHang.setSanPham(sp);
+
+            if (sanPhamTrongGio.getVariantId() != null) {
+                BienTheSanPham bienTheSanPham = bienTheSanPhamRepository
+                        .findById(sanPhamTrongGio.getVariantId()).orElse(null);
+                chiTietDonHang.setBienThe(bienTheSanPham);
+
+                if (bienTheSanPham != null) {
+                    // Không trừ tồn kho biến thể ngay lúc tạo đơn chờ
+                }
+            }
+
+            chiTietDonHang.setGia(sanPhamTrongGio.getPrice());
+            chiTietDonHang.setSoLuong(sanPhamTrongGio.getQuantity());
+            chiTietDonHangRepository.save(chiTietDonHang);
+
+            // Không trừ tồn kho sản phẩm chính lúc tạo đơn chờ
+        }
+
+        // Trả về ID đơn hàng để chuyển hướng sang VNPay
+        return donHangMoi.getId();
+    }
+
+    /**
+     * Cập nhật trạng thái và trừ tồn kho sau khi VNPay thanh toán thành công.
+     */
+    @Transactional
+    public void xacNhanDonHangVNPayThanhCong(int maDonHang, String maThanhToanVNP) {
+        DonHang donHang = donHangRepository.findById(maDonHang).orElse(null);
+        if (donHang != null) {
+            // Cập nhật trạng thái hoá đơn
+            donHang.setTrangThaiThanhToan("Đã thanh toán");
+            donHang.setTrangThai("Chờ xác nhận");
+            donHang.setMaThanhToan(maThanhToanVNP);
+            donHang.setNgayCapNhat(LocalDateTime.now());
+            donHangRepository.save(donHang);
+
+            // Tiến hành trừ số lượng tồn kho và cộng dồn số lượng đã bán
+            List<ChiTietDonHang> chiTietList = chiTietDonHangRepository.findByDonHang(donHang);
+            for (ChiTietDonHang chiTiet : chiTietList) {
+                SanPham sp = chiTiet.getSanPham();
+                if (sp != null) {
+                    sp.setSoLuong(sp.getSoLuong() - chiTiet.getSoLuong());
+                    sp.setDaBan((sp.getDaBan() == null ? 0 : sp.getDaBan()) + chiTiet.getSoLuong());
+                    sanPhamRepository.save(sp);
+                }
+
+                BienTheSanPham bt = chiTiet.getBienThe();
+                if (bt != null) {
+                    bt.setSoLuong(bt.getSoLuong() - chiTiet.getSoLuong());
+                    bt.setDaBan((bt.getDaBan() == null ? 0 : bt.getDaBan()) + chiTiet.getSoLuong());
+                    bienTheSanPhamRepository.save(bt);
+                }
+            }
+        }
     }
 }

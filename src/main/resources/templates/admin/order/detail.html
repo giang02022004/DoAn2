@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Chi Tiết Đơn Hàng &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Chi Tiết Đơn Hàng #<span th:text="${order.id}"></span></span>
+    <div id="content">
+        <div class="row pt-3">
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                    <!-- HEADER BAR -->
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Mã Đơn: #[[${order.id}]]</h5>
+                            <span class="text-muted small" th:text="${#temporals.format(order.ngayTao, 'dd/MM/yyyy HH:mm')}"></span>
+                        </div>
+                        <div>
+                            <span th:if="${order.trangThai == 'Chờ xác nhận'}" class="badge bg-warning text-dark px-3 py-2 rounded-pill">Chờ xác nhận</span>
+                            <span th:if="${order.trangThai == 'Đang xử lý'}" class="badge bg-info text-dark px-3 py-2 rounded-pill">Đang xử lý</span>
+                            <span th:if="${order.trangThai == 'Đang giao hàng'}" class="badge bg-primary px-3 py-2 rounded-pill">Đang giao hàng</span>
+                            <span th:if="${order.trangThai == 'Hoàn thành'}" class="badge bg-success px-3 py-2 rounded-pill">Hoàn thành</span>
+                            <span th:if="${order.trangThai == 'Đã hủy'}" class="badge bg-danger px-3 py-2 rounded-pill">Đã hủy</span>
+                            <span th:if="${order.trangThai != 'Chờ xác nhận' and order.trangThai != 'Đang xử lý' and order.trangThai != 'Đang giao hàng' and order.trangThai != 'Hoàn thành' and order.trangThai != 'Đã hủy'}" class="badge bg-secondary px-3 py-2 rounded-pill" th:text="${order.trangThai}"></span>
+                        </div>
+                    </div>
+
+                    <!-- CUSTOMER INFO BODY -->
+                    <div class="card-body p-4 bg-light">
+                        <div class="row">
+                            <!-- Cột trái: Người Nhận -->
+                            <div class="col-md-5">
+                                <h6 class="text-muted text-uppercase mb-3 fw-bold" style="font-size: 0.8rem; letter-spacing: 1px;">Thông tin Khách Hàng</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 40px; height: 40px; color: #6c757d;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark" th:text="${order.tenNguoiNhan}"></div>
+                                        <div class="text-muted small" th:text="${order.dienThoaiNhan}"></div>
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-2">
+                                    <span class="badge bg-secondary me-1">Thanh toán</span> <span th:text="${order.phuongThucThanhToan}"></span>
+                                </div>
+                            </div>
+                            <!-- Cột phải: Địa chỉ -->
+                            <div class="col-md-7 mt-4 mt-md-0 border-start-md ps-md-4">
+                                <h6 class="text-muted text-uppercase mb-3 fw-bold" style="font-size: 0.8rem; letter-spacing: 1px;">Địa chỉ Giao Hàng</h6>
+                                <div class="d-flex mb-2">
+                                    <div class="text-danger me-2 mt-1"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="text-dark" th:text="${order.diaChiNhan}"></div>
+                                </div>
+                                <div th:if="${order.ghiChu != null and !order.ghiChu.isEmpty()}" class="mt-2 text-muted small border-start border-3 px-2 border-warning" style="font-style: italic;">
+                                    "[[${order.ghiChu}]]"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORDER ITEMS TABLE -->
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead class="bg-white text-muted" style="border-bottom: 2px solid #f8f9fa;">
+                                <tr>
+                                    <th scope="col" class="py-3 px-4 fw-normal" style="width: 60%;">Sản Phẩm</th>
+                                    <th scope="col" class="py-3 text-center fw-normal">Đơn Giá</th>
+                                    <th scope="col" class="py-3 text-center fw-normal">SL</th>
+                                    <th scope="col" class="py-3 px-4 text-end fw-normal">Tạm tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="detail : ${orderDetails}" style="border-bottom: 1px solid #f8f9fa;">
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3 p-1 bg-light rounded" style="border: 1px solid #eee;">
+                                                <img th:src="@{'/img/' + ${detail.sanPham.hinhAnh}}" alt="" style="width: 50px; height: 50px; object-fit: contain;">
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-dark" th:text="${detail.sanPham.tenSanPham}"></div>
+                                                <div th:if="${detail.bienThe != null}" class="small text-muted mt-1">
+                                                    [[${detail.bienThe.cpu}]] &bull; [[${detail.bienThe.boNho}]] &bull; [[${detail.bienThe.mauSac}]]
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center text-muted">
+                                        <span th:text="${#numbers.formatDecimal(detail.gia, 0, 'COMMA', 0, 'POINT')}"></span>
+                                    </td>
+                                    <td class="text-center fw-bold">
+                                        [[${detail.soLuong}]]
+                                    </td>
+                                    <td class="px-4 text-end fw-semibold text-dark">
+                                        <span th:text="${#numbers.formatDecimal(detail.gia * detail.soLuong, 0, 'COMMA', 0, 'POINT')}"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-white">
+                                <tr>
+                                    <td colspan="3" class="text-end py-4 text-muted pt-4">Tổng giá trị đơn hàng:</td>
+                                    <td class="px-4 text-end py-4 pt-4 text-danger fs-5 fw-bold" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 text-center mb-4">
+                <a th:href="@{/admin/orders}" class="btn btn-outline-secondary px-4 rounded-pill" style="font-weight: 500;">
+                    <i class="fas fa-arrow-left me-2"></i> Quay lại Danh sách
+                </a>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

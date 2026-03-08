@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Kết Quả Thanh Toán - Laptopshop</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet">
+
+        <!-- Icon Font Stylesheet -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+        <!-- Libraries Stylesheet -->
+        <link th:href="@{/lib/lightbox/css/lightbox.min.css}" rel="stylesheet">
+        <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
+
+        <!-- Customized Bootstrap Stylesheet -->
+        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link th:href="@{/css/style.css}" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <!-- Spinner Start -->
+        <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-grow text-primary" role="status"></div>
+        </div>
+        <!-- Spinner End -->
+
+
+        <!-- Navbar start -->
+        <div class="container-fluid fixed-top">
+            <div class="container topbar bg-primary d-none d-lg-block">
+                <div class="d-flex justify-content-between">
+                    <div class="top-info ps-2">
+                        <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">Số 1 Võ Văn Ngân, Thủ Đức, TP.HCM</a></small>
+                        <small class="me-3"><i class="fas fa-phone-alt me-2 text-secondary"></i><a href="tel:19001234" class="text-white">1900 1234</a></small>
+                    </div>
+                </div>
+            </div>
+            <div class="container px-0">
+                <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                    <a th:href="@{/index}" class="navbar-brand"><h1 class="text-primary display-6">Laptopshop</h1></a>
+                    <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="fa fa-bars text-primary"></span>
+                    </button>
+                    <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                        <div class="navbar-nav mx-auto fs-5 fw-medium">
+                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
+                        </div>
+                        <div class="d-flex m-3 me-0">
+                            <a th:href="@{/cart}" class="position-relative me-4 my-auto">
+                                <i class="fa fa-shopping-bag fa-2x"></i>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                                      style="top: -5px; left: 15px; height: 20px; min-width: 20px;" th:text="${cartCount}">0</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Navbar End -->
+
+
+        <!-- Page Header -->
+        <div class="container-fluid page-header py-5">
+            <h1 class="text-center text-white display-6" th:text="${thanhCong} ? 'Thanh Toán Thành Công' : 'Thanh Toán Thất Bại'">Kết Quả Thanh Toán</h1>
+        </div>
+
+
+        <!-- Kết quả thanh toán Start -->
+        <div class="container-fluid py-5">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+
+                        <!-- ── Thành công ── -->
+                        <div th:if="${thanhCong}" class="text-center">
+                            <i class="fas fa-check-circle display-1 text-success mb-4"></i>
+                            <h2 class="mb-3">Thanh Toán Thành Công!</h2>
+                            <p class="text-muted mb-4">Cảm ơn bạn đã mua sắm tại LaptopShop. Chúng tôi sẽ liên hệ sớm nhất!</p>
+                        </div>
+
+                        <!-- ── Thất bại ── -->
+                        <div th:unless="${thanhCong}" class="text-center">
+                            <i class="fas fa-times-circle display-1 text-danger mb-4"></i>
+                            <h2 class="mb-3">Thanh Toán Thất Bại</h2>
+                            <p class="text-muted mb-4">Giao dịch không được hoàn tất. Đơn hàng vẫn được giữ lại, bạn có thể thử lại.</p>
+                        </div>
+
+                        <!-- ── Thông tin đơn hàng ── -->
+                        <div th:if="${donHang != null}" class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size:12px;letter-spacing:1px;">Thông tin đơn hàng</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Mã đơn hàng:</span>
+                                    <strong th:text="'#' + ${donHang.id}"></strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Tổng tiền:</span>
+                                    <strong class="text-success" th:text="${#numbers.formatInteger(donHang.tongTien, 0, 'COMMA') + ' ₫'}"></strong>
+                                </div>
+                                <div th:if="${maGiaoDichVNP != null}" class="d-flex justify-content-between">
+                                    <span class="text-muted">Mã GD VNPay:</span>
+                                    <strong th:text="${maGiaoDichVNP}"></strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Nút hành động ── -->
+                        <div class="d-grid gap-2">
+                            <a th:if="${thanhCong}" th:href="@{/account}"
+                               class="btn btn-success btn-lg rounded-pill py-3 fw-bold">
+                                <i class="fas fa-receipt me-2"></i>Xem Đơn Hàng Của Tôi
+                            </a>
+                            <a th:unless="${thanhCong}" th:href="@{/checkout}"
+                               class="btn btn-primary btn-lg rounded-pill py-3 fw-bold">
+                                <i class="fas fa-redo me-2"></i>Thử Lại Thanh Toán
+                            </a>
+                            <a th:href="@{/shop}" class="btn btn-outline-secondary btn-lg rounded-pill py-3 fw-bold">
+                                <i class="fas fa-shopping-bag me-2"></i>Tiếp Tục Mua Sắm
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Kết quả thanh toán End -->
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+        <!-- JavaScript Libraries -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script th:src="@{/lib/easing/easing.min.js}"></script>
+        <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+        <script th:src="@{/lib/lightbox/js/lightbox.min.js}"></script>
+        <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+
+        <!-- Template Javascript -->
+        <script th:src="@{/js/main.js}"></script>
+    </body>
+
+</html>

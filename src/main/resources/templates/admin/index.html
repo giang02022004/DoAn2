@@ -63,63 +63,9 @@
 
         <!-- ─── Chart cards (row 2) ─── -->
         <div class="row g-4 mb-4">
-            <div class="col-lg-4">
-                <div class="chart-card">
-                    <div class="chart-header green">
-                        <!-- Fake line sparkline -->
-                        <svg class="sparkline-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
-                            <polyline fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"
-                                points="0,50 30,38 60,42 90,20 120,28 160,10 200,16"/>
-                        </svg>
-                    </div>
-                    <div class="chart-body-text">
-                        <h6>Đơn Hàng Theo Ngày</h6>
-                        <p><strong style="color:#4caf50;"><i class="fas fa-long-arrow-alt-up"></i> 0%</strong> tăng hôm nay.</p>
-                    </div>
-                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="chart-card">
-                    <div class="chart-header orange">
-                        <div class="sparkline">
-                            <span style="height:30%"></span><span style="height:55%"></span>
-                            <span style="height:40%"></span><span style="height:70%"></span>
-                            <span style="height:60%"></span><span style="height:85%"></span>
-                            <span style="height:75%"></span><span style="height:95%"></span>
-                            <span style="height:80%"></span><span style="height:65%"></span>
-                            <span style="height:90%"></span><span style="height:70%"></span>
-                        </div>
-                    </div>
-                    <div class="chart-body-text">
-                        <h6>Sản Phẩm Bán Chạy</h6>
-                        <p>Hiệu suất tháng này</p>
-                    </div>
-                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="chart-card">
-                    <div class="chart-header red">
-                        <svg class="sparkline-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
-                            <polyline fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"
-                                points="0,10 30,20 60,15 90,35 120,28 160,45 200,50"/>
-                        </svg>
-                    </div>
-                    <div class="chart-body-text">
-                        <h6>Đơn Hàng Đã Hủy</h6>
-                        <p>Hiệu suất chiến dịch cuối</p>
-                    </div>
-                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật vài giây trước</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ─── Bottom row ─── -->
-        <div class="row g-4">
-            <!-- Monthly Statistics Chart - Thiết kế mới -->
+            <!-- Monthly Statistics Chart - Đẩy lên trên -->
             <div class="col-lg-8">
-                <div style="background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;">
+                <div style="background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden; height:100%;">
                     <!-- Header với gradient và mini-stats -->
                     <div style="background:linear-gradient(135deg,#1e3c72,#2a5298);padding:20px 24px;">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
@@ -146,14 +92,80 @@
                         </div>
                     </div>
                     <!-- Vùng biểu đồ -->
-                    <div style="padding:24px;background:#fff;">
-                        <canvas id="monthlyChart" style="max-height:260px;"></canvas>
+                    <div style="padding:24px;background:#fff; position: relative; height: 300px; width: 100%;">
+                        <canvas id="monthlyChart"></canvas>
                     </div>
                     <!-- Footer -->
                     <div style="padding:10px 24px 14px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;">
                         <i class="fas fa-circle" style="color:#10b981;font-size:8px;"></i>
                         Dữ liệu thực từ database — tự động cập nhật theo đơn hàng
                     </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="chart-card" style="height:100%;">
+                    <div class="chart-header orange">
+                        <div class="sparkline">
+                            <span style="height:30%"></span><span style="height:55%"></span>
+                            <span style="height:40%"></span><span style="height:70%"></span>
+                            <span style="height:60%"></span><span style="height:85%"></span>
+                            <span style="height:75%"></span><span style="height:95%"></span>
+                            <span style="height:80%"></span><span style="height:65%"></span>
+                            <span style="height:90%"></span><span style="height:70%"></span>
+                        </div>
+                    </div>
+                    <div class="chart-body-text pb-2">
+                        <h6>Sản Phẩm Bán Chạy</h6>
+                        <ul class="list-unstyled mt-3 mb-0" style="text-align: left; padding: 0 10px;">
+                            <li th:each="row, iterStat : ${topProducts}" class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <span class="d-inline-block text-truncate fw-medium text-dark cursor-pointer" style="max-width: 70%; font-size: 0.85rem;" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${row[0].tenSanPham}" th:text="${iterStat.count + '. ' + row[0].tenSanPham}">1. Sản phẩm</span>
+                                <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.75rem;"><i class="fas fa-shopping-cart me-1"></i><span th:text="${row[1]}">10</span></span>
+                            </li>
+                            <li th:if="${#lists.isEmpty(topProducts)}" class="text-muted small text-center py-2">Chưa có dữ liệu</li>
+                        </ul>
+                    </div>
+                    <div class="chart-footer"><i class="fas fa-clock me-1"></i>Cập nhật tự động</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Bottom row ─── -->
+        <div class="row g-4">
+            <!-- Low stock alert -->
+            <div class="col-lg-8">
+                <div class="mat-card">
+                    <div class="mat-card-header" style="background:linear-gradient(135deg,#d32f2f,#f44336);border-radius:6px 6px 0 0;padding:16px 22px;">
+                        <h5 style="color:#fff;margin:0;"><i class="fas fa-exclamation-triangle me-2"></i>Sản Phẩm Sắp Hết Hàng</h5>
+                        <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px;">Thống kê top 5 sản phẩm có tồn kho thấp nhất (yêu cầu nhập thêm)</p>
+                    </div>
+                    <table class="mat-table w-100">
+                        <thead>
+                            <tr>
+                                <th style="color:#d32f2f;">ID</th>
+                                <th style="color:#d32f2f;">Tên Sản Phẩm</th>
+                                <th style="color:#d32f2f; text-align: center;">Tồn Kho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="product : ${lowStockProducts}" th:if="${not #lists.isEmpty(lowStockProducts)}">
+                                <td style="font-weight: 500;" th:text="${'#' + product.id}">#1</td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 350px; font-weight: 500; color: #333; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${product.tenSanPham}" th:text="${product.tenSanPham}">Sản phẩm</div>
+                                    <div style="font-size: 11px; color: #888;" th:text="${product.hangSanXuat.tenHang}">Hãng</div>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="badge bg-danger rounded-pill px-3 py-2" style="font-size: 13px; box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);" th:text="${product.soLuong + ' chiếc'}">0</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(lowStockProducts)}">
+                                <td colspan="3" class="text-center py-4 text-muted" style="font-size:13px;">
+                                    <i class="fas fa-check-circle fa-2x d-block mb-2 text-success" style="opacity:.6;"></i>
+                                    Kho hàng đầy đủ dồi dào, không có sản phẩm nào sắp hết!
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -179,7 +191,7 @@
                             <tr th:each="order : ${recentOrders}" th:if="${not #lists.isEmpty(recentOrders)}">
                                 <td style="font-weight: 500;" th:text="${'#' + order.id}">#1</td>
                                 <td>
-                                    <div style="font-weight: 500; color: #333;" th:text="${order.tenNguoiNhan}">Khách Hàng</div>
+                                    <div class="text-truncate" style="max-width: 130px; font-weight: 500; color: #333; cursor: pointer;" th:title="${order.tenNguoiNhan}" th:text="${order.tenNguoiNhan}">Khách Hàng</div>
                                     <div style="font-size: 11px; color: #888;" th:text="${order.dienThoaiNhan}">0123456789</div>
                                 </td>
                                 <td>
@@ -263,7 +275,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: {
@@ -327,6 +339,13 @@
                         }
                     }
                 }
+            });
+            // Initialize Bootstrap tooltips
+            document.addEventListener("DOMContentLoaded", function() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
             });
         </script>
     </div>

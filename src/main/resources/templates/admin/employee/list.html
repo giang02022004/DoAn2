@@ -1,96 +1,176 @@
 ﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
-<head><title>Nhân Viên &mdash; Admin</title></head>
+<head>
+    <title>Nhân Sự &mdash; Admin</title>
+</head>
 <body>
     <span id="pageHeader">Quản Lý Nhân Viên</span>
     <div id="content">
-        <div style="padding-top:10px;">
-
-        <!-- Stat mini-cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-sm-4">
-                <div class="stat-card">
-                    <div class="stat-icon-box teal"><i class="fas fa-user-tie"></i></div>
-                    <div class="stat-values">
-                        <div class="stat-label">Tổng Nhân Viên</div>
-                        <div class="stat-num">0</div>
+        <div style="padding-top:20px;">
+            <!-- Header & Stats Wrapper -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i> Quản lý thông tin, Quyền hạn & Trạng thái hoạt động</p>
+                </div>
+                <div class="col-md-6 text-end d-flex justify-content-end align-items-center gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-end bg-white border rounded-pill px-4 py-2 shadow-sm">
+                        <div class="me-3 border-end pe-3">
+                            <span class="text-muted small text-uppercase fw-bold" style="letter-spacing: 0.5px;">Tổng Nhân Sự</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-tie text-success fs-4 me-3"></i>
+                            <h4 class="mb-0 fw-bolder text-dark" style="font-size: 1.5rem;">[[${employees.size()}]]</h4>
+                        </div>
                     </div>
-                    <div class="stat-footer"><i class="fas fa-users"></i>&ensp;Đang hoạt động</div>
+                    <a th:href="@{/admin/employees/create}" class="btn shadow-sm px-4 py-2 hover-success" style="background:#20c997; color:white; border-radius: 50px; font-weight: 500;">
+                        <i class="fas fa-plus me-2"></i> Thêm Nhân Sự Mới
+                    </a>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="stat-card">
-                    <div class="stat-icon-box green"><i class="fas fa-user-shield"></i></div>
-                    <div class="stat-values">
-                        <div class="stat-label">Quản Trị Viên</div>
-                        <div class="stat-num">0</div>
-                    </div>
-                    <div class="stat-footer"><i class="fas fa-lock"></i>&ensp;Quyền Admin</div>
+
+            <!-- Main Card -->
+            <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+                <div class="card-header bg-white border-bottom py-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-users-cog me-2 text-success"></i>Danh Sách Đội Ngũ Nhân Sự</h5>
+                    <form th:action="@{/admin/employees}" method="get" class="d-flex mb-0">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0 rounded-start-pill text-muted px-3"><i class="fas fa-search"></i></span>
+                            <input type="text" name="keyword" th:value="${keyword}" class="form-control bg-light border-start-0 py-2 shadow-none" placeholder="Tìm tên, email, sđt..." style="max-width: 250px;">
+                            <button class="btn btn-success rounded-end-pill px-4" type="submit">Tìm</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 custom-table">
+                        <thead class="bg-light text-muted" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px;">
+                            <tr>
+                                <th class="text-center py-3 border-bottom-0" style="width: 8%;">ID</th>
+                                <th class="py-3 border-bottom-0" style="width: 25%;">Họ Tên</th>
+                                <th class="py-3 border-bottom-0" style="width: 20%;">Liên Hệ</th>
+                                <th class="text-center py-3 border-bottom-0" style="width: 15%;">Vai Trò / Quyền</th>
+                                <th class="text-center py-3 border-bottom-0" style="width: 15%;">Trạng Thái</th>
+                                <th class="text-center py-3 border-bottom-0" style="width: 17%;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            <tr th:each="emp : ${employees}" style="transition: all 0.2s;">
+                                <td class="text-center text-muted fw-bold">#[[${emp.id}]]</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div th:if="${emp.anhDaiDien != null}">
+                                            <img th:src="@{'/img/' + ${emp.anhDaiDien}}" style="width:48px;height:48px;object-fit:cover;" class="rounded-circle me-3 shadow-sm" alt="Avatar">
+                                        </div>
+                                        <div th:unless="${emp.anhDaiDien != null}" class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm bg-success bg-opacity-10 text-success" style="width: 48px; height: 48px;">
+                                            <i class="fas fa-user-tie fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" th:text="${emp.hoTen}" style="font-size: 0.95rem;">Tên Nhân Sự</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1 text-muted" style="font-size: 0.9rem;">
+                                        <div><i class="fas fa-envelope text-secondary me-2" style="width: 14px;"></i> <span th:text="${emp.email}"></span></div>
+                                        <div><i class="fas fa-phone-alt text-secondary me-2" style="width: 14px;"></i> <span th:text="${emp.dienThoai != null ? emp.dienThoai : '---'}"></span></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${emp.vaiTro.tenVaiTro == 'ADMIN'}" class="badge bg-danger text-white border-0 rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.85rem;"><i class="fas fa-star me-1 text-warning"></i> Quản Trị Viên</span>
+                                    <span th:if="${emp.vaiTro.tenVaiTro == 'EMPLOYEE'}" class="badge bg-primary text-white border-0 rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.85rem;"><i class="fas fa-user-edit me-1"></i> Nhân Viên</span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${emp.trangThai == 'ACTIVE' or emp.trangThai == null}" class="badge bg-success text-white fw-normal px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1"></i> Đang Hoạt Động
+                                    </span>
+                                    <span th:if="${emp.trangThai == 'LOCKED'}" class="badge bg-secondary text-white fw-normal px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.85rem;">
+                                        <i class="fas fa-lock me-1"></i> Đã Bị Khoá
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Nút Khoá Mõm -->
+                                        <form th:action="@{/admin/users/toggle-status}" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="userId" th:value="${emp.id}">
+                                            <input type="hidden" name="returnUrl" value="/admin/employees">
+                                            
+                                            <button th:if="${emp.trangThai == 'ACTIVE' or emp.trangThai == null}" type="submit" 
+                                                    class="btn btn-sm btn-light text-danger border shadow-sm hover-danger d-flex align-items-center gap-1" 
+                                                    title="Khoá Quyền Truy Cập" 
+                                                    onclick="return confirm('Cảnh báo: Khoá tài khoản này sẽ chặn nhân sự đăng nhập. Tiếp tục?')"
+                                                    style="border-radius: 8px; height: 36px; padding: 0 12px;">
+                                                <i class="fas fa-ban"></i> <span style="font-size: 0.8rem; font-weight: 500;">Khoá</span>
+                                            </button>
+                                            
+                                            <button th:if="${emp.trangThai == 'LOCKED'}" type="submit" 
+                                                    class="btn btn-sm btn-light text-success border shadow-sm hover-success d-flex align-items-center gap-1" 
+                                                    title="Khôi Phục Quyền"
+                                                    style="border-radius: 8px; height: 36px; padding: 0 12px;">
+                                                <i class="fas fa-unlock"></i> <span style="font-size: 0.8rem; font-weight: 500;">Mở</span>
+                                            </button>
+                                        </form>
+                                        <!-- Nút Chỉnh Sửa Phân Quyền -->
+                                        <a th:href="@{/admin/employees/edit/{id}(id=${emp.id})}" 
+                                           class="btn btn-sm btn-light text-primary border shadow-sm hover-primary d-flex align-items-center gap-1" 
+                                           title="Sửa thông tin / Phân quyền"
+                                           style="border-radius: 8px; height: 36px; padding: 0 12px;">
+                                            <i class="fas fa-user-edit"></i> <span style="font-size: 0.8rem; font-weight: 500;">Sửa</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(employees)}">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="empty-state d-flex flex-column align-items-center justify-content-center p-4">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 text-muted" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-user-friends fa-2x"></i>
+                                        </div>
+                                        <h6 class="text-secondary fw-bold">Chưa có nhân sự</h6>
+                                        <p class="text-muted small mb-0">Hệ thống hiện tại chưa ghi nhận nhân sự quản lý nào.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white border-top py-3 text-center">
+                    <p class="text-muted small mb-0">Hiển thị danh sách nhân sự thuộc ban quản trị</p>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="stat-card">
-                    <div class="stat-icon-box orange"><i class="fas fa-user-cog"></i></div>
-                    <div class="stat-values">
-                        <div class="stat-label">Nhân Viên Thường</div>
-                        <div class="stat-num">0</div>
-                    </div>
-                    <div class="stat-footer"><i class="fas fa-user"></i>&ensp;Vai trò: STAFF</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Employee table -->
-        <div class="mat-card">
-            <!-- Card header -->
-            <div class="mat-card-header d-flex justify-content-between align-items-center"
-                 style="background:linear-gradient(135deg,#9c27b0,#7b1fa2);border-radius:6px 6px 0 0;padding:16px 22px;">
-                <div>
-                    <h5 class="mb-0 text-white"><i class="fas fa-id-badge me-2"></i>Danh Sách Nhân Viên</h5>
-                    <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Quản lý tài khoản nhân viên và phân quyền</p>
-                </div>
-                <button class="btn btn-warning btn-sm fw-semibold text-white">
-                    <i class="fas fa-user-plus me-1"></i>Thêm Nhân Viên
-                </button>
-            </div>
-
-            <!-- Search bar -->
-            <div class="d-flex align-items-center gap-2 flex-wrap p-3 border-bottom bg-light">
-                <input type="text" class="form-control" placeholder="Tìm tên, email nhân viên..." style="max-width:280px;">
-                <select class="form-select" style="max-width:180px;">
-                    <option value="">-- Lọc theo vai trò --</option>
-                    <option value="ADMIN">Quản Trị Viên</option>
-                    <option value="STAFF">Nhân Viên</option>
-                </select>
-                <button class="btn btn-primary btn-sm text-white">
-                    <i class="fas fa-search me-1"></i>Tìm
-                </button>
-            </div>
-
-            <!-- Table -->
-            <table class="mat-table w-100">
-                <thead>
-                    <tr>
-                        <th width="6%">ID</th>
-                        <th width="8%">Avatar</th>
-                        <th width="22%">Họ Tên</th>
-                        <th width="25%">Email</th>
-                        <th width="14%">Điện Thoại</th>
-                        <th width="12%">Vai Trò</th>
-                        <th width="13%">Thao Tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="fas fa-user-tie fa-3x d-block mb-3 opacity-25"></i>
-                            Kết nối dữ liệu đang được phát triển…
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
+            <!-- Custom Styles -->
+            <style>
+                .hover-danger { transition: all 0.2s; }
+                .hover-danger:hover {
+                    background-color: #dc3545 !important;
+                    color: white !important;
+                    border-color: #dc3545 !important;
+                    transform: translateY(-2px);
+                }
+                .hover-success { transition: all 0.2s; }
+                .hover-success:hover {
+                    background-color: #198754 !important;
+                    color: white !important;
+                    border-color: #198754 !important;
+                    transform: translateY(-2px);
+                }
+                .hover-primary { transition: all 0.2s; }
+                .hover-primary:hover {
+                    background-color: #0d6efd !important;
+                    color: white !important;
+                    border-color: #0d6efd !important;
+                    transform: translateY(-2px);
+                }
+                .custom-table th {
+                    font-weight: 600;
+                }
+                .custom-table tbody tr:hover td {
+                    background-color: #f8f9fa;
+                }
+                .table> :not(caption)>*>* {
+                    padding: 1.25rem 1.25rem;
+                }
+            </style>
         </div>
     </div>
 </body>

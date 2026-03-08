@@ -9,6 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
+
+/**
+ * CheckoutController — Xử lý luồng đặt hàng.
+ *
+ * Phân nhánh theo phương thức thanh toán:
+ *   - COD (Thanh toán khi nhận hàng): gọi placeOrder() → thành công → trang order-success
+ *   - VNPay: gọi datDonHangChoThanhToan() → lưu đơn "Chờ thanh toán" → redirect sang VNPay
+ */
 @Controller
 @RequestMapping("/checkout")
 public class CheckoutController {
@@ -20,21 +29,37 @@ public class CheckoutController {
     }
 
     @PostMapping("/place-order")
-    public String placeOrder(@ModelAttribute CheckoutDTO checkoutDTO, HttpSession session, RedirectAttributes redirectAttributes, java.security.Principal principal) {
+    public String datDonHang(@ModelAttribute CheckoutDTO thongTinDatHang,
+                             HttpSession phienLam,
+                             RedirectAttributes thuocTinhChuyenHuong,
+                             Principal nguoiDungHienTai) {
         try {
-            if (principal == null) {
+            if (nguoiDungHienTai == null) {
                 return "redirect:/login";
             }
-            orderService.placeOrder(checkoutDTO, session, principal.getName());
+
+            String emailDangNhap = nguoiDungHienTai.getName();
+            String phuongThucThanhToan = thongTinDatHang.getPaymentMethod();
+
+            // ── Nhánh VNPay: tạo đơn hàng tạm rồi redirect sang cổng VNPay ──
+            if ("VNPAY".equals(phuongThucThanhToan)) {
+                int maDonHangMoi = orderService.datDonHangChoThanhToan(thongTinDatHang, phienLam, emailDangNhap);
+                // Redirect sang VNPayController để tạo URL và chuyển hướng
+                return "redirect:/vnpay/tao-thanh-toan?maDonHang=" + maDonHangMoi;
+            }
+
+            // ── Nhánh COD (mặc định): đặt hàng luôn, không cần VNPay ─────────
+            orderService.placeOrder(thongTinDatHang, phienLam, emailDangNhap);
             return "redirect:/checkout/success";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Order failed: " + e.getMessage());
+
+        } catch (Exception loi) {
+            thuocTinhChuyenHuong.addFlashAttribute("error", "Đặt hàng thất bại: " + loi.getMessage());
             return "redirect:/checkout";
         }
     }
-    
+
     @RequestMapping("/success")
-    public String orderSuccess() {
+    public String trangDatHangThanhCong() {
         return "order-success";
     }
 }

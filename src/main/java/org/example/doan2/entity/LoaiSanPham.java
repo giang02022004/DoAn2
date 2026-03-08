@@ -20,4 +20,14 @@ public class LoaiSanPham {
 
     @Column(name = "mo_ta")
     private String moTa;
+
+    @Column(name = "trang_thai")
+    private String trangThai = "ACTIVE"; // "ACTIVE" or "DELETED"
+
+    @PrePersist
+    public void prePersist() {
+        if (this.trangThai == null) {
+            this.trangThai = "ACTIVE";
+        }
+    }
 }
