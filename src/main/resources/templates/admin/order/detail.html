@@ -102,6 +102,44 @@
                                 </tr>
                             </tfoot>
                         </table>
+                    <!-- ORDER MANAGEMENT PANEL -->
+                    <div class="card-footer bg-white border-top p-4">
+                        <h6 class="text-muted text-uppercase mb-3 fw-bold" style="font-size: 0.8rem; letter-spacing: 1px;">Quản lý trạng thái</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Nút Xác nhận (Nếu đang chờ xác nhận) -->
+                            <form th:if="${order.trangThai == 'Chờ xác nhận'}" th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <input type="hidden" name="trangThai" value="Đã xác nhận">
+                                <button type="submit" class="btn btn-warning px-4 rounded-pill">Xác nhận đơn hàng</button>
+                            </form>
+
+                            <!-- Nút Giao hàng (Nếu đã xác nhận) -->
+                            <form th:if="${order.trangThai == 'Đã xác nhận'}" th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <input type="hidden" name="trangThai" value="Đang giao">
+                                <button type="submit" class="btn btn-primary px-4 rounded-pill">Bắt đầu giao hàng</button>
+                            </form>
+
+                            <!-- Nút Hoàn thành (Nếu đang giao) -->
+                            <form th:if="${order.trangThai == 'Đang giao'}" th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <input type="hidden" name="trangThai" value="Hoàn thành">
+                                <button type="submit" class="btn btn-success px-4 rounded-pill">Đã giao & Hoàn thành</button>
+                            </form>
+
+                            <!-- Nút Xác nhận thanh toán COD (Nếu là COD và chưa thanh toán) -->
+                            <form th:if="${order.phuongThucThanhToan == 'COD' and order.trangThaiThanhToan == 'Chưa thanh toán'}" th:action="@{/admin/orders/confirm-cod}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <button type="submit" class="btn btn-info text-white px-4 rounded-pill">Xác nhận thu tiền (COD)</button>
+                            </form>
+
+                            <!-- Nút Hủy đơn (Nếu chưa hoàn thành/đã hủy) -->
+                            <form th:if="${order.trangThai != 'Hoàn thành' and order.trangThai != 'Đã hủy'}" th:action="@{/admin/orders/update-status}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <input type="hidden" name="trangThai" value="Đã hủy">
+                                <button type="submit" class="btn btn-outline-danger px-4 rounded-pill">Hủy đơn</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

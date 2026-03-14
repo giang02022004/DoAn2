@@ -12,21 +12,23 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @org.springframework.scheduling.annotation.Async
     public void sendPasswordChangeNotification(String toEmail) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("giang220239@student.nctu.edu.vn"); 
         message.setTo(toEmail);
         message.setSubject("Thông báo: Thay đổi mật khẩu thành công");
-        message.setText("Chào bạn,\n\nMật khẩu tài khoản của bạn trên hệ thống đã được thay đổi thành công.\n\nNếu bạn không thực hiện việc này, vui lòng liên hệ ngay với ban quản trị để được hỗ trợ.\n\nTrân trọng,\nĐội ngũ Fruitables.");
+        message.setText("Chào bạn,\n\nMật khẩu tài khoản của bạn trên hệ thống đã được thay đổi thành công.\n\nNếu bạn không thực hiện việc này, vui lòng liên hệ ngay với ban quản trị để được hỗ trợ.\n\nTrân trọng,\nĐội ngũ LaptopShop.");
 
         try {
             javaMailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Lỗi khi gửi email: " + e.getMessage());
+            System.out.println("Lỗi khi gửi email thông báo thay đổi mật khẩu: " + e.getMessage());
         }
     }
 
+    @org.springframework.scheduling.annotation.Async
     public void sendOrderConfirmationEmail(String toEmail, DonHang order, java.util.List<org.example.doan2.dto.CartItem> cartItems) {
         try {
             jakarta.mail.internet.MimeMessage message = javaMailSender.createMimeMessage();
@@ -136,6 +138,29 @@ public class EmailService {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Lỗi khi gửi email xác nhận đặt hàng: " + e.getMessage());
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    public void sendPasswordResetEmail(String toEmail, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("giang220239@student.nctu.edu.vn");
+        message.setTo(toEmail);
+        message.setSubject("Yêu cầu khôi phục mật khẩu");
+        
+        String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        
+        message.setText("Chào bạn,\n\nBạn đã yêu cầu khôi phục mật khẩu cho tài khoản của mình.\n" +
+                "Vui lòng nhấp vào đường dẫn dưới đây để đặt lại mật khẩu (liên kết có hiệu lực trong 30 phút):\n\n" +
+                resetUrl + "\n\n" +
+                "Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.\n\n" +
+                "Trân trọng,\nĐội ngũ LaptopShop.");
+
+        try {
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi gửi email khôi phục mật khẩu: " + e.getMessage());
         }
     }
 }

@@ -1,0 +1,49 @@
+@startuml "Sequence Diagram: Thanh toan VNPay"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Khách hàng" as User
+participant "Website DoAn2" as Web
+participant "VNPayController" as Controller
+participant "VNPayService" as Service
+participant "Cổng VNPay" as VNPay_Gate
+
+User -> Web : Chọn "Thanh toán Online (VNPay)"
+Web -> Controller : GET /vnpay/create-payment
+activate Controller
+
+Controller -> Service : createPaymentUrl(amount, orderInfo)
+activate Service
+Service -> Service : Hash Data & Build URL
+Service --> Controller : Trả về PaymentURL
+deactivate Service
+
+Controller -> Web : Chuyển hướng người dùng (Redirect)
+deactivate Controller
+
+Web -> VNPay_Gate : Truy cập Cổng VNPay
+activate VNPay_Gate
+User -> VNPay_Gate : Nhập thông tin thẻ/ứng dụng ngân hàng
+VNPay_Gate --> User : Xác thực OTP/Mã PIN
+User -> VNPay_Gate : Hoàn tất xác nhận
+VNPay_Gate -> Web : Trả kết quả (ReturnURL + vnp_ResponseCode)
+deactivate VNPay_Gate
+
+Web -> Controller : GET /vnpay/payment-return
+activate Controller
+Controller -> Service : validateSignature(vnp_Params)
+activate Service
+Service --> Controller : Hợp lệ (True/False)
+deactivate Service
+
+alt Thanh toán thành công
+    Controller -> Web : Redirect /order/success
+    Web --> User : Hiển thị "Giao dịch thành công"
+else Thanh toán thất bại
+    Controller -> Web : Redirect /order/fail
+    Web --> User : Hiển thị "Giao dịch không thành công"
+end
+deactivate Controller
+
+@enduml

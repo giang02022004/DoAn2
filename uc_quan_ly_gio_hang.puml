@@ -1,0 +1,35 @@
+@startuml "Chi tiet Use Case: Quan ly gio hang - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Khách vãng lai" as Guest
+actor "Khách hàng" as Customer
+
+' Hierarchy (Generalization)
+Customer -|> Guest
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Quản lý giỏ hàng" as Main
+    
+    usecase "Thêm sản phẩm vào giỏ" as UC_Add
+    usecase "Cập nhật số lượng" as UC_Update
+    usecase "Xóa sản phẩm khỏi giỏ" as UC_Remove
+    usecase "Xóa sạch giỏ hàng" as UC_Clear
+    
+    ' --- Logic ---
+    ' Include: Các hành động cơ bản của giỏ hàng (Base -> Sub)
+    Main .down.> UC_Add : <<include>>
+    Main .down.> UC_Update : <<include>>
+    Main .down.> UC_Remove : <<include>>
+    
+    ' Extend: Xóa sạch giỏ là hành động tùy chọn mở rộng (Extension -> Base)
+    UC_Clear .left.> Main : <<extend>>
+}
+
+' Connections
+Guest --> Main
+
+@enduml

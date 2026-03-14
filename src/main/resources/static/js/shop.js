@@ -184,20 +184,37 @@ function renderProducts(products) {
 
     products.forEach(sp => {
         const formattedPrice = new Intl.NumberFormat('vi-VN').format(sp.gia);
+        let priceHtml = '';
+        let badgeHtml = '';
+        
+        if (sp.khuyenMai && sp.khuyenMai.trangThai === 'ACTIVE') {
+            const discountedPrice = sp.gia * (100 - sp.khuyenMai.phanTramGiam) / 100;
+            const formattedDiscounted = new Intl.NumberFormat('vi-VN').format(discountedPrice);
+            priceHtml = `
+                <div>
+                    <p class="text-danger fs-5 fw-bold mb-0">${formattedDiscounted} VNĐ</p>
+                    <p class="text-muted text-decoration-line-through mb-0">${formattedPrice} VNĐ</p>
+                </div>
+            `;
+            badgeHtml = `<div class="text-white bg-danger px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">-${sp.khuyenMai.phanTramGiam}%</div>`;
+        } else {
+            priceHtml = `<p class="text-dark fs-5 fw-bold mb-0">${formattedPrice} VNĐ</p>`;
+        }
         
         const html = `
             <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
+                <div class="rounded position-relative fruite-item border border-secondary shadow-sm">
                     <div class="fruite-img">
                         <img src="/img/${sp.hinhAnh}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: cover;">
                     </div>
                     <div class="text-white px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px; background-color: #ffb524;">${sp.loaiSanPham.tenLoai}</div>
-                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                    ${badgeHtml}
+                    <div class="p-4 rounded-bottom">
                         <h4>${sp.tenSanPham}</h4>
                         <p>${sp.moTaNgan}</p>
                         <div class="d-flex justify-content-between flex-lg-wrap">
-                            <p class="text-dark fs-5 fw-bold mb-0">${formattedPrice} VNĐ</p>
-                            <a href="/shop-detail/${sp.id}" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Mua ngay</a>
+                            ${priceHtml}
+                            <a href="/shop-detail/${sp.id}" class="btn border border-secondary rounded-pill px-3 text-primary my-auto"><i class="fa fa-shopping-bag me-2 text-primary"></i> Mua ngay</a>
                         </div>
                     </div>
                 </div>

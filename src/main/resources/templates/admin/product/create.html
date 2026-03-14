@@ -69,6 +69,19 @@
                                     </div>
                                 </div>
 
+                                <!-- Chương Trình Khuyến Mãi -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-danger"><i class="fas fa-gift me-1"></i>Chương Trình Khuyến Mãi</label>
+                                    <select name="khuyenMai.id" class="form-select border-danger">
+                                        <option value="">-- Không áp dụng khuyến mãi --</option>
+                                        <option th:each="km : ${promotions}" 
+                                                th:value="${km.id}" 
+                                                th:text="${km.tenKhuyenMai + ' (-' + km.phanTramGiam + '%)'}">
+                                        </option>
+                                    </select>
+                                    <small class="text-muted">Chọn chương trình để áp dụng giảm giá trên web.</small>
+                                </div>
+
                                 <!-- Bỏ đi single input cũ vì ta đã chuyển input sang form bên phải -->
                                 <div class="mb-3">
                                     <label class="form-label fw-bold mb-2">Thông tin Hình Ảnh <span class="text-danger">*</span></label>

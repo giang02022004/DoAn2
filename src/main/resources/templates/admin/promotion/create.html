@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thêm Khuyến Mãi Mới</title>
+</head>
+<body>
+<div th:replace="~{admin/layout :: layout(title=~{::title}, pageHeader=~{::.page-title}, content=~{::.create-content})}">
+    <h2 class="page-title">Khuyến Mãi / Thêm Mới</h2>
+    <div class="create-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="mat-card">
+                    <div class="mat-card-header">
+                        <h5>Thông Tin Khuyến Mãi</h5>
+                        <p>Nhập thông tin chương trình giảm giá mới</p>
+                    </div>
+                    <div class="p-4">
+                        <form th:action="@{/admin/promotions/create}" method="post" th:object="${khuyenMai}">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên Chương Trình <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{tenKhuyenMai}" required placeholder="Vd: Siêu Sale Giáng Sinh">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Phần Trăm Giảm Giá (%) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" th:field="*{phanTramGiam}" required min="1" max="100" placeholder="Vd: 15">
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" th:field="*{ngayBatDau}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" th:field="*{ngayKetThuc}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Trạng Thái</label>
+                                <select class="form-select" th:field="*{trangThai}">
+                                    <option value="ACTIVE">Đang hoạt động</option>
+                                    <option value="INACTIVE">Tạm dừng</option>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <a th:href="@{/admin/promotions}" class="btn btn-outline-secondary">Hủy Bỏ</a>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Lưu Dữ Liệu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

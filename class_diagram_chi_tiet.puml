@@ -1,0 +1,172 @@
+@startuml "Detailed Class Diagram: Laptop Shop DoAn2"
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+package "org.example.doan2.entity" {
+
+    class NguoiDung {
+        - Integer id
+        - String email
+        - String matKhau
+        - String hoTen
+        - String diaChi
+        - String dienThoai
+        - String loaiTaiKhoan
+        - String anhDaiDien
+        - String trangThai
+        - LocalDateTime ngayTao
+        - LocalDateTime ngayCapNhat
+        + VaiTro vaiTro
+        + boolean kiemTraMatKhau(String rawPassword)
+        + void doiMatKhau(String newPassword)
+        + void capNhatThongTin()
+    }
+
+    class VaiTro {
+        - Integer id
+        - String tenVaiTro
+    }
+
+    class SanPham {
+        - Integer id
+        - String tenSanPham
+        - Integer gia
+        - String hinhAnh
+        - String moTaNgan
+        - String moTaChiTiet
+        - Integer soLuong
+        - Integer daBan
+        - String trangThai
+        + HangSanXuat hangSanXuat
+        + LoaiSanPham loaiSanPham
+        + KhuyenMai khuyenMai
+        + int getGiaDaGiam()
+        + boolean isDangKhuyenMai()
+        + void capNhatSoLuong(int qty)
+    }
+
+    class HangSanXuat {
+        - Integer id
+        - String tenHang
+        - String logo
+    }
+
+    class LoaiSanPham {
+        - Integer id
+        - String tenLoai
+    }
+
+    class BienTheSanPham {
+        - Integer id
+        - String tenBienThe
+        - Integer giaChenhLech
+        - Integer soLuongKho
+        + SanPham sanPham
+    }
+
+    class HinhAnhSanPham {
+        - Integer id
+        - String urlHinhAnh
+        + SanPham sanPham
+    }
+
+    class KhuyenMai {
+        - Integer id
+        - String tenKhuyenMai
+        - Integer phanTramGiam
+        - LocalDateTime ngayBatDau
+        - LocalDateTime ngayKetThuc
+        + boolean isHieuLuc()
+        + int tinhGiaSauGiam(int originalPrice)
+    }
+
+    class DonHang {
+        - Integer id
+        - Integer tongTien
+        - String tenNguoiNhan
+        - String diaChiNhan
+        - String dienThoaiNhan
+        - String trangThai
+        - String phuongThucThanhToan
+        - String trangThaiThanhToan
+        - LocalDateTime ngayTao
+        + NguoiDung nguoiDung
+        + int tinhTongTien()
+        + void capNhatTrangThai(String status)
+        + void hoanTatThanhToan()
+    }
+
+    class ChiTietDonHang {
+        - Integer id
+        - Integer soLuong
+        - Integer giaBan
+        + DonHang donHang
+        + SanPham sanPham
+    }
+
+    class GioHang {
+        - Integer id
+        + NguoiDung nguoiDung
+        + int tinhTongTien()
+        + void clearCart()
+        + void addToCart(SanPham sp, int qty)
+    }
+
+    class ChiTietGioHang {
+        - Integer id
+        - Integer soLuong
+        + GioHang gioHang
+        + SanPham sanPham
+    }
+
+    class BaiViet {
+        - Integer id
+        - String tieuDe
+        - String noiDung
+        - String hinhAnh
+        - LocalDateTime ngayDang
+        + NguoiDung tacGia
+    }
+
+    class DanhGia {
+        - Integer id
+        - Integer soSao
+        - String noiDung
+        + NguoiDung nguoiDung
+        + SanPham sanPham
+    }
+}
+
+' --- Relationships ---
+' User & Role
+NguoiDung "*" -- "1" VaiTro : "has role"
+
+' Product Structure
+SanPham "*" -- "1" HangSanXuat : "produced by"
+SanPham "*" -- "1" LoaiSanPham : "category"
+
+' Composition: Các thành phần phụ thuộc hoàn toàn vào cha
+SanPham "1" *-- "*" HinhAnhSanPham : "contains"
+SanPham "1" *-- "*" BienTheSanPham : "variations"
+
+' Promotion
+KhuyenMai "1" -- "*" SanPham : "applies to"
+
+' Orders (Composition: Xóa đơn hàng là mất chi tiết)
+DonHang "1" *-- "*" ChiTietDonHang : "items"
+DonHang "*" -- "1" NguoiDung : "placed by"
+ChiTietDonHang "*" -- "1" SanPham : "refers to"
+
+' Cart (Composition)
+GioHang "1" *-- "*" ChiTietGioHang : "contains"
+GioHang "1" -- "1" NguoiDung : "belongs to"
+ChiTietGioHang "*" -- "1" SanPham : "refers to"
+
+' Interaction
+BaiViet "*" -- "1" NguoiDung : "written by"
+DanhGia "*" -- "1" NguoiDung : "by"
+DanhGia "*" -- "1" SanPham : "about"
+
+@enduml

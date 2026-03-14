@@ -1,0 +1,140 @@
+@startuml "ERD: He thong Ban hang DoAn2"
+
+' --- Configuration for Crow's Foot & Teal Theme ---
+skinparam linetype ortho
+skinparam shadowing false
+skinparam class {
+    BackgroundColor White
+    HeaderBackgroundColor #4db6ac
+    HeaderFontColor White
+    BorderColor #999999
+    FontSize 14
+}
+
+' --- Entities (Database Tables) ---
+
+entity "NguoiDung" as NguoiDung {
+    + PK: id : INT
+    --
+    + email : VARCHAR(100)
+    + mat_khau : VARCHAR(255)
+    + ho_ten : VARCHAR(100)
+    + so_dien_thoai : VARCHAR(15)
+    + dia_chi : TEXT
+    + FK: vai_tro_id : INT
+}
+
+entity "VaiTro" as VaiTro {
+    + PK: id : INT
+    --
+    + ten_vai_tro : VARCHAR(50)
+}
+
+entity "SanPham" as SanPham {
+    + PK: id : INT
+    --
+    + ten_san_pham : VARCHAR(255)
+    + mo_ta : TEXT
+    + gia_ban : DECIMAL(15,2)
+    + so_luong_ton : INT
+    + hinh_anh : VARCHAR(255)
+    + FK: loai_id : INT
+    + FK: hang_id : INT
+    + FK: khuyen_mai_id : INT
+}
+
+entity "LoaiSanPham" as LoaiSanPham {
+    + PK: id : INT
+    --
+    + ten_loai : VARCHAR(100)
+}
+
+entity "HangSanPham" as HangSanPham {
+    + PK: id : INT
+    --
+    + ten_hang : VARCHAR(100)
+}
+
+entity "KhuyenMai" as KhuyenMai {
+    + PK: id : INT
+    --
+    + ma_khuyen_mai : VARCHAR(50)
+    + phan_tram_giam : INT
+    + ngay_bat_dau : DATETIME
+    + ngay_ket_thuc : DATETIME
+}
+
+entity "DonHang" as DonHang {
+    + PK: id : INT
+    --
+    + ngay_dat : DATETIME
+    + tong_tien : DECIMAL(15,2)
+    + trang_thai : VARCHAR(50)
+    + dia_chi_giao_hang : TEXT
+    + phuong_thuc_thanh_toan : VARCHAR(50)
+    + FK: nguoi_dung_id : INT
+}
+
+entity "ChiTietDonHang" as ChiTietDonHang {
+    + PK: id : INT
+    --
+    + so_luong : INT
+    + gia_luc_mua : DECIMAL(15,2)
+    + FK: don_hang_id : INT
+    + FK: san_pham_id : INT
+}
+
+entity "GioHang" as GioHang {
+    + PK: id : INT
+    --
+    + ngay_tao : DATETIME
+    + FK: nguoi_dung_id : INT
+}
+
+entity "ChiTietGioHang" as ChiTietGioHang {
+    + PK: id : INT
+    --
+    + so_luong : INT
+    + FK: gio_hang_id : INT
+    + FK: san_pham_id : INT
+}
+
+entity "DanhGia" as DanhGia {
+    + PK: id : INT
+    --
+    + so_sao : INT
+    + noi_dung : TEXT
+    + ngay_danh_gia : DATETIME
+    + FK: san_pham_id : INT
+    + FK: nguoi_dung_id : INT
+}
+
+' --- Relationships (Crow's Foot Notation) ---
+
+' One Person has one Role
+VaiTro ||--o{ NguoiDung : "assigned to"
+
+' Customer processes Orders
+NguoiDung ||--o{ DonHang : "places"
+NguoiDung ||--o| GioHang : "owns"
+
+' Product details
+LoaiSanPham ||--o{ SanPham : "categorizes"
+HangSanPham ||--o{ SanPham : "manufactures"
+KhuyenMai ||--o{ SanPham : "applies to"
+
+' Composition of Orders
+DonHang ||--|{ ChiTietDonHang : "contains"
+SanPham ||--o{ ChiTietDonHang : "ordered in"
+
+' Composition of Carts
+GioHang ||--|{ ChiTietGioHang : "contains"
+SanPham ||--o{ ChiTietGioHang : "added to"
+
+' Reviews
+SanPham ||--o{ DanhGia : "receives"
+NguoiDung ||--o{ DanhGia : "writes"
+
+@enduml
+
+@enduml

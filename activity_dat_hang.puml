@@ -1,0 +1,41 @@
+@startuml "Activity Diagram: Dat hang & Thanh toan"
+|Khách hàng|
+start
+:Truy cập giỏ hàng;
+:Nhấn nút Thanh toán;
+if (Đã đăng nhập?) then (Chưa)
+    :Chuyển hướng Đăng nhập;
+    :Đăng nhập thành công;
+else (Đã có)
+endif
+
+|Hệ thống|
+:Kiểm tra tồn kho;
+:Hiển thị form thông tin nhận hàng;
+|Khách hàng|
+:Nhập địa chỉ & Số điện thoại;
+:Chọn phương thức thanh toán;
+|Hệ thống|
+:Tính tổng tiền (bao gồm phí ship/KM);
+if (Phương thức thanh toán?) then (Online - VNPay)
+    |Cổng VNPay|
+    :Chuyển hướng sang VNPay;
+    :Khách xác thực giao dịch;
+    |Hệ thống|
+    :Nhận kết quả giao dịch;
+    if (Thanh toán thành công?) then (Thất bại)
+        :Thông báo lỗi thanh toán;
+        stop
+    else (Thành công)
+    endif
+else (COD - Khi nhận hàng)
+endif
+
+|Hệ thống|
+:Lưu đơn hàng vào CSDL;
+:Trừ số lượng tồn kho sản phẩm;
+:Gửi email xác nhận đơn hàng;
+|Khách hàng|
+:Nhận thông báo đặt hàng thành công;
+stop
+@enduml

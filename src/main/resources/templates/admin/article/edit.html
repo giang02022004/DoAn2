@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Sửa Bài Viết &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Sửa Bài Viết</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+            <div class="mat-card">
+                <div class="mat-card-header d-flex justify-content-between align-items-center"
+                     style="background:linear-gradient(135deg,#0d47a1,#1976d2);border-radius:6px 6px 0 0;padding:16px 22px;">
+                    <div>
+                        <h5 class="mb-0 text-white"><i class="fas fa-edit me-2"></i>Chỉnh Sửa Bài Viết</h5>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,.75);" th:text="'ID: ' + ${article.id}"></p>
+                    </div>
+                    <a th:href="@{/admin/articles}" class="btn btn-light btn-sm fw-semibold text-dark">
+                        <i class="fas fa-arrow-left me-1"></i>Trở Về
+                    </a>
+                </div>
+
+                <div class="p-4">
+                    <form th:action="@{/admin/articles/update}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="id" th:value="${article.id}" />
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Tiêu đề -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tiêu Đề Bài Viết <span class="text-danger">*</span></label>
+                                    <input type="text" name="tieuDe" class="form-control" th:value="${article.tieuDe}" required>
+                                </div>
+
+                                <!-- Mô tả ngắn -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Đoạn Tóm Tắt (Mô tả ngắn)</label>
+                                    <textarea name="noiDungNgan" class="form-control" rows="3" th:text="${article.noiDungNgan}"></textarea>
+                                </div>
+                                
+                                <!-- Nội dung Editor -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nội Dung Chi Tiết <span class="text-danger">*</span></label>
+                                    <textarea name="noiDungChiTiet" class="form-control" rows="15" th:text="${article.noiDungChiTiet}"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Trạng thái -->
+                                <div class="card mb-4 shadow-sm">
+                                    <div class="card-header bg-light fw-bold">Xuất Bản</div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Người Đăng</label>
+                                            <input type="text" class="form-control bg-light" th:value="${article.tacGia != null ? article.tacGia.hoTen : 'Admin'}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Lần Cuối Cập Nhật</label>
+                                            <input type="text" class="form-control bg-light" th:value="${#temporals.format(article.ngayCapNhat, 'dd/MM/yyyy HH:mm')}" readonly>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Trạng Thái Hiển Thị</label>
+                                            <select name="trangThai" class="form-select border-primary" required>
+                                                <option value="ACTIVE" th:selected="${article.trangThai == 'ACTIVE'}">Cho Phép Hiển Thị (Active)</option>
+                                                <option value="DRAFT" th:selected="${article.trangThai == 'DRAFT'}">Lưu Nháp (Draft)</option>
+                                                <option value="INACTIVE" th:selected="${article.trangThai == 'INACTIVE'}">Tạm Ẩn (Inactive)</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold">
+                                            <i class="fas fa-save me-1"></i>Lưu Chỉnh Sửa
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Hình ảnh đại diện -->
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-light fw-bold">Hình Đại Diện</div>
+                                    <div class="card-body text-center">
+                                        <div id="previewBox" class="border rounded bg-light cursor-pointer position-relative overflow-hidden mb-3" 
+                                             style="height: 200px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-style: dashed !important; border-width: 2px !important;"
+                                             onclick="document.getElementById('imgUpload').click()" title="Đổi ảnh đại diện">
+                                            
+                                            <!-- Nếu đã có ảnh thì hiển thị ảnh cũ -->
+                                            <img th:if="${article.hinhAnh != null}" th:src="@{'/img/' + ${article.hinhAnh}}" alt="Current Cover" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                            
+                                            <!-- Nếu chưa có ảnh thì hiển thị icon Tải Lên -->
+                                            <span th:if="${article.hinhAnh == null}" id="previewText" class="text-muted"><i class="fas fa-cloud-upload-alt fa-3x mb-2 d-block"></i>Đổi Ảnh Cover</span>
+                                        </div>
+                                        <!-- Cảnh báo nhỏ nếu đổi ảnh thì ảnh cũ sẽ bị thay thế -->
+                                        <input type="file" name="hinhAnhFile" id="imgUpload" accept="image/*" class="d-none" onchange="previewImage(event)">
+                                        <small class="text-muted d-block">Nhấn vào ô trên để tải ảnh đại diện mới.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function previewImage(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var box = document.getElementById('previewBox');
+                // Clean the box entirely
+                box.innerHTML = '';
+                
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'img-fluid w-100 h-100';
+                img.style.objectFit = 'cover';
+                
+                box.appendChild(img);
+                box.classList.remove('bg-light');
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>

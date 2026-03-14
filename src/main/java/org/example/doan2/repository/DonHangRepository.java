@@ -13,8 +13,9 @@ import java.util.List;
 public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
     List<DonHang> findByNguoiDungOrderByNgayTaoDesc(NguoiDung nguoiDung);
 
-    // Tính tổng doanh thu từ tất cả các đơn hàng (Cộng dồn cột tongTien, nếu null thì trả về 0)
-    @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d")
+    // NGHIỆP VỤ: TÍNH TỔNG DOANH THU THỰC TẾ
+    // Chỉ cộng dồn các đơn hàng có trạng thái "Đã hoàn thành" để tránh số liệu ảo từ đơn hủy/chờ.
+    @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d WHERE d.trangThai = 'Đã hoàn thành'")
     Integer sumTotalRevenue();
 
     // Lấy danh sách 5 đơn hàng mới nhất (Sắp xếp theo ngày tạo giảm dần - Descending)
@@ -33,6 +34,7 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
      */
     @Query("SELECT YEAR(d.ngayTao), MONTH(d.ngayTao), COALESCE(SUM(d.tongTien), 0) " +
            "FROM DonHang d " +
+           "WHERE d.trangThai = 'Đã hoàn thành' " +
            "GROUP BY YEAR(d.ngayTao), MONTH(d.ngayTao) " +
            "ORDER BY YEAR(d.ngayTao) ASC, MONTH(d.ngayTao) ASC")
     List<Object[]> getMonthlyRevenue();

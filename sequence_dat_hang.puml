@@ -1,0 +1,48 @@
+@startuml "Sequence Diagram: Dat hang"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Khách hàng" as User
+participant "CheckoutView" as View
+participant "DonHangController" as Controller
+participant "DonHangService" as Service
+participant "GioHangService" as CartService
+participant "DonHangRepository" as Repo
+database "Database" as DB
+
+User -> View : Điền thông tin giao hàng
+User -> View : Nhấn "Xác nhận đặt hàng"
+View -> Controller : POST /checkout/submit
+activate Controller
+
+Controller -> Service : validateAndSaveOrder(orderDTO)
+activate Service
+
+Service -> CartService : getCartForUser(userId)
+activate CartService
+CartService --> Service : Trả về danh sách sản phẩm trong giỏ
+deactivate CartService
+
+Service -> Repo : save(DonHang entity)
+activate Repo
+Repo -> DB : INSERT INTO don_hang ...
+activate DB
+DB --> Repo : Success (Generated ID)
+deactivate DB
+Repo --> Service : Trả về DonHang đã lưu
+deactivate Repo
+
+Service -> CartService : clearCart(userId)
+activate CartService
+CartService --> Service : Success
+deactivate CartService
+
+Service --> Controller : Success (DonHang object)
+deactivate Service
+
+Controller -> View : Redirect /order/success/{id}
+deactivate Controller
+View --> User : Hiển thị thông báo đặt hàng thành công
+
+@enduml

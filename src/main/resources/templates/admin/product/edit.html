@@ -72,11 +72,25 @@
                                                     th:selected="${product.loaiSanPham != null and type.id == product.loaiSanPham.id}">
                                             </option>
                                         </select>
-                                    </div>
+                                     </div>
+                                 </div>
+
+                                <!-- Chương Trình Khuyến Mãi -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-danger"><i class="fas fa-gift me-1"></i>Chương Trình Khuyến Mãi</label>
+                                    <select name="khuyenMai.id" class="form-select border-danger">
+                                        <option value="">-- Không áp dụng khuyến mãi --</option>
+                                        <option th:each="km : ${promotions}" 
+                                                th:value="${km.id}" 
+                                                th:text="${km.tenKhuyenMai + ' (-' + km.phanTramGiam + '%)'}"
+                                                th:selected="${product.khuyenMai != null and km.id == product.khuyenMai.id}">
+                                        </option>
+                                    </select>
+                                    <small class="text-muted">Đang tự động cập nhật giảm giá trên Trang chủ và Giỏ hàng.</small>
                                 </div>
 
-                                <!-- Hình Ảnh (Path Text Input) -->
-                                <div class="mb-3">
+                                 <!-- Hình Ảnh (Path Text Input) -->
+                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Tên File Hình Ảnh (VD: laptop-dell.jpg)</label>
                                     <input type="text" name="hinhAnh" class="form-control" th:value="${product.hinhAnh}">
                                     <small class="text-muted">Đường dẫn ảnh sẽ được tự động cộng thêm /img/ ở Frontend.</small>

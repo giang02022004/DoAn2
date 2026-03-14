@@ -1,0 +1,50 @@
+@startuml "Sequence Diagram: Quan ly don hang"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Admin / Nhân viên" as Admin
+participant "Order Admin View" as View
+participant "DonHangController" as Controller
+participant "DonHangService" as Service
+participant "EmailService" as Mail
+database "Database" as DB
+
+Admin -> View : Truy cập danh sách đơn hàng
+Admin -> View : Chọn đơn hàng "Chờ xác nhận"
+Admin -> View : Nhấn nút "Xác nhận & Giao hàng"
+View -> Controller : POST /admin/order/update-status
+activate Controller
+
+Controller -> Service : confirmOrder(orderId)
+activate Service
+
+Service -> DB : findById(orderId)
+activate DB
+DB --> Service : DonHang Object
+deactivate DB
+
+Service -> DB : UPDATE don_hang SET trang_thai = 'DELIVERING'
+activate DB
+DB --> Service : Success
+deactivate DB
+
+' Thể hiện nghiệp vụ trừ kho
+Service -> DB : UPDATE san_pham SET so_luong = so_luong - ? (OrderDetail)
+activate DB
+DB --> Service : Done
+deactivate DB
+
+Service -> Mail : sendOrderStatusEmail(customerEmail, 'DELIVERING')
+activate Mail
+Mail --> Service : Success
+deactivate Mail
+
+Service --> Controller : Trả về kết quả xác nhận nội bộ
+deactivate Service
+
+Controller -> View : Redirect /admin/orders (Toast message)
+deactivate Controller
+View --> Admin : Cập nhật trạng thái "Đang giao hàng" trong bảng
+
+@enduml

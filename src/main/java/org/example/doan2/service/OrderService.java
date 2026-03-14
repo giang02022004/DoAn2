@@ -1,4 +1,5 @@
 package org.example.doan2.service;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.example.doan2.dto.CartItem;
@@ -14,10 +15,21 @@ import org.example.doan2.repository.DonHangRepository;
 import org.example.doan2.repository.NguoiDungRepository;
 import org.example.doan2.repository.SanPhamRepository;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Service
 public class OrderService {
+
+    private static final String STATUS_CHO_XAC_NHAN = "Ch\u1EDD x\u00E1c nh\u1EADn";
+    private static final String STATUS_DA_XAC_NHAN = "\u0110\u00E3 x\u00E1c nh\u1EADn";
+    private static final String STATUS_DANG_GIAO = "\u0110ang giao";
+    private static final String STATUS_HOAN_THANH = "Ho\u00E0n th\u00E0nh";
+    private static final String STATUS_CHO_THANH_TOAN = "Ch\u1EDD thanh to\u00E1n";
+    private static final String STATUS_CHUA_THANH_TOAN = "Ch\u01B0a thanh to\u00E1n";
+    private static final String STATUS_DA_THANH_TOAN = "\u0110\u00E3 thanh to\u00E1n";
+    private static final String STATUS_DA_HUY = "\u0110\u00E3 h\u1EE7y";
 
     private final DonHangRepository donHangRepository;
     private final ChiTietDonHangRepository chiTietDonHangRepository;
@@ -27,9 +39,9 @@ public class OrderService {
     private final BienTheSanPhamRepository bienTheSanPhamRepository;
     private final EmailService emailService;
 
-    public OrderService(DonHangRepository donHangRepository, 
-                        ChiTietDonHangRepository chiTietDonHangRepository, 
-                        CartService cartService, 
+    public OrderService(DonHangRepository donHangRepository,
+                        ChiTietDonHangRepository chiTietDonHangRepository,
+                        CartService cartService,
                         SanPhamRepository sanPhamRepository,
                         NguoiDungRepository nguoiDungRepository,
                         BienTheSanPhamRepository bienTheSanPhamRepository,
@@ -45,17 +57,18 @@ public class OrderService {
 
     @Transactional
     public void placeOrder(CheckoutDTO checkoutDTO, HttpSession session, String authenticatedEmail) {
-        
         List<CartItem> cartItems = cartService.getCart(session, authenticatedEmail);
-
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Giỏ hàng đang trống!");
+            throw new RuntimeException("Gio hang dang trong!");
         }
 
-        NguoiDung user = null;
-        if (authenticatedEmail != null) {
-            user = nguoiDungRepository.findByEmail(authenticatedEmail).orElse(null);
-        }
+        // NGHIỆP VỤ: Kiểm tra thông tin nhận hàng bắt buộc
+        validateCheckoutDTO(checkoutDTO);
+
+        // Pre-check stock before creating order to prevent negative inventory.
+        validateCartStock(cartItems);
+
+        NguoiDung user = getUserByEmail(authenticatedEmail);
 
         DonHang donHang = new DonHang();
         donHang.setNguoiDung(user);
@@ -65,8 +78,8 @@ public class OrderService {
         donHang.setEmailNhan(checkoutDTO.getEmail());
         donHang.setGhiChu(checkoutDTO.getGhiChu());
         donHang.setPhuongThucThanhToan(checkoutDTO.getPaymentMethod());
-        donHang.setTrangThai("Chờ xác nhận");
-        donHang.setTrangThaiThanhToan("Chưa thanh toán");
+        donHang.setTrangThai(STATUS_CHO_XAC_NHAN);
+        donHang.setTrangThaiThanhToan(STATUS_CHUA_THANH_TOAN);
         donHang.setNgayTao(LocalDateTime.now());
         donHang.setNgayCapNhat(LocalDateTime.now());
         donHang.setTongTien(cartService.getTotalPrice(session, authenticatedEmail));
@@ -74,67 +87,45 @@ public class OrderService {
         donHang = donHangRepository.save(donHang);
 
         for (CartItem item : cartItems) {
-            ChiTietDonHang chiTiet = new ChiTietDonHang();
-            chiTiet.setDonHang(donHang);
-            
             SanPham sp = sanPhamRepository.findById(item.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
-            chiTiet.setSanPham(sp);
-            
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay san pham"));
+
+            BienTheSanPham bienThe = null;
             if (item.getVariantId() != null) {
-                BienTheSanPham bienThe = bienTheSanPhamRepository.findById(item.getVariantId()).orElse(null);
-                chiTiet.setBienThe(bienThe);
-                
-                if (bienThe != null) {
-                    // Trừ tồn kho biến thể
-                    bienThe.setSoLuong(bienThe.getSoLuong() - item.getQuantity());
-                    bienThe.setDaBan((bienThe.getDaBan() == null ? 0 : bienThe.getDaBan()) + item.getQuantity());
-                    bienTheSanPhamRepository.save(bienThe);
-                }
+                bienThe = bienTheSanPhamRepository.findById(item.getVariantId())
+                        .orElseThrow(() -> new RuntimeException("Khong tim thay bien the san pham"));
             }
 
+            ChiTietDonHang chiTiet = new ChiTietDonHang();
+            chiTiet.setDonHang(donHang);
+            chiTiet.setSanPham(sp);
+            chiTiet.setBienThe(bienThe);
             chiTiet.setGia(item.getPrice());
             chiTiet.setSoLuong(item.getQuantity());
-
             chiTietDonHangRepository.save(chiTiet);
-            
-            // Trừ tồn kho sản phẩm chính
-            sp.setSoLuong(sp.getSoLuong() - item.getQuantity());
-            sp.setDaBan((sp.getDaBan() == null ? 0 : sp.getDaBan()) + item.getQuantity());
-            sanPhamRepository.save(sp);
+
+            deductStock(sp, bienThe, item.getQuantity());
         }
 
-        // Gửi email xác nhận đặt hàng HTML đến email khách điền trên form (chứ không phải email tài khoản đăng nhập)
         emailService.sendOrderConfirmationEmail(checkoutDTO.getEmail(), donHang, cartItems);
-
         cartService.clearCart(session, authenticatedEmail);
     }
 
-    /**
-     * Đặt đơn hàng dành riêng cho luồng thanh toán VNPay.
-     *
-     * Khác với placeOrder() thông thường (COD), phương thức này:
-     *   - Lưu đơn hàng với trạng thái "Chờ thanh toán" (chờ VNPay xác nhận)
-     *   - KHÔNG xóa giỏ hàng (chỉ xóa sau khi VNPay callback thành công)
-     *   - KHÔNG gửi email (email gửi sau khi VNPay xác nhận)
-     *
-     * @return ID của đơn hàng vừa tạo (để chuyển sang trang VNPay)
-     */
     @Transactional
     public int datDonHangChoThanhToan(CheckoutDTO thongTinDatHang, HttpSession phienLam, String emailDangNhap) {
-
         List<CartItem> danhSachSanPhamGiohang = cartService.getCart(phienLam, emailDangNhap);
-
         if (danhSachSanPhamGiohang.isEmpty()) {
-            throw new RuntimeException("Giỏ hàng đang trống!");
+            throw new RuntimeException("Gio hang dang trong!");
         }
 
-        NguoiDung nguoiDung = null;
-        if (emailDangNhap != null) {
-            nguoiDung = nguoiDungRepository.findByEmail(emailDangNhap).orElse(null);
-        }
+        // NGHIỆP VỤ: Kiểm tra thông tin nhận hàng trước khi sang VNPay
+        validateCheckoutDTO(thongTinDatHang);
 
-        // Tạo đơn hàng với trạng thái "Chờ thanh toán" — chưa hoàn tất
+        // VNPay flow also validates stock before creating pending order.
+        validateCartStock(danhSachSanPhamGiohang);
+
+        NguoiDung nguoiDung = getUserByEmail(emailDangNhap);
+
         DonHang donHangMoi = new DonHang();
         donHangMoi.setNguoiDung(nguoiDung);
         donHangMoi.setTenNguoiNhan(thongTinDatHang.getHo() + " " + thongTinDatHang.getTen());
@@ -143,75 +134,256 @@ public class OrderService {
         donHangMoi.setEmailNhan(thongTinDatHang.getEmail());
         donHangMoi.setGhiChu(thongTinDatHang.getGhiChu());
         donHangMoi.setPhuongThucThanhToan("VNPay");
-        donHangMoi.setTrangThai("Chờ thanh toán");
-        donHangMoi.setTrangThaiThanhToan("Chưa thanh toán");
+        donHangMoi.setTrangThai(STATUS_CHO_THANH_TOAN);
+        donHangMoi.setTrangThaiThanhToan(STATUS_CHUA_THANH_TOAN);
         donHangMoi.setNgayTao(LocalDateTime.now());
         donHangMoi.setNgayCapNhat(LocalDateTime.now());
         donHangMoi.setTongTien(cartService.getTotalPrice(phienLam, emailDangNhap));
 
         donHangMoi = donHangRepository.save(donHangMoi);
 
-        // Lưu chi tiết từng sản phẩm trong giỏ hàng vào đơn hàng
         for (CartItem sanPhamTrongGio : danhSachSanPhamGiohang) {
             ChiTietDonHang chiTietDonHang = new ChiTietDonHang();
             chiTietDonHang.setDonHang(donHangMoi);
 
             SanPham sp = sanPhamRepository.findById(sanPhamTrongGio.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay san pham"));
             chiTietDonHang.setSanPham(sp);
 
             if (sanPhamTrongGio.getVariantId() != null) {
                 BienTheSanPham bienTheSanPham = bienTheSanPhamRepository
-                        .findById(sanPhamTrongGio.getVariantId()).orElse(null);
+                        .findById(sanPhamTrongGio.getVariantId())
+                        .orElseThrow(() -> new RuntimeException("Khong tim thay bien the san pham"));
                 chiTietDonHang.setBienThe(bienTheSanPham);
-
-                if (bienTheSanPham != null) {
-                    // Không trừ tồn kho biến thể ngay lúc tạo đơn chờ
-                }
             }
 
             chiTietDonHang.setGia(sanPhamTrongGio.getPrice());
             chiTietDonHang.setSoLuong(sanPhamTrongGio.getQuantity());
             chiTietDonHangRepository.save(chiTietDonHang);
-
-            // Không trừ tồn kho sản phẩm chính lúc tạo đơn chờ
         }
 
-        // Trả về ID đơn hàng để chuyển hướng sang VNPay
         return donHangMoi.getId();
     }
 
-    /**
-     * Cập nhật trạng thái và trừ tồn kho sau khi VNPay thanh toán thành công.
-     */
     @Transactional
-    public void xacNhanDonHangVNPayThanhCong(int maDonHang, String maThanhToanVNP) {
+    public boolean xacNhanDonHangVNPayThanhCong(int maDonHang, String maThanhToanVNP) {
         DonHang donHang = donHangRepository.findById(maDonHang).orElse(null);
-        if (donHang != null) {
-            // Cập nhật trạng thái hoá đơn
-            donHang.setTrangThaiThanhToan("Đã thanh toán");
-            donHang.setTrangThai("Chờ xác nhận");
-            donHang.setMaThanhToan(maThanhToanVNP);
-            donHang.setNgayCapNhat(LocalDateTime.now());
-            donHangRepository.save(donHang);
+        if (donHang == null) {
+            return false;
+        }
 
-            // Tiến hành trừ số lượng tồn kho và cộng dồn số lượng đã bán
-            List<ChiTietDonHang> chiTietList = chiTietDonHangRepository.findByDonHang(donHang);
-            for (ChiTietDonHang chiTiet : chiTietList) {
-                SanPham sp = chiTiet.getSanPham();
-                if (sp != null) {
-                    sp.setSoLuong(sp.getSoLuong() - chiTiet.getSoLuong());
-                    sp.setDaBan((sp.getDaBan() == null ? 0 : sp.getDaBan()) + chiTiet.getSoLuong());
-                    sanPhamRepository.save(sp);
+        // Idempotency guard: ignore duplicate success callbacks from gateway.
+        if (STATUS_DA_THANH_TOAN.equalsIgnoreCase(donHang.getTrangThaiThanhToan())) {
+            return false;
+        }
+
+        if (STATUS_DA_HUY.equalsIgnoreCase(donHang.getTrangThai())) {
+            return false;
+        }
+
+        List<ChiTietDonHang> chiTietList = chiTietDonHangRepository.findByDonHang(donHang);
+        for (ChiTietDonHang chiTiet : chiTietList) {
+            int quantity = chiTiet.getSoLuong() == null ? 0 : chiTiet.getSoLuong();
+            if (quantity <= 0) {
+                throw new RuntimeException("So luong san pham trong don hang khong hop le");
+            }
+
+            SanPham sp = chiTiet.getSanPham();
+            if (sp == null) {
+                throw new RuntimeException("Du lieu don hang khong hop le: thieu san pham");
+            }
+            if (sp.getSoLuong() == null || sp.getSoLuong() < quantity) {
+                throw new RuntimeException("San pham khong du ton kho de xac nhan thanh toan");
+            }
+
+            BienTheSanPham bt = chiTiet.getBienThe();
+            if (bt != null && (bt.getSoLuong() == null || bt.getSoLuong() < quantity)) {
+                throw new RuntimeException("Bien the san pham khong du ton kho de xac nhan thanh toan");
+            }
+        }
+
+        donHang.setTrangThaiThanhToan(STATUS_DA_THANH_TOAN);
+        donHang.setTrangThai(STATUS_CHO_XAC_NHAN);
+        donHang.setMaThanhToan(maThanhToanVNP);
+        donHang.setNgayCapNhat(LocalDateTime.now());
+        donHangRepository.save(donHang);
+
+        for (ChiTietDonHang chiTiet : chiTietList) {
+            deductStock(chiTiet.getSanPham(), chiTiet.getBienThe(), chiTiet.getSoLuong());
+        }
+
+        // Xóa giỏ hàng trong Database ngay khi xác nhận thanh toán thành công
+        if (donHang.getNguoiDung() != null) {
+            cartService.clearCart(null, donHang.getNguoiDung().getEmail());
+        }
+        return true;
+    }
+
+    @Transactional
+    public void cancelOrder(int orderId, String actorEmail) {
+        DonHang order = donHangRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Nếu là khách hàng, chỉ được hủy đơn "Chờ xác nhận" hoặc "Chờ thanh toán"
+        NguoiDung actor = getUserByEmail(actorEmail);
+        boolean isAdmin = actor != null && actor.getVaiTro() != null && 
+                (actor.getVaiTro().getTenVaiTro().equals("ROLE_ADMIN") || actor.getVaiTro().getTenVaiTro().equals("ROLE_EMPLOYEE"));
+
+        if (!isAdmin) {
+            if (!order.getNguoiDung().getEmail().equalsIgnoreCase(actorEmail)) {
+                throw new RuntimeException("Bạn không có quyền hủy đơn hàng này");
+            }
+            if (!STATUS_CHO_XAC_NHAN.equals(order.getTrangThai()) && !STATUS_CHO_THANH_TOAN.equals(order.getTrangThai())) {
+                throw new RuntimeException("Chỉ có thể hủy đơn hàng đang chờ xác nhận hoặc chờ thanh toán");
+            }
+        }
+
+        if (STATUS_DA_HUY.equals(order.getTrangThai())) {
+            return; // Đã hủy rồi thì thôi
+        }
+
+        // Nếu đơn hàng ĐÃ THANH TOÁN mà bị hủy -> Cần lưu ý luồng hoàn tiền (Refund) thủ công
+        // Ở đây mình chỉ xử lý chuyển trạng thái và hoàn tồn kho.
+        
+        order.setTrangThai(STATUS_DA_HUY);
+        order.setNgayCapNhat(LocalDateTime.now());
+        donHangRepository.save(order);
+
+        restoreStock(order);
+    }
+
+    @Transactional
+    public void updateStatus(int orderId, String newStatus) {
+        DonHang order = donHangRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        if (STATUS_DA_HUY.equals(newStatus)) {
+            cancelOrder(orderId, null); // Thực hiện hủy đơn và hoàn tồn kho
+            return;
+        }
+
+        order.setTrangThai(newStatus);
+        order.setNgayCapNhat(LocalDateTime.now());
+        donHangRepository.save(order);
+    }
+
+    @Transactional
+    public void confirmCodPayment(int orderId) {
+        DonHang order = donHangRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        
+        if (!"COD".equalsIgnoreCase(order.getPhuongThucThanhToan())) {
+            throw new RuntimeException("Chỉ áp dụng xác nhận thanh toán cho đơn COD");
+        }
+
+        order.setTrangThaiThanhToan(STATUS_DA_THANH_TOAN);
+        order.setNgayCapNhat(LocalDateTime.now());
+        donHangRepository.save(order);
+    }
+
+    private void restoreStock(DonHang order) {
+        List<ChiTietDonHang> items = chiTietDonHangRepository.findByDonHang(order);
+        for (ChiTietDonHang item : items) {
+            int quantity = item.getSoLuong();
+            SanPham sp = item.getSanPham();
+            if (sp != null) {
+                sp.setSoLuong(sp.getSoLuong() + quantity);
+                sp.setDaBan(Math.max(0, (sp.getDaBan() == null ? 0 : sp.getDaBan()) - quantity));
+                sanPhamRepository.save(sp);
+            }
+
+            BienTheSanPham bt = item.getBienThe();
+            if (bt != null) {
+                bt.setSoLuong(bt.getSoLuong() + quantity);
+                bt.setDaBan(Math.max(0, (bt.getDaBan() == null ? 0 : bt.getDaBan()) - quantity));
+                bienTheSanPhamRepository.save(bt);
+            }
+        }
+    }
+
+
+    private NguoiDung getUserByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return null;
+        }
+        return nguoiDungRepository.findByEmail(email).orElse(null);
+    }
+
+    // Centralized stock validation used by COD and VNPay pending flow.
+    private void validateCartStock(List<CartItem> cartItems) {
+        for (CartItem item : cartItems) {
+            int quantity = item.getQuantity();
+            if (quantity <= 0) {
+                throw new RuntimeException("So luong san pham khong hop le");
+            }
+
+            SanPham sp = sanPhamRepository.findById(item.getId())
+                    .orElseThrow(() -> new RuntimeException("Khong tim thay san pham"));
+
+            if (sp.getSoLuong() == null || sp.getSoLuong() < quantity) {
+                throw new RuntimeException("San pham " + sp.getTenSanPham() + " khong du ton kho");
+            }
+
+            if (item.getVariantId() != null) {
+                BienTheSanPham bienThe = bienTheSanPhamRepository.findById(item.getVariantId())
+                        .orElseThrow(() -> new RuntimeException("Khong tim thay bien the san pham"));
+
+                if (bienThe.getSanPham() == null || !bienThe.getSanPham().getId().equals(sp.getId())) {
+                    throw new RuntimeException("Bien the khong thuoc san pham da chon");
                 }
 
-                BienTheSanPham bt = chiTiet.getBienThe();
-                if (bt != null) {
-                    bt.setSoLuong(bt.getSoLuong() - chiTiet.getSoLuong());
-                    bt.setDaBan((bt.getDaBan() == null ? 0 : bt.getDaBan()) + chiTiet.getSoLuong());
-                    bienTheSanPhamRepository.save(bt);
+                if (bienThe.getSoLuong() == null || bienThe.getSoLuong() < quantity) {
+                    throw new RuntimeException("Bien the cua " + sp.getTenSanPham() + " khong du ton kho");
                 }
             }
         }
+    }
+
+    // Single place that deducts stock with guard checks for product and variant.
+    private void deductStock(SanPham sp, BienTheSanPham bienThe, int quantity) {
+        if (quantity <= 0) {
+            throw new RuntimeException("So luong san pham khong hop le");
+        }
+
+        if (sp.getSoLuong() == null || sp.getSoLuong() < quantity) {
+            throw new RuntimeException("San pham khong du ton kho");
+        }
+        sp.setSoLuong(sp.getSoLuong() - quantity);
+        sp.setDaBan((sp.getDaBan() == null ? 0 : sp.getDaBan()) + quantity);
+        sanPhamRepository.save(sp);
+
+        if (bienThe != null) {
+            if (bienThe.getSoLuong() == null || bienThe.getSoLuong() < quantity) {
+                throw new RuntimeException("Bien the san pham khong du ton kho");
+            }
+            bienThe.setSoLuong(bienThe.getSoLuong() - quantity);
+            bienThe.setDaBan((bienThe.getDaBan() == null ? 0 : bienThe.getDaBan()) + quantity);
+            bienTheSanPhamRepository.save(bienThe);
+        }
+    }
+
+    private void validateCheckoutDTO(CheckoutDTO dto) {
+        if (dto == null) {
+            throw new RuntimeException("Thông tin nhận hàng không hợp lệ!");
+        }
+        if (isStringEmpty(dto.getHo()) || isStringEmpty(dto.getTen())) {
+            throw new RuntimeException("Vui lòng nhập đầy đủ Họ và Tên!");
+        }
+        if (isStringEmpty(dto.getDiaChi())) {
+            throw new RuntimeException("Vui lòng nhập địa chỉ nhận hàng!");
+        }
+        if (isStringEmpty(dto.getThanhPho()) || isStringEmpty(dto.getQuanHuyen())) {
+            throw new RuntimeException("Vui lòng nhập đầy đủ Quận/Huyện, Tỉnh/Thành phố!");
+        }
+        if (isStringEmpty(dto.getSoDienThoai())) {
+            throw new RuntimeException("Vui lòng nhập số điện thoại liên lạc!");
+        }
+        if (isStringEmpty(dto.getEmail())) {
+            throw new RuntimeException("Vui lòng nhập Email để nhận thông báo đơn hàng!");
+        }
+    }
+
+    private boolean isStringEmpty(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }

@@ -1,0 +1,29 @@
+@startuml "Chi tiet Use Case: Xem bao cao thong ke - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Quản trị viên" as Admin
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Xem báo cáo thống kê" as Main
+    
+    usecase "Thống kê doanh thu theo tháng" as UC_Revenue
+    usecase "Thống kê sản phẩm bán chạy" as UC_TopSales
+    usecase "Cảnh báo hàng sắp hết" as UC_StockAlert
+    usecase "Thống kê tổng quan Dashboard" as UC_Dashboard
+    
+    ' --- Logic ---
+    ' 1. Include: Các báo cáo này là thành phần bắt buộc của trang thống kê (Base -> Sub)
+    Main .down.> UC_Revenue : <<include>>
+    Main .down.> UC_TopSales : <<include>>
+    Main .down.> UC_StockAlert : <<include>>
+    Main .down.> UC_Dashboard : <<include>>
+}
+
+' Connections
+Admin --> Main
+
+@enduml

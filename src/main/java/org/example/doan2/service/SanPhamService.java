@@ -25,8 +25,8 @@ public class SanPhamService {
         );
 
         return sanPhamRepository
-                .findByLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(
-                        loai, hangId, pageable
+                .findByTrangThaiAndLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(
+                        "ACTIVE", loai, hangId, pageable
                 )
                 .getContent();
     }
@@ -40,7 +40,7 @@ public class SanPhamService {
         );
 
         return sanPhamRepository
-                .findByLoaiSanPham_TenLoaiOrderByIdDesc(loai, pageable)
+                .findByTrangThaiAndLoaiSanPham_TenLoaiOrderByIdDesc("ACTIVE", loai, pageable)
                 .getContent();
     }
     //Hết phần hiển thị sản phẩm trên trang chủ
@@ -65,17 +65,17 @@ public class SanPhamService {
 
     // Lấy danh sách sản phẩm theo giá (nhỏ hơn hoặc bằng maxPrice) và phân trang
     public Page<SanPham> getPageSanPhamsByPrice(Integer maxPrice, Pageable pageable) {
-        return sanPhamRepository.findByGiaLessThanEqual(maxPrice, pageable);
+        return sanPhamRepository.findByTrangThaiAndGiaLessThanEqual("ACTIVE", maxPrice, pageable);
     }
 
     // Lọc theo Hãng
     public Page<SanPham> getSanPhamsByHang(Integer hangId, Pageable pageable) {
-        return sanPhamRepository.findByHangSanXuat_Id(hangId, pageable);
+        return sanPhamRepository.findByTrangThaiAndHangSanXuat_Id("ACTIVE", hangId, pageable);
     }
     
     // Lấy danh sách sản phẩm theo Hãng và Giá (nhỏ hơn hoặc bằng maxPrice)
     public Page<SanPham> getSanPhamsByHangAndPrice(Integer hangId, Integer maxPrice, Pageable pageable) {
-        return sanPhamRepository.findByHangSanXuat_IdAndGiaLessThanEqual(hangId, maxPrice, pageable);
+        return sanPhamRepository.findByTrangThaiAndHangSanXuat_IdAndGiaLessThanEqual("ACTIVE", hangId, maxPrice, pageable);
     }
 
     // Lấy chi tiết sản phẩm
@@ -85,17 +85,17 @@ public class SanPhamService {
     
     // Lọc theo Hãng và Loại
     public Page<SanPham> getSanPhamsByHangAndLoai(Integer hangId, String tenLoai, Pageable pageable) {
-        return sanPhamRepository.findByLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(tenLoai, hangId, pageable);
+        return sanPhamRepository.findByTrangThaiAndLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc("ACTIVE", tenLoai, hangId, pageable);
     }
 
     // Lấy danh sách sản phẩm theo Hãng, Loại và Giá (nhỏ hơn hoặc bằng maxPrice)
     public Page<SanPham> getSanPhamsByHangAndLoaiAndPrice(Integer hangId, String tenLoai, Integer maxPrice, Pageable pageable) {
-        return sanPhamRepository.findByLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc(tenLoai, hangId, maxPrice, pageable);
+        return sanPhamRepository.findByTrangThaiAndLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc("ACTIVE", tenLoai, hangId, maxPrice, pageable);
     }
 
     // Lấy danh sách sản phẩm liên quan (Top N)
     public List<SanPham> getRelatedProducts(Integer loaiId, Integer excludeId, int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "id"));
-        return sanPhamRepository.findByLoaiSanPham_IdAndIdNot(loaiId, excludeId, pageable).getContent();
+        return sanPhamRepository.findByTrangThaiAndLoaiSanPham_IdAndIdNot("ACTIVE", loaiId, excludeId, pageable).getContent();
     }
 }

@@ -1,0 +1,41 @@
+@startuml "Activity Diagram: Quan ly don hang (Admin)"
+|Nhân viên/Admin|
+start
+:Truy cập Quản lý đơn hàng;
+:Lọc đơn hàng mới (Chờ xác nhận);
+:Xem chi tiết đơn hàng;
+:Liên hệ khách xác nhận (nếu cần);
+
+if (Trạng thái?) then (Xác nhận đơn)
+    :Chuyển sang "Đang giao hàng";
+    |Hệ thống|
+    :Trừ kho chính thức;
+    :Cập nhật trạng thái đơn;
+    |Nhân viên/Admin|
+    :Giao hàng cho đơn vị vận chuyển;
+    
+    if (Giao hàng thành công?) then (Có)
+        :Chuyển sang "Đã giao hàng";
+        |Hệ thống|
+        :Ghi nhận doanh thu;
+        if (Thanh toán COD?) then (Có)
+            :Cập nhật: Đã thanh toán;
+        else (Đã online)
+        endif
+    else (Thất bại/Bom hàng)
+        :Chuyển sang "Đã hủy";
+        |Hệ thống|
+        :Hoàn lại số lượng kho;
+    endif
+
+else (Hủy ngay)
+    :Nhập lý do hủy;
+    :Chuyển sang "Đã hủy";
+    |Hệ thống|
+    :Hoàn lại số lượng kho;
+endif
+
+|Nhân viên/Admin|
+:Kết thúc xử lý đơn;
+stop
+@enduml

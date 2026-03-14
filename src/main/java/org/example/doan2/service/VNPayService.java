@@ -130,7 +130,7 @@ public class VNPayService {
      */
     private String maHoaUrl(String giaTri) {
         try {
-            return URLEncoder.encode(giaTri, StandardCharsets.US_ASCII.toString());
+            return URLEncoder.encode(giaTri, StandardCharsets.UTF_8.toString());
         } catch (Exception e) {
             return giaTri;
         }

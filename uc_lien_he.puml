@@ -1,0 +1,32 @@
+@startuml "Chi tiet Use Case: Lien he - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Khách vãng lai" as Guest
+actor "Quản trị viên" as Admin
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Gửi thông tin liên hệ" as Main
+    usecase "Thanh phần thông tin (Tên, Email, SĐT)" as UC1
+    usecase "Viết nội dung tin nhắn" as UC2
+    
+    usecase "Xem tin nhắn liên hệ" as UC3
+    usecase "Phản hồi liên hệ (Email)" as UC4
+    
+    ' --- Logic ---
+    ' 1. Include: Gửi thông tin bắt buộc phải nhập dữ liệu (Base -> Sub)
+    Main .down.> UC1 : <<include>>
+    Main .down.> UC2 : <<include>>
+    
+    ' 2. Extend: Phản hồi là hành động mở rộng sau khi xem (Extension -> Base)
+    UC4 .left.> UC3 : <<extend>>
+}
+
+' Connections
+Guest --> Main
+Admin --> UC3
+
+@enduml

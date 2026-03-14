@@ -61,9 +61,9 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto fs-5 fw-medium">
-                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
-                            <a th:href="@{/shop}" class="nav-item nav-link active">Shop</a>
-                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/index}" class="nav-item nav-link">Trang Chủ</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link active">Cửa Hàng</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                             <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
@@ -105,11 +105,11 @@
 
         <!-- Single Page Header start -->
         <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Shop</h1>
+            <h1 class="text-center text-white display-6">Cửa Hàng</h1>
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                <li class="breadcrumb-item active text-white">Shop</li>
+                <li class="breadcrumb-item"><a href="#">Trang Chủ</a></li>
+                <li class="breadcrumb-item"><a href="#">Trang</a></li>
+                <li class="breadcrumb-item active text-white">Cửa Hàng</li>
             </ol>
         </div>
         <!-- Single Page Header End -->
@@ -147,29 +147,19 @@
                                         <div class="mb-3">
                                             <h4>Danh Mục</h4>
                                             <ul class="list-unstyled fruite-categorie">
-                                                <li>
+                                                <li th:each="cat : ${categories}">
                                                     <div class="d-flex justify-content-between fruite-name">
-                                                        <a th:href="@{/shop(loai='LAPTOP')}" th:classappend="${currentLoai == 'LAPTOP'} ? 'active' : ''"><i class="fas fa-laptop me-2"></i>Laptop</a>
-                                                        <span>(<span th:text="${hangLaptops != null ? hangLaptops.size() : 0}"></span>)</span>
+                                                        <a th:href="@{/shop(loai=${cat.tenLoai})}" th:classappend="${currentLoai == cat.tenLoai} ? 'active' : ''">
+                                                            <i class="fas fa-box me-2" th:classappend="${cat.tenLoai == 'LAPTOP' ? 'fa-laptop' : (cat.tenLoai == 'PHU_KIEN' ? 'fa-keyboard' : 'fa-box')}"></i>
+                                                            <span th:text="${cat.tenLoai == 'LAPTOP' ? 'Laptop' : (cat.tenLoai == 'PHU_KIEN' ? 'Phụ Kiện' : #strings.capitalize(#strings.toLowerCase(#strings.replace(cat.tenLoai, '_', ' '))))}">Category</span>
+                                                        </a>
+                                                        <span>(<span th:text="${hangMap.get(cat.tenLoai) != null ? hangMap.get(cat.tenLoai).size() : 0}">0</span>)</span>
                                                     </div>
-                                                    <ul class="list-unstyled" th:if="${hangLaptops != null}">
-                                                        <li th:each="hang : ${hangLaptops}">
-                                                            <a th:href="@{/shop(hangId=${hang.id}, loai='LAPTOP')}" 
+                                                    <ul class="list-unstyled" th:if="${hangMap.get(cat.tenLoai) != null && !hangMap.get(cat.tenLoai).isEmpty()}">
+                                                        <li th:each="hang : ${hangMap.get(cat.tenLoai)}">
+                                                            <a th:href="@{/shop(hangId=${hang.id}, loai=${cat.tenLoai})}" 
                                                                th:text="${hang.tenHang}"
-                                                               th:classappend="${currentHangId == hang.id && currentLoai == 'LAPTOP'} ? 'active' : ''">Brand Name</a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <div class="d-flex justify-content-between fruite-name">
-                                                        <a th:href="@{/shop(loai='PHU_KIEN')}" th:classappend="${currentLoai == 'PHU_KIEN'} ? 'active' : ''"><i class="fas fa-keyboard me-2"></i>Phụ Kiện</a>
-                                                        <span>(<span th:text="${hangPhuKiens != null ? hangPhuKiens.size() : 0}"></span>)</span>
-                                                    </div>
-                                                    <ul class="list-unstyled" th:if="${hangPhuKiens != null}">
-                                                        <li th:each="hang : ${hangPhuKiens}">
-                                                            <a th:href="@{/shop(hangId=${hang.id}, loai='PHU_KIEN')}" 
-                                                               th:text="${hang.tenHang}"
-                                                               th:classappend="${currentHangId == hang.id && currentLoai == 'PHU_KIEN'} ? 'active' : ''">Brand Name</a>
+                                                               th:classappend="${currentHangId == hang.id && currentLoai == cat.tenLoai} ? 'active' : ''">Brand Name</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -197,17 +187,30 @@
                                     <!-- Initial content loaded by server (optional, or we can just leave empty and load via JS, 
                                          but for SEO and first paint it's better to keep server rendering) -->
                                     <div class="col-md-6 col-lg-6 col-xl-4" th:each="sp : ${dsSanPham.content}">
-                                        <div class="rounded position-relative fruite-item">
+                                        <div class="rounded position-relative fruite-item border border-secondary shadow-sm d-flex flex-column h-100">
                                             <div class="fruite-img">
-                                                <img th:src="@{'/img/' + ${sp.hinhAnh}}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: cover;">
+                                                <img th:src="@{'/img/' + ${sp.hinhAnh}}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: contain;">
                                             </div>
                                             <div class="text-white px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px; background-color: #ffb524;" th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(sp.loaiSanPham.tenLoai, '_', ' ')))}">Type</div>
-                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                            <div class="text-white bg-danger px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;" 
+                                                 th:if="${sp.isDangKhuyenMai()}" 
+                                                 th:text="'-' + ${sp.khuyenMai.phanTramGiam} + '%'">-10%</div>
+                                            <div class="p-4 rounded-bottom d-flex flex-column flex-grow-1">
                                                 <h4 th:text="${sp.tenSanPham}">Product Name</h4>
-                                                <p th:text="${sp.moTaNgan}">Description...</p>
-                                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                                    <p class="text-dark fs-5 fw-bold mb-0" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">$0</p>
-                                                    <a th:href="@{/shop-detail/{id}(id=${sp.id})}" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Mua ngay</a>
+                                                <p th:text="${sp.moTaNgan}"></p>
+                                                <div class="d-flex justify-content-between flex-lg-wrap mt-auto">
+                                                    <div>
+                                                        <p class="text-dark fs-5 fw-bold mb-0" 
+                                                           th:if="${!sp.isDangKhuyenMai()}"
+                                                           th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                                                        <th:block th:if="${sp.isDangKhuyenMai()}">
+                                                            <p class="text-danger fs-5 fw-bold mb-0" 
+                                                               th:text="${#numbers.formatDecimal(sp.getGiaDaGiam(), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                                                            <p class="text-muted text-decoration-line-through mb-0" 
+                                                               th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                                                        </th:block>
+                                                    </div>
+                                                    <a th:href="@{/shop-detail/{id}(id=${sp.id})}" class="btn border border-secondary rounded-pill px-3 text-primary my-auto"><i class="fa fa-shopping-bag me-1 text-primary"></i> Mua ngay</a>
                                                 </div>
                                             </div>
                                         </div>

@@ -1,0 +1,32 @@
+@startuml "Use Case Diagram: Khach hang"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Khách hàng" as Customer
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+  usecase "Xem thông tin cá nhân" as UC_Profile
+  usecase "Đổi mật khẩu" as UC_ChangePass
+  usecase "Quản lý giỏ hàng" as UC_Cart
+  usecase "Đặt hàng" as UC_Order
+  usecase "Thanh toán (Online/COD)" as UC_Pay
+  usecase "Xem lịch sử mua hàng" as UC_History
+  usecase "Hủy đơn hàng" as UC_Cancel
+  usecase "Đánh giá sản phẩm" as UC_Review
+  usecase "Đăng xuất" as UC_Logout
+  
+  UC_Order .down.> UC_Pay : <<include>>
+  UC_History <.down. UC_Cancel : <<extend>>
+}
+
+Customer --> UC_Profile
+Customer --> UC_ChangePass
+Customer --> UC_Cart
+Customer --> UC_Order
+Customer --> UC_History
+Customer --> UC_Review
+Customer --> UC_Logout
+
+@enduml

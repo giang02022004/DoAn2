@@ -61,9 +61,9 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto fs-5 fw-medium">
-                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
-                            <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/index}" class="nav-item nav-link">Trang Chủ</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link">Cửa Hàng</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                             <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
@@ -105,11 +105,11 @@
 
         <!-- Single Page Header start -->
         <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Shop Detail</h1>
+            <h1 class="text-center text-white display-6">Chi Tiết Sản Phẩm</h1>
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                <li class="breadcrumb-item active text-white">Shop Detail</li>
+                <li class="breadcrumb-item"><a href="#">Trang Chủ</a></li>
+                <li class="breadcrumb-item"><a href="#">Trang</a></li>
+                <li class="breadcrumb-item active text-white">Chi Tiết Sản Phẩm</li>
             </ol>
         </div>
         <!-- Single Page Header End -->
@@ -145,6 +145,10 @@
                             <div class="col-lg-7">
                                 <h1 class="pd-name fw-bold mb-3" style="font-size: 1.5rem; color: #333;" th:text="${sanPham.tenSanPham}">Lenovo Legion 5...</h1>
 
+                                <div th:if="${error}" class="alert alert-danger py-2 small" role="alert">
+                                    <i class="fa fa-exclamation-circle me-2"></i> <span th:text="${error}"></span>
+                                </div>
+
 
                                 <div class="row">
                                     <!-- INFO LEFT: Price, Buttons -->
@@ -156,7 +160,16 @@
                                         </div>
                                         
                                         <div class="mb-4">
-                                            <h2 class="text-danger fw-bold" style="font-size: 1.8rem; font-family: 'Roboto', 'Arial', sans-serif; letter-spacing: 0.5px;" th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">40.690.000đ</h2>
+                                            <div th:if="${sanPham.isDangKhuyenMai()}">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <span class="badge bg-danger me-2" th:text="'-' + ${sanPham.khuyenMai.phanTramGiam} + '%'">-0%</span>
+                                                    <span class="text-muted text-decoration-line-through fs-5" id="originalPriceDisplay" th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">Gốc đ</span>
+                                                </div>
+                                                <h2 class="text-danger fw-bold" id="salePriceDisplay" style="font-size: 1.8rem; font-family: 'Roboto', 'Arial', sans-serif; letter-spacing: 0.5px;" th:text="${#numbers.formatDecimal(sanPham.getGiaDaGiam(), 0, 'COMMA', 0, 'POINT')} + ' đ'">Giảm đ</h2>
+                                            </div>
+                                            <div th:if="${!sanPham.isDangKhuyenMai()}">
+                                                <h2 class="text-danger fw-bold" id="salePriceDisplay" style="font-size: 1.8rem; font-family: 'Roboto', 'Arial', sans-serif; letter-spacing: 0.5px;" th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">40.690.000đ</h2>
+                                            </div>
                                             <p class="text-muted fst-italic small">(Đã bao gồm VAT)</p>
                                         </div>
                                         
@@ -432,8 +445,18 @@
                         <h4 th:text="${related.tenSanPham}" class="text-truncate" style="max-width: 250px;">Product Name</h4>
                         <p th:text="${related.moTaNgan}" class="text-truncate" style="max-width: 250px;">Description</p>
                         <div class="d-flex justify-content-between flex-lg-wrap">
-                            <p class="text-dark fs-5 fw-bold mb-0" th:text="${#numbers.formatDecimal(related.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</p>
-                            <a th:href="@{'/shop-detail/' + ${related.id}}" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary">
+                            <div>
+                                <p class="text-dark fs-5 fw-bold mb-0" 
+                                   th:if="${!related.isDangKhuyenMai()}"
+                                   th:text="${#numbers.formatDecimal(related.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'"></p>
+                                <th:block th:if="${related.isDangKhuyenMai()}">
+                                    <p class="text-danger fs-5 fw-bold mb-0" 
+                                       th:text="${#numbers.formatDecimal(related.getGiaDaGiam(), 0, 'COMMA', 0, 'POINT')} + ' đ'"></p>
+                                    <p class="text-muted text-decoration-line-through mb-0" style="font-size: 0.9rem;"
+                                       th:text="${#numbers.formatDecimal(related.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'"></p>
+                                </th:block>
+                            </div>
+                            <a th:href="@{'/shop-detail/' + ${related.id}}" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary my-auto">
                                 <i class="fa fa-shopping-bag me-2 text-primary"></i> Xem chi tiết
                             </a>
                         </div>
@@ -559,6 +582,7 @@
     <script th:inline="javascript">
         // Giá gốc của sản phẩm
         var basePrice = /*[[${sanPham.gia}]]*/ 0;
+        var discountPercent = /*[[${sanPham.isDangKhuyenMai() ? sanPham.khuyenMai.phanTramGiam : 0}]]*/ 0;
         
         function selectVariant(el) {
             // Bỏ active tất cả
@@ -579,8 +603,22 @@
             // Cập nhật giá hiển thị
             var giaThem = parseInt(el.getAttribute('data-gia-them')) || 0;
             var totalPrice = basePrice + giaThem;
-            var formattedPrice = totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' đ';
-            document.querySelector('.text-danger.fw-bold[style*="font-size: 1.8rem"]').textContent = formattedPrice;
+            
+            if (discountPercent > 0) {
+                var salePrice = totalPrice * (100 - discountPercent) / 100;
+                var formattedOriginal = totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' đ';
+                var formattedSale = salePrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' đ';
+                
+                var originalDisplay = document.getElementById('originalPriceDisplay');
+                if(originalDisplay) originalDisplay.textContent = formattedOriginal;
+                
+                var saleDisplay = document.getElementById('salePriceDisplay');
+                if(saleDisplay) saleDisplay.textContent = formattedSale;
+            } else {
+                var formattedPrice = totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' đ';
+                var saleDisplay = document.getElementById('salePriceDisplay');
+                if(saleDisplay) saleDisplay.textContent = formattedPrice;
+            }
         }
     </script>
     </body>

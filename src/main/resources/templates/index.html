@@ -60,9 +60,9 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto fs-5 fw-medium">
-                            <a th:href="@{/}" class="nav-item nav-link active">Home</a>
-                            <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/}" class="nav-item nav-link active">Trang Chủ</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link">Cửa Hàng</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                             <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
@@ -286,12 +286,12 @@
                 <div class="row g-4 justify-content-center">
                     <div class="col-md-6 col-lg-4">
                         <a th:href="@{/shop}">
-                            <div class="service-item bg-secondary rounded border border-secondary">
-                                <img src="img/piqsels.com-id-zkvpl.jpg" class="img-fluid rounded-top w-100" style="height: 300px; object-fit: cover;" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-primary text-center p-4 rounded">
-                                        <h5 class="text-white">Laptop Gaming</h5>
-                                        <h3 class="mb-0">Giảm 20%</h3>
+                            <div class="service-item rounded shadow-sm overflow-hidden" style="transition: transform 0.3s ease; border: none;">
+                                <img th:src="@{/img/banner/feature-laptop.png}" class="img-fluid rounded w-100" style="height: 300px; object-fit: cover;" alt="Laptop Gaming">
+                                <div class="px-4" style="margin-top: -65px;">
+                                    <div class="service-content bg-primary text-center p-4 rounded shadow">
+                                        <h5 class="text-white mb-1">Laptop Gaming</h5>
+                                        <h3 class="mb-0 text-white fw-bold">Giảm 20%</h3>
                                     </div>
                                 </div>
                             </div>
@@ -299,12 +299,12 @@
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <a th:href="@{/shop}">
-                            <div class="service-item bg-dark rounded border border-dark">
-                                <img src="img/single-item.jpg" class="img-fluid rounded-top w-100" style="height: 300px; object-fit: cover;" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-light text-center p-4 rounded">
-                                        <h5 class="text-primary">Phụ Kiện</h5>
-                                        <h3 class="mb-0">Giao Hàng Miễn Phí</h3>
+                            <div class="service-item rounded shadow-sm overflow-hidden" style="transition: transform 0.3s ease; border: none;">
+                                <img th:src="@{/img/banner/feature-accessories.png}" class="img-fluid rounded w-100" style="height: 300px; object-fit: cover;" alt="Phụ Kiện">
+                                <div class="px-4" style="margin-top: -65px;">
+                                    <div class="service-content bg-dark text-center p-4 rounded shadow border border-secondary">
+                                        <h5 class="text-secondary mb-1">Phụ Kiện</h5>
+                                        <h3 class="mb-0 text-white fw-bold">Giao Hàng Miễn Phí</h3>
                                     </div>
                                 </div>
                             </div>
@@ -312,12 +312,12 @@
                     </div>
                     <div class="col-md-6 col-lg-4">
                         <a th:href="@{/shop}">
-                            <div class="service-item bg-primary rounded border border-primary">
-                                <img src="img/piqsels.com-id-szkia.jpg" class="img-fluid rounded-top w-100" style="height: 300px; object-fit: cover;" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-secondary text-center p-4 rounded">
-                                        <h5 class="text-white">Ưu Đãi Đặc Biệt</h5>
-                                        <h3 class="mb-0">Giảm tới 500k</h3>
+                            <div class="service-item rounded shadow-sm overflow-hidden" style="transition: transform 0.3s ease; border: none;">
+                                <img th:src="@{/img/banner/feature-offer.png}" class="img-fluid rounded w-100" style="height: 300px; object-fit: cover;" alt="Ưu Đãi Đặc Biệt">
+                                <div class="px-4" style="margin-top: -65px;">
+                                    <div class="service-content bg-secondary text-center p-4 rounded shadow">
+                                        <h5 class="text-dark mb-1">Ưu Đãi Đặc Biệt</h5>
+                                        <h3 class="mb-0 text-dark fw-bold">Giảm tới 500k</h3>
                                     </div>
                                 </div>
                             </div>

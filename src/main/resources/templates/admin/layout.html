@@ -270,6 +270,12 @@
             <a th:href="@{/admin/brands}" th:classappend="${activeMenu=='brands' ?'active':''}">
                 <span class="nav-icon"><i class="fas fa-building"></i></span> Hãng Sản Xuất
             </a>
+            <a th:href="@{/admin/promotions}" th:classappend="${activeMenu=='promotions' ?'active':''}">
+                <span class="nav-icon"><i class="fas fa-gift"></i></span> Khuyến Mãi
+            </a>
+            <a th:href="@{/admin/articles}" th:classappend="${activeMenu=='articles' ?'active':''}">
+                <span class="nav-icon"><i class="fas fa-newspaper"></i></span> Bài Viết / Tin Tức
+            </a>
 
             <a th:href="@{/admin/orders}"   th:classappend="${activeMenu=='orders'   ?'active':''}">
                 <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span> Đơn Hàng

@@ -1,0 +1,51 @@
+@startuml "Sequence Diagram: Danh gia san pham"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Khách hàng" as User
+participant "ProductDetail View" as View
+participant "DanhGiaController" as Controller
+participant "DanhGiaService" as Service
+participant "SanPhamService" as ProdService
+database "Database" as DB
+
+User -> View : Nhập bình luận & Chọn số sao
+User -> View : Nhấn "Gửi đánh giá"
+View -> Controller : POST /product/review/add
+activate Controller
+
+Controller -> Service : addReview(reviewDTO)
+activate Service
+
+Service -> DB : checkPurchased(userId, productId)
+activate DB
+DB --> Service : Kết quả (True/False)
+deactivate DB
+
+alt Đã mua hàng
+    Service -> DB : INSERT INTO danh_gia (...)
+    activate DB
+    DB --> Service : Success
+    deactivate DB
+    
+    Service -> ProdService : updateAverageRating(productId)
+    activate ProdService
+    ProdService -> DB : SELECT AVG(so_sao) FROM danh_gia WHERE product_id = ?
+    activate DB
+    DB --> ProdService : starValue
+    deactivate DB
+    ProdService -> DB : UPDATE san_pham SET so_sao = starValue
+    ProdService --> Service : Done
+    deactivate ProdService
+    
+    Service --> Controller : Trả về thành công
+else Chưa mua hàng
+    Service --> Controller : Trả về lỗi "Chưa mua hàng"
+end
+deactivate Service
+
+Controller -> View : Refresh / Hiển thị thông báo
+deactivate Controller
+View --> User : Cập nhật danh sách đánh giá mới
+@enduml

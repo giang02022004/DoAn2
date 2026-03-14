@@ -45,6 +45,8 @@
                         <th>Giá Bán</th>
                         <th>Tồn Kho</th>
                         <th>Hãng</th>
+                        <th>Khuyến Mãi</th>
+                        <th>Trạng Thái</th>
                         <th>Thao Tác</th>
                     </tr>
                 </thead>
@@ -66,18 +68,38 @@
                             <span class="badge bg-light text-dark border p-2 text-wrap" th:text="${product.hangSanXuat.tenHang}">Hãng</span>
                         </td>
                         <td>
+                            <span th:if="${product.khuyenMai != null}" class="badge bg-danger" th:text="'-' + ${product.khuyenMai.phanTramGiam} + '%'" title="Giảm giá được áp dụng"></span>
+                            <span th:if="${product.khuyenMai == null}" class="text-muted small">--</span>
+                        </td>
+                        <td>
+                            <span th:if="${product.trangThai == 'ACTIVE'}" class="badge bg-success">Đang bán</span>
+                            <span th:if="${product.trangThai != 'ACTIVE'}" class="badge bg-secondary">Ngừng bán</span>
+                        </td>
+                        <td>
                             <div class="d-flex gap-1">
-                                <!-- Nút Sửa (đã gắn link truyền ID sản phẩm sang form edit.html) -->
+                                <!-- Nút Sửa -->
                                 <a th:href="@{|/admin/products/edit/${product.id}|}" class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 12px;" title="Sửa sản phẩm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <!-- Nút Xoá -->
-                                <a th:href="@{|/admin/products/delete/${product.id}|}" 
+                                
+                                <!-- Nút Xoá (chỉ hiện nếu là ACTIVE) -->
+                                <a th:if="${product.trangThai == 'ACTIVE'}"
+                                   th:href="@{|/admin/products/delete/${product.id}|}" 
                                    class="btn btn-sm btn-outline-danger" 
                                    style="padding: 2px 8px; font-size: 12px;" 
-                                   title="Xoá sản phẩm"
-                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Thao tác này không thể hoàn tác!');">
+                                   title="Xoá sản phẩm (Ngừng bán)"
+                                   onclick="return confirm('Bạn có chắc chắn muốn ngừng bán sản phẩm này không? Thao tác này có thể khôi phục sau!');">
                                     <i class="fas fa-trash-alt"></i>
+                                </a>
+                                
+                                <!-- Nút Khôi phục (chỉ hiện nếu là INACTIVE) -->
+                                <a th:if="${product.trangThai != 'ACTIVE'}"
+                                   th:href="@{|/admin/products/restore/${product.id}|}" 
+                                   class="btn btn-sm btn-outline-success" 
+                                   style="padding: 2px 8px; font-size: 12px;" 
+                                   title="Khôi phục sản phẩm"
+                                   onclick="return confirm('Bạn có muốn mở bán lại sản phẩm này không?');">
+                                    <i class="fas fa-undo-alt"></i>
                                 </a>
                             </div>
                         </td>
@@ -85,7 +107,7 @@
                     
                     <!-- Hiển thị khi không có sản phẩm nào -->
                     <tr th:if="${#lists.isEmpty(products)}">
-                        <td colspan="7" class="text-center py-5 text-muted">
+                        <td colspan="8" class="text-center py-5 text-muted">
                             <i class="fas fa-box-open fa-3x d-block mb-3 opacity-25"></i>
                             Chưa có sản phẩm nào trong hệ thống
                         </td>

@@ -21,16 +21,22 @@ public class AccountController {
     private final DonHangRepository donHangRepository;
     private final ChiTietDonHangRepository chiTietDonHangRepository;
     private final org.example.doan2.service.EmailService emailService;
+    private final org.example.doan2.service.OrderService orderService;
+
 
     public AccountController(NguoiDungRepository nguoiDungRepository,
                              DonHangRepository donHangRepository,
                              ChiTietDonHangRepository chiTietDonHangRepository,
-                             org.example.doan2.service.EmailService emailService) {
+                             org.example.doan2.service.EmailService emailService,
+                             org.example.doan2.service.OrderService orderService) {
+
         this.nguoiDungRepository = nguoiDungRepository;
         this.donHangRepository = donHangRepository;
         this.chiTietDonHangRepository = chiTietDonHangRepository;
         this.emailService = emailService;
+        this.orderService = orderService;
     }
+
 
     @GetMapping("/account")
     public String account(Model model, Authentication authentication) {
@@ -82,13 +88,31 @@ public class AccountController {
 
     @GetMapping("/account/order/{id}")
     @ResponseBody
-    public Map<String, Object> getOrderDetail(@PathVariable Integer id) {
+    public Map<String, Object> getOrderDetail(@PathVariable Integer id, Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
+
+        // Security gate 1: must be authenticated before reading order detail.
+        if (authentication == null || !authentication.isAuthenticated()) {
+            response.put("success", false);
+            response.put("message", "Chưa đăng nhập");
+            return response;
+        }
+
         DonHang order = donHangRepository.findById(id).orElse(null);
         if (order == null) {
             response.put("success", false);
+            response.put("message", "Không tìm thấy đơn hàng");
             return response;
         }
+
+        // Security gate 2: customer can only view his/her own order.
+        String currentUserEmail = authentication.getName();
+        if (order.getNguoiDung() == null || !currentUserEmail.equalsIgnoreCase(order.getNguoiDung().getEmail())) {
+            response.put("success", false);
+            response.put("message", "Bạn không có quyền xem đơn hàng này");
+            return response;
+        }
+
         List<ChiTietDonHang> items = chiTietDonHangRepository.findByDonHang(order);
         List<Map<String, Object>> itemList = new ArrayList<>();
         for (ChiTietDonHang item : items) {
@@ -150,11 +174,30 @@ public class AccountController {
             user.setNgayCapNhat(LocalDateTime.now());
             nguoiDungRepository.save(user);
 
-            // Gửi email thông báo
             emailService.sendPasswordChangeNotification(user.getEmail());
 
             response.put("success", true);
             response.put("message", "Đổi mật khẩu thành công!");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/account/order/cancel")
+    @ResponseBody
+    public Map<String, Object> cancelOrder(@RequestParam Integer orderId, Authentication authentication) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                response.put("success", false);
+                response.put("message", "Chưa đăng nhập");
+                return response;
+            }
+            orderService.cancelOrder(orderId, authentication.getName());
+            response.put("success", true);
+            response.put("message", "Hủy đơn hàng thành công!");
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Lỗi: " + e.getMessage());

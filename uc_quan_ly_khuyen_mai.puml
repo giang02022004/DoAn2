@@ -1,0 +1,33 @@
+@startuml "Chi tiet Use Case: Quan ly khuyen mai - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Quản trị viên" as Admin
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Quản lý mã khuyến mãi" as Main
+    
+    usecase "Tạo mã mới" as UC_Add
+    usecase "Cấu hình điều kiện áp dụng" as UC_Config
+    usecase "Xem danh sách khuyến mãi" as UC_List
+    usecase "Dừng/Xóa chương trình" as UC_Delete
+    
+    ' --- Logic ---
+    ' 1. Include: Tạo mã bắt buộc phải cấu hình điều kiện (Base -> Sub)
+    UC_Add .down.> UC_Config : <<include>>
+    
+    ' 2. Include: Quản lý chính bao gồm xem danh sách
+    Main .down.> UC_List : <<include>>
+    
+    ' 3. Extend: Các hành động chi tiết mở rộng từ quản lý chung (Extension -> Base)
+    UC_Add .left.> Main : <<extend>>
+    UC_Delete .up.> Main : <<extend>>
+}
+
+' Connections
+Admin --> Main
+
+@enduml

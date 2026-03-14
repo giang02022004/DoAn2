@@ -46,6 +46,9 @@ public class SecurityConfig {
                                 // (ví dụ: quản lý nhân sự, xem doanh thu), hệ thống sẽ kiểm tra thêm thẻ @PreAuthorize trên từng Controller để bắt giữ lại nếu vi phạm.
                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "EMPLOYEE")
                                 
+                                // Cho phép VNPay gọi IPN và các luồng khôi phục mật khẩu (không cần đăng nhập)
+                                .requestMatchers("/vnpay/vnpay-ipn", "/forgot-password", "/reset-password").permitAll()
+                                
                                 // Khu vực Thanh toán (/checkout, /vnpay) và Tài khoản khách hàng (/account)
                                 // bây giờ được siết chặt: CHỈ Khách Hàng mới được phép vào. Admin đứng ngoài.
                                 .requestMatchers("/checkout/**", "/account/**", "/vnpay/**").hasRole("CUSTOMER")

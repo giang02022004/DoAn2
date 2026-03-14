@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
     <head>
         <meta charset="utf-8">
-        <title>Laptopshop - Login</title>
+        <title>Laptopshop - Đăng Nhập</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -48,9 +48,9 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto fs-5 fw-medium">
-                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
-                            <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/index}" class="nav-item nav-link">Trang Chủ</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link">Cửa Hàng</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                             <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
@@ -71,10 +71,10 @@
 
         <!-- Single Page Header start -->
         <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Login</h1>
+            <h1 class="text-center text-white display-6">Đăng Nhập</h1>
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active text-white">Login</li>
+                <li class="breadcrumb-item"><a href="#">Trang Chủ</a></li>
+                <li class="breadcrumb-item active text-white">Đăng Nhập</li>
             </ol>
         </div>
         <!-- Single Page Header End -->
@@ -85,47 +85,50 @@
             <div class="container py-5">
                 <div class="row justify-content-center">
                     <div class="col-lg-6">
-                        <div class="bg-light rounded p-5">
-                            <h3 class="mb-4 text-center text-primary">Sign in to your account</h3>
+                        <div class="bg-light rounded p-5 shadow-sm">
+                            <h3 class="mb-4 text-center text-primary">Đăng nhập vào tài khoản</h3>
                             
                             <!-- Error Alert -->
                             <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                                Invalid email or password.
+                                Email hoặc mật khẩu không chính xác.
                             </div>
                             <!-- Logout Alert -->
                             <div th:if="${param.logout}" class="alert alert-success" role="alert">
-                                You have been logged out.
+                                Bạn đã đăng xuất thành công.
                             </div>
                              <!-- Register Success Alert -->
                              <div th:if="${param.success}" class="alert alert-success" role="alert">
-                                Registration successful! Please login.
+                                Đăng ký thành công! Vui lòng đăng nhập.
                             </div>
 
                             <form th:action="@{/login}" method="post">
                                 <div class="mb-4">
-                                    <label class="form-label">Email Address<sup>*</sup></label>
+                                    <label class="form-label">Địa chỉ Email<sup>*</sup></label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-envelope text-primary"></i>
                                         </span>
-                                        <input type="email" class="form-control border-start-0" name="username" placeholder="Enter Nhập email của bạn..." required>
+                                        <input type="email" class="form-control border-start-0" name="username" placeholder="Nhập email của bạn..." required>
                                     </div>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">Password<sup>*</sup></label>
+                                    <label class="form-label">Mật khẩu<sup>*</sup></label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-lock text-primary"></i>
                                         </span>
-                                        <input type="password" class="form-control border-start-0" name="password" placeholder="Enter your password" required>
+                                        <input type="password" class="form-control border-start-0" name="password" placeholder="Nhập mật khẩu" required>
+                                    </div>
+                                    <div class="text-end mt-2">
+                                        <a th:href="@{/forgot-password}" class="text-muted small">Quên mật khẩu?</a>
                                     </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary border-0 py-3 px-4 text-uppercase w-100 text-white fw-bold shadow-sm hover-elevate">Login</button>
+                                <button type="submit" class="btn btn-primary border-0 py-3 px-4 text-uppercase w-100 text-white fw-bold shadow-sm hover-elevate">Đăng Nhập</button>
                                 
                                 <div class="text-center mt-3">
-                                    <p>Don't have an account? <a th:href="@{/register}" class="text-primary fw-bold">Sign Up</a></p>
+                                    <p>Chưa có tài khoản? <a th:href="@{/register}" class="text-primary fw-bold">Đăng Ký Ngay</a></p>
                                 </div>
                             </form>
                         </div>
@@ -149,7 +152,6 @@
                         </div>
                     </div>
                 </div>
-                 <!-- Footer content omitted/shortened for brevity as it is same --> 
             </div>
         </div>
         <!-- Footer End -->

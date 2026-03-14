@@ -5,6 +5,8 @@ import org.example.doan2.dto.CartItem;
 import org.example.doan2.entity.ChiTietGioHang;
 import org.example.doan2.entity.GioHang;
 import org.example.doan2.entity.NguoiDung;
+import org.example.doan2.entity.SanPham;
+import org.example.doan2.entity.BienTheSanPham;
 import org.example.doan2.repository.BienTheSanPhamRepository;
 import org.example.doan2.repository.ChiTietGioHangRepository;
 import org.example.doan2.repository.GioHangRepository;
@@ -94,13 +96,23 @@ public class CartService {
             for (ChiTietGioHang ct : items) {
                 Integer vId = ct.getBienThe() != null ? ct.getBienThe().getId() : null;
                 String vInfo = null;
+                int currentPrice = ct.getSanPham().getGia();
+
                 if (ct.getBienThe() != null) {
                      vInfo = ct.getBienThe().getCpu() + " / " + ct.getBienThe().getBoNho() + " / " + ct.getBienThe().getMauSac();
+                     currentPrice += (ct.getBienThe().getGiaThem() != null ? ct.getBienThe().getGiaThem() : 0);
                 }
+
+                // Apply Active Promotion dynamically (Check status + time)
+                if (ct.getSanPham().isDangKhuyenMai()) {
+                    int phanTramGiam = ct.getSanPham().getKhuyenMai().getPhanTramGiam();
+                    currentPrice = currentPrice - (currentPrice * phanTramGiam / 100);
+                }
+
                 result.add(new CartItem(
                         ct.getSanPham().getId(),
                         ct.getSanPham().getTenSanPham(),
-                        ct.getGia(),
+                        currentPrice,
                         ct.getSoLuong(),
                         ct.getSanPham().getHinhAnh(),
                         vId,
@@ -114,6 +126,23 @@ public class CartService {
         if (cart == null) {
             cart = new ArrayList<>();
             session.setAttribute(CART_SESSION_KEY, cart);
+        } else {
+            // Apply Dynamic Pricing to Session Cart too
+            for (CartItem ci : cart) {
+                sanPhamRepository.findById(ci.getId()).ifPresent(sp -> {
+                    int[] priceWrapper = new int[]{sp.getGia()};
+                    if (ci.getVariantId() != null) {
+                        bienTheSanPhamRepository.findById(ci.getVariantId()).ifPresent(bt -> {
+                            priceWrapper[0] += (bt.getGiaThem() != null ? bt.getGiaThem() : 0);
+                        });
+                    }
+                    if (sp.isDangKhuyenMai()) {
+                        int phanTramGiam = sp.getKhuyenMai().getPhanTramGiam();
+                        priceWrapper[0] = priceWrapper[0] - (priceWrapper[0] * phanTramGiam / 100);
+                    }
+                    ci.setPrice(priceWrapper[0]); // Update object directly
+                });
+            }
         }
         return cart;
     }
@@ -131,6 +160,27 @@ public class CartService {
      * - Nếu CHƯA CÓ: Tạo mới một dòng ChiTietGioHang, lưu ID sản phẩm, ID biến thể, số lượng, giá và đẩy vào DB.
      */
     public void addToCart(HttpSession session, String email, CartItem item) {
+        // KIỂM TRA NGHIỆP VỤ: XÓA MỀM (INACTIVE)
+        // Lấy thông tin sản phẩm chuẩn từ Database để kiểm tra trạng thái trước khi cho vào giỏ.
+        // Tránh lỗi bảo mật khi hacker dò API đẩy ID của sản phẩm đã bị Admin xóa mềm vào Giỏ hàng.
+        SanPham spCheck = sanPhamRepository.findById(item.getId()).orElse(null);
+        if (spCheck == null || !"ACTIVE".equalsIgnoreCase(spCheck.getTrangThai())) {
+            throw new RuntimeException("Sản phẩm đã ngừng kinh doanh hoặc không tồn tại!");
+        }
+
+        // NGHIỆP VỤ: Chặn số lượng không hợp lệ (<= 0)
+        if (item.getQuantity() <= 0) {
+            throw new RuntimeException("Số lượng sản phẩm phải lớn hơn 0.");
+        }
+
+        // NGHIỆP VỤ: Lấy số lượng tồn kho thực tế
+        int availableStock = spCheck.getSoLuong();
+        if (item.getVariantId() != null) {
+            availableStock = bienTheSanPhamRepository.findById(item.getVariantId())
+                    .map(BienTheSanPham::getSoLuong)
+                    .orElse(0);
+        }
+
         NguoiDung user = getUser(email);
         if (user != null) {
             GioHang gh = getOrCreateGioHang(user);
@@ -143,12 +193,18 @@ public class CartService {
 
             if (existing.isPresent()) {
                 ChiTietGioHang ct = existing.get();
+                if (ct.getSoLuong() + item.getQuantity() > availableStock) {
+                    throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
+                }
                 ct.setSoLuong(ct.getSoLuong() + item.getQuantity());
                 chiTietGioHangRepository.save(ct);
             } else {
+                if (item.getQuantity() > availableStock) {
+                    throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
+                }
                 ChiTietGioHang ct = new ChiTietGioHang();
                 ct.setGioHang(gh);
-                ct.setSanPham(sanPhamRepository.findById(item.getId()).orElseThrow());
+                ct.setSanPham(spCheck); // Sử dụng luôn entity đã query ở trên đỡ tốn 1 lần truy vấn
                 if (item.getVariantId() != null) {
                     ct.setBienThe(bienTheSanPhamRepository.findById(item.getVariantId()).orElse(null));
                 }
@@ -164,12 +220,18 @@ public class CartService {
         boolean exists = false;
         for (CartItem cartItem : cart) {
             if (isSameItem(cartItem, item)) {
+                if (cartItem.getQuantity() + item.getQuantity() > availableStock) {
+                    throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
+                }
                 cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
                 exists = true;
                 break;
             }
         }
         if (!exists) {
+            if (item.getQuantity() > availableStock) {
+                throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
+            }
             cart.add(item);
         }
         session.setAttribute(CART_SESSION_KEY, cart);
@@ -217,6 +279,20 @@ public class CartService {
                 existing = chiTietGioHangRepository.findByGioHangAndSanPhamIdAndBienTheIsNull(gh, productId);
             }
             if (existing.isPresent()) {
+                // NGHIỆP VỤ: Chặn số lượng <= 0
+                if (quantity <= 0) {
+                    throw new RuntimeException("Số lượng phải lớn hơn 0.");
+                }
+
+                // NGHIỆP VỤ: Kiểm tra tồn kho
+                int availableStock = existing.get().getSanPham().getSoLuong();
+                if (existing.get().getBienThe() != null) {
+                    availableStock = existing.get().getBienThe().getSoLuong();
+                }
+                if (quantity > availableStock) {
+                    throw new RuntimeException("Số lượng vượt quá tồn kho (Còn lại: " + availableStock + ").");
+                }
+
                 ChiTietGioHang ct = existing.get();
                 ct.setSoLuong(quantity);
                 chiTietGioHangRepository.save(ct);
@@ -228,6 +304,24 @@ public class CartService {
         List<CartItem> cart = getCart(session, null);
         for (CartItem item : cart) {
             if (item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId)) {
+                // Chặn số lượng <= 0
+                if (quantity <= 0) {
+                    throw new RuntimeException("Số lượng phải lớn hơn 0.");
+                }
+
+                // Kiểm tra tồn kho cho Session Cart
+                SanPham sp = sanPhamRepository.findById(productId).orElse(null);
+                int stock = 0;
+                if (sp != null) {
+                    stock = sp.getSoLuong();
+                    if (variantId != null) {
+                        stock = bienTheSanPhamRepository.findById(variantId).map(BienTheSanPham::getSoLuong).orElse(0);
+                    }
+                }
+                if (quantity > stock) {
+                    throw new RuntimeException("Số lượng vượt quá tồn kho (Còn lại: " + stock + ").");
+                }
+
                 item.setQuantity(quantity);
                 break;
             }
@@ -249,7 +343,9 @@ public class CartService {
             gioHangRepository.save(gh);
             return;
         }
-        session.removeAttribute(CART_SESSION_KEY);
+        if (session != null) {
+            session.removeAttribute(CART_SESSION_KEY);
+        }
     }
     
     public Integer getTotalPrice(HttpSession session, String email) {

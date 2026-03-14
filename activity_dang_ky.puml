@@ -1,0 +1,32 @@
+@startuml "Activity Diagram: Dang ky tai khoan"
+|Khách hàng|
+start
+:Truy cập trang Đăng ký;
+repeat
+    :Nhập thông tin (Email, Mật khẩu, Họ tên...);
+    :Nhấn nút Đăng ký;
+    |Hệ thống|
+    :Kiểm tra tính hợp lệ dữ liệu;
+    if (Dữ liệu hợp lệ?) then (Không)
+        if (Email đã tồn tại?) then (Có)
+            :Hiển thị lỗi Email đã dùng;
+        else (Không)
+            :Hiển thị lỗi dữ liệu (Mật khẩu/Format);
+        endif
+        |Khách hàng|
+        note right: Quay lại sửa lỗi trên Form
+    else (Có)
+        break
+    endif
+repeat while ( )
+
+|Hệ thống|
+:Băm mật khẩu (BCrypt);
+:Lưu thông tin NguoiDung & VaiTro;
+:Tạo giỏ hàng trống cho khách;
+:Gửi email chào mừng;
+|Khách hàng|
+:Chuyển hướng sang trang Đăng nhập;
+:Thông báo đăng ký thành công;
+stop
+@enduml

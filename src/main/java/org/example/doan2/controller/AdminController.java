@@ -22,7 +22,9 @@ import org.example.doan2.repository.HinhAnhSanPhamRepository;
 import org.example.doan2.repository.BienTheSanPhamRepository;
 import org.example.doan2.repository.ChiTietDonHangRepository;
 import org.example.doan2.repository.VaiTroRepository;
+import org.example.doan2.repository.KhuyenMaiRepository;
 import org.example.doan2.entity.SanPham;
+import org.example.doan2.entity.KhuyenMai;
 import org.example.doan2.entity.HangSanXuat;
 import org.example.doan2.entity.LoaiSanPham;
 import org.example.doan2.entity.HinhAnhSanPham;
@@ -53,6 +55,8 @@ public class AdminController {
     private final ChiTietDonHangRepository chiTietDonHangRepository;
     private final VaiTroRepository vaiTroRepository;
     private final PasswordEncoder passwordEncoder;
+    private final KhuyenMaiRepository khuyenMaiRepository;
+    private final org.example.doan2.service.OrderService orderService;
 
     public AdminController(NguoiDungRepository nguoiDungRepository,
                            DonHangRepository donHangRepository,
@@ -63,7 +67,9 @@ public class AdminController {
                            BienTheSanPhamRepository bienTheSanPhamRepository,
                            ChiTietDonHangRepository chiTietDonHangRepository,
                            VaiTroRepository vaiTroRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           KhuyenMaiRepository khuyenMaiRepository,
+                           org.example.doan2.service.OrderService orderService) {
         this.nguoiDungRepository = nguoiDungRepository;
         this.donHangRepository = donHangRepository;
         this.sanPhamRepository = sanPhamRepository;
@@ -74,6 +80,8 @@ public class AdminController {
         this.chiTietDonHangRepository = chiTietDonHangRepository;
         this.vaiTroRepository = vaiTroRepository;
         this.passwordEncoder = passwordEncoder;
+        this.khuyenMaiRepository = khuyenMaiRepository;
+        this.orderService = orderService;
     }
 
     @GetMapping({"", "/"})
@@ -198,6 +206,7 @@ public class AdminController {
         model.addAttribute("product", product);
         model.addAttribute("categories", hangSanXuatRepository.findAll());
         model.addAttribute("types", loaiSanPhamRepository.findAll()); // Để chọn Loại (Laptop, Phụ kiện, ...)
+        model.addAttribute("promotions", khuyenMaiRepository.findAllAvailable());
         
         return "admin/product/edit";
     }
@@ -219,8 +228,22 @@ public class AdminController {
         existingProduct.setMoTaNgan(formProduct.getMoTaNgan());
         existingProduct.setMoTaChiTiet(formProduct.getMoTaChiTiet());
         existingProduct.setHinhAnh(formProduct.getHinhAnh());
-        existingProduct.setHangSanXuat(formProduct.getHangSanXuat());
-        existingProduct.setLoaiSanPham(formProduct.getLoaiSanPham());
+        
+        // Lookup managed entities để tránh lỗi "references an unsaved transient instance"
+        if (formProduct.getHangSanXuat() != null && formProduct.getHangSanXuat().getId() != null) {
+            existingProduct.setHangSanXuat(hangSanXuatRepository.findById(formProduct.getHangSanXuat().getId()).orElse(null));
+        }
+        
+        if (formProduct.getLoaiSanPham() != null && formProduct.getLoaiSanPham().getId() != null) {
+            existingProduct.setLoaiSanPham(loaiSanPhamRepository.findById(formProduct.getLoaiSanPham().getId()).orElse(null));
+        }
+
+        if (formProduct.getKhuyenMai() != null && formProduct.getKhuyenMai().getId() != null) {
+            existingProduct.setKhuyenMai(khuyenMaiRepository.findById(formProduct.getKhuyenMai().getId()).orElse(null));
+        } else {
+            existingProduct.setKhuyenMai(null);
+        }
+        
         existingProduct.setNgayCapNhat(LocalDateTime.now());
         
         // Lưu xuống DB
@@ -236,6 +259,7 @@ public class AdminController {
         model.addAttribute("activeMenu", "products");
         model.addAttribute("categories", hangSanXuatRepository.findAll());
         model.addAttribute("types", loaiSanPhamRepository.findAll());
+        model.addAttribute("promotions", khuyenMaiRepository.findAllAvailable());
         
         return "admin/product/create";
     }
@@ -250,6 +274,7 @@ public class AdminController {
             @RequestParam(value = "moTaChiTiet", required = false, defaultValue = "") String moTaChiTiet,
             @RequestParam("hangSanXuat.id") Integer hangSanXuatId,
             @RequestParam("loaiSanPham.id") Integer loaiSanPhamId,
+            @RequestParam(value = "khuyenMai.id", required = false) Integer khuyenMaiId,
             @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
             @RequestParam(value = "cpus", required = false) List<String> cpus,
             @RequestParam(value = "boNhos", required = false) List<String> boNhos,
@@ -282,6 +307,9 @@ public class AdminController {
             formProduct.setMoTaChiTiet(moTaChiTiet);
             formProduct.setHangSanXuat(hangSanXuat);
             formProduct.setLoaiSanPham(loaiSanPham);
+            if (khuyenMaiId != null) {
+                formProduct.setKhuyenMai(khuyenMaiRepository.findById(khuyenMaiId).orElse(null));
+            }
             // Các trường mặc định
             formProduct.setNgayTao(LocalDateTime.now());
             formProduct.setNgayCapNhat(LocalDateTime.now());
@@ -390,6 +418,28 @@ public class AdminController {
         return "redirect:/admin/products";
     }
 
+    /** ─── Khôi phục Sản Phẩm (Từ INACTIVE thành ACTIVE) ─── */
+    @GetMapping("/products/restore/{id}")
+    public String restoreProduct(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            // Bước 1: Tìm kiếm sản phẩm
+            SanPham product = sanPhamRepository.findById(id).orElse(null);
+            
+            if (product == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm cần khôi phục.");
+            } else {
+                // Khôi phục trạng thái về "ACTIVE"
+                product.setTrangThai("ACTIVE");
+                sanPhamRepository.save(product);
+                redirectAttributes.addFlashAttribute("success", "Đã mở bán lại sản phẩm #" + id + " thành công!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình khôi phục: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/products";
+    }
+
     @GetMapping("/orders")
     public String orders(@RequestParam(required = false) String status, Model model) {
         model.addAttribute("activeMenu", "orders");
@@ -436,15 +486,17 @@ public class AdminController {
     public String updateOrderStatus(@RequestParam Integer orderId,
                                     @RequestParam String trangThai,
                                     RedirectAttributes redirectAttributes) {
-        // Tìm kiếm đơn hàng theo ID. Nếu tìm thấy, tiến hành đổi trạng thái vào lưu lại CSDL.
-        org.example.doan2.entity.DonHang order = donHangRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng ID: " + orderId));
-        order.setTrangThai(trangThai);
-        order.setNgayCapNhat(LocalDateTime.now());
-        donHangRepository.save(order);
+        orderService.updateStatus(orderId, trangThai);
         
-        // Thêm thông báo "Thành công" và load lại trang danh sách đơn hàng
         redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
+        return "redirect:/admin/orders";
+    }
+
+    /** ─── Xác nhận thanh toán COD ─── */
+    @PostMapping("/orders/confirm-cod")
+    public String confirmCodPayment(@RequestParam Integer orderId, RedirectAttributes redirectAttributes) {
+        orderService.confirmCodPayment(orderId);
+        redirectAttributes.addFlashAttribute("success", "Xác nhận thanh toán cho đơn hàng #" + orderId + " thành công!");
         return "redirect:/admin/orders";
     }
 

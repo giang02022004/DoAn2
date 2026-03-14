@@ -1,0 +1,34 @@
+@startuml "Activity Diagram: Quan ly san pham"
+|Admin/Nhân viên|
+start
+:Đăng nhập vùng quản trị;
+:Chọn Quản lý sản phẩm;
+if () then (Thêm mới)
+    :Mở form thêm sản phẩm;
+else (Cập nhật)
+    :Chọn sản phẩm cần sửa;
+    |Hệ thống|
+    :Truy vấn dữ liệu sản phẩm;
+    |Admin/Nhân viên|
+    :Hiển thị thông tin cũ;
+endif
+
+|Hệ thống|
+repeat
+    |Admin/Nhân viên|
+    :Nhập/Sửa thông tin sản phẩm;
+    :Cấu hình các biến thể (CPU/RAM...);
+    :Tải lên hình ảnh;
+    :Nhấn Lưu;
+    |Hệ thống|
+    :Kiểm tra dữ liệu bắt buộc;
+repeat while (Dữ liệu có lỗi?) is (Có)
+-> Không;
+
+|Hệ thống|
+:Cập nhật CSDL;
+:Lưu file ảnh vào Server;
+:Thông báo thành công;
+:Cập nhật danh sách hiển thị;
+stop
+@enduml

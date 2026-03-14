@@ -2,6 +2,7 @@ package org.example.doan2.controller;
 
 import org.example.doan2.entity.BienTheSanPham;
 import org.example.doan2.entity.SanPham;
+import org.example.doan2.repository.LoaiSanPhamRepository;
 import org.example.doan2.service.HangSanXuatService;
 import org.example.doan2.service.SanPhamService;
 import java.util.List;
@@ -21,10 +22,12 @@ public class ShopController {
 
     private final SanPhamService sanPhamService;
     private final HangSanXuatService hangSanXuatService;
+    private final LoaiSanPhamRepository loaiSanPhamRepository;
 
-    public ShopController(SanPhamService sanPhamService, HangSanXuatService hangSanXuatService) {
+    public ShopController(SanPhamService sanPhamService, HangSanXuatService hangSanXuatService, LoaiSanPhamRepository loaiSanPhamRepository) {
         this.sanPhamService = sanPhamService;
         this.hangSanXuatService = hangSanXuatService;
+        this.loaiSanPhamRepository = loaiSanPhamRepository;
     }
 
     // Trang cửa hàng (Shop): Hiển thị danh sách sản phẩm, hỗ trợ lọc theo Hãng, Loại và Giá
@@ -51,9 +54,20 @@ public class ShopController {
 
         model.addAttribute("dsSanPham", sanPhamPage);
         
-        // Load danh mục hãng
+        // Load danh mục hãng (Backward compatibility or if used elsewhere)
         model.addAttribute("hangLaptops", hangSanXuatService.getHangByLoai("LAPTOP"));
         model.addAttribute("hangPhuKiens", hangSanXuatService.getHangByLoai("PHU_KIEN"));
+        
+        // Cung cấp danh sách Danh Mục (Loại) động
+        List<org.example.doan2.entity.LoaiSanPham> categories = loaiSanPhamRepository.findAllActive();
+        model.addAttribute("categories", categories);
+        
+        // Cung cấp hãng theo từng loại để build menu đệ quy
+        java.util.Map<String, List<org.example.doan2.entity.HangSanXuat>> hangMap = new java.util.HashMap<>();
+        for (org.example.doan2.entity.LoaiSanPham cat : categories) {
+            hangMap.put(cat.getTenLoai(), hangSanXuatService.getHangByLoai(cat.getTenLoai()));
+        }
+        model.addAttribute("hangMap", hangMap);
 
         return "shop";
     }
@@ -102,7 +116,12 @@ public class ShopController {
     @GetMapping("/shop-detail/{id}")
     public String shopDetail(@PathVariable Integer id, Model model) {
         SanPham sanPham = sanPhamService.getSanPhamById(id);
-        if (sanPham == null) {
+        
+        // KIỂM TRA NGHIỆP VỤ: Sản phẩm XÓA MỀM (INACTIVE)
+        // Nếu sản phẩm không tồn tại, hoặc trạng thái của nó không phải là "ACTIVE" (đang kinh doanh)
+        // thì không cho phép người dùng xem chi tiết, tự động đá về trang chủ Shop.
+        // Điều này ngăn chặn việc người dùng lưu link cũ hoặc gõ ID tay trên URL để xem hàng đã xóa.
+        if (sanPham == null || !"ACTIVE".equalsIgnoreCase(sanPham.getTrangThai())) {
             return "redirect:/shop";
         }
         model.addAttribute("sanPham", sanPham);

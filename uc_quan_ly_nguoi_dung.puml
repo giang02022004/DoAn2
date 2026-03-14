@@ -1,0 +1,37 @@
+@startuml "Chi tiet Use Case: Quan ly nguoi dung - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Quản trị viên" as Admin
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Quản lý người dùng & Hệ thống" as Main
+    
+    usecase "Quản lý tài khoản Khách hàng" as UC_Customer
+    usecase "Quản lý tài khoản Nhân viên" as UC_Staff
+    usecase "Phân quyền (Roles & Permissions)" as UC_Role
+    
+    usecase "Khóa/Mở khóa tài khoản" as UC_Lock
+    usecase "Xem lịch sử hoạt động" as UC_Log
+    
+    ' --- Logic ---
+    ' 1. Include: Quản lý chung bao gồm các mảng người dùng (Base -> Sub)
+    Main .down.> UC_Customer : <<include>>
+    Main .down.> UC_Staff : <<include>>
+    
+    ' 2. Extend: Phân quyền là hành động mở rộng cho nhân viên (Extension -> Base)
+    UC_Role .up.> UC_Staff : <<extend>>
+    
+    ' 3. Extend: Khóa và xem log mở rộng từ quản lý tài khoản (Extension -> Base)
+    UC_Lock .left.> UC_Customer : <<extend>>
+    UC_Lock .left.> UC_Staff : <<extend>>
+    UC_Log .right.> Main : <<extend>>
+}
+
+' Connections
+Admin --> Main
+
+@enduml

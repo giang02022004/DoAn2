@@ -1,0 +1,39 @@
+@startuml "Chi tiet Use Case: Quan ly san pham - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Nhân viên" as Employee
+actor "Quản trị viên" as Admin
+
+' Hierarchy (Generalization)
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Xem danh sách sản phẩm" as UC_List
+    usecase "Tìm kiếm & Lọc sản phẩm" as UC_Search
+    
+    usecase "Thêm sản phẩm mới" as UC_Add
+    usecase "Sửa thông tin sản phẩm" as UC_Edit
+    usecase "Quản lý biến thể (CPU, RAM...)" as UC_Variant
+    usecase "Xóa/Ngừng kinh doanh" as UC_Delete
+    
+    ' --- Logic ---
+    ' 1. Include: Luồng xem danh sách (Base -> Sub)
+    UC_List .down.> UC_Search : <<include>>
+    
+    ' 2. Extend: Các hành động quản trị là mở rộng từ danh sách hoặc sửa (Extension -> Base)
+    UC_Add .left.> UC_List : <<extend>>
+    UC_Edit .left.> UC_List : <<extend>>
+    UC_Delete .left.> UC_List : <<extend>>
+    
+    ' Quản lý biến thể mở rộng từ việc sửa sản phẩm
+    UC_Variant .up.> UC_Edit : <<extend>>
+}
+
+' Connections
+Employee --> UC_List
+
+@enduml

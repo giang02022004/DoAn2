@@ -62,4 +62,17 @@ public class SanPham {
     @OneToMany(mappedBy = "sanPham", fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<BienTheSanPham> bienTheList;
+
+    /** ─── NGHIỆP VỤ: Kiểm tra sản phẩm có đang trong đợt giảm giá không ─── */
+    public boolean isDangKhuyenMai() {
+        return khuyenMai != null && khuyenMai.isHieuLuc();
+    }
+
+    /** ─── NGHIỆP VỤ: Lấy giá bán cuối cùng (đã trừ % giảm nếu có KM) ─── */
+    public int getGiaDaGiam() {
+        if (isDangKhuyenMai()) {
+            return gia - (gia * khuyenMai.getPhanTramGiam() / 100);
+        }
+        return gia;
+    }
 }

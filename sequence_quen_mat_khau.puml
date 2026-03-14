@@ -1,0 +1,73 @@
+@startuml "Sequence Diagram: Quen mat khau"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Người dùng" as User
+participant "Trang Quên mật khẩu" as View
+participant "TaiKhoanController" as Controller
+participant "TaiKhoanService" as Service
+participant "EmailService" as Mail
+database "Database" as DB
+
+' Luồng yêu cầu mã
+User -> View : Nhập Email
+User -> View : Nhấn "Gửi mã"
+View -> Controller : POST /forgot-password
+activate Controller
+
+Controller -> Service : processForgotPassword(email)
+activate Service
+Service -> DB : findByEmail(email)
+activate DB
+DB --> Service : NguoiDung object
+deactivate DB
+
+Service -> Service : Generate UUID Token
+Service -> DB : savePasswordResetToken(token, user)
+activate DB
+DB --> Service : Success
+deactivate DB
+
+Service -> Mail : sendRecoveryEmail(email, tokenLink)
+activate Mail
+Mail --> Service : Done
+deactivate Mail
+
+Service --> Controller : Success message
+deactivate Service
+
+Controller -> View : Thông báo "Vui lòng kiểm tra email"
+deactivate Controller
+
+' Luồng đổi mật khẩu mới
+User -> Mail : Nhấn vào link trong Email
+Mail -> View : Mở trang đặt lại mật khẩu
+User -> View : Nhập mật khẩu mới
+View -> Controller : POST /reset-password
+activate Controller
+
+Controller -> Service : updatePassword(token, newPassword)
+activate Service
+Service -> DB : validateToken(token)
+activate DB
+DB --> Service : Valid User
+deactivate DB
+
+Service -> Service : BCrypt Encode Password
+Service -> DB : saveNewPassword(userId, encodedPass)
+activate DB
+DB --> Service : Success
+deactivate DB
+
+Service -> DB : deleteUsedToken(token)
+activate DB
+DB --> Service : Success
+deactivate DB
+
+Service --> Controller : Success
+deactivate Service
+
+Controller -> View : Redirect /login (Success message)
+deactivate Controller
+@enduml

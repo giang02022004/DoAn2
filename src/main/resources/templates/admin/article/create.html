@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::#pageHeader}, ~{::#content})}">
+<head>
+    <title>Viết Bài &mdash; Admin</title>
+</head>
+<body>
+    <span id="pageHeader">Soạn Thảo Bài Viết Mới</span>
+    <div id="content">
+        <div style="padding-top:10px;">
+            <div class="mat-card">
+                <div class="mat-card-header d-flex justify-content-between align-items-center"
+                     style="background:linear-gradient(135deg,#f57c00,#ff9800);border-radius:6px 6px 0 0;padding:16px 22px;">
+                    <div>
+                        <h5 class="mb-0 text-white"><i class="fas fa-pencil-alt me-2"></i>Tạo Bài Viết Tin Tức</h5>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,.75);">Hãy chắp bút tạo ra những nội dung thu hút khách hàng</p>
+                    </div>
+                    <a th:href="@{/admin/articles}" class="btn btn-light btn-sm fw-semibold text-dark">
+                        <i class="fas fa-arrow-left me-1"></i>Trở Về
+                    </a>
+                </div>
+
+                <div class="p-4">
+                    <form th:action="@{/admin/articles/store}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Tiêu đề -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tiêu Đề Bài Viết <span class="text-danger">*</span></label>
+                                    <input type="text" name="tieuDe" class="form-control" placeholder="Nhập tiêu đề thật kêu..." required>
+                                </div>
+
+                                <!-- Mô tả ngắn -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Đoạn Tóm Tắt (Mô tả ngắn)</label>
+                                    <textarea name="noiDungNgan" class="form-control" rows="3" placeholder="Đoạn văn ngắn xuất hiện dưới tiêu đề ở trang chủ..."></textarea>
+                                </div>
+                                
+                                <!-- Nội dung Editor -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nội Dung Chi Tiết <span class="text-danger">*</span></label>
+                                    <textarea name="noiDungChiTiet" class="form-control" rows="15" placeholder="Bài viết chi tiết sử dụng HTML..."></textarea>
+                                    <small class="text-muted"><i class="fas fa-info-circle"></i> Bạn có thể copy HTML vào đây để tạo bài viết sinh động.</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Trạng thái -->
+                                <div class="card mb-4 shadow-sm">
+                                    <div class="card-header bg-light fw-bold">Xuất Bản</div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Trạng Thái Hiển Thị</label>
+                                            <select name="trangThai" class="form-select border-primary" required>
+                                                <option value="ACTIVE" selected>Cho Phép Hiển Thị (Active)</option>
+                                                <option value="DRAFT">Lưu Nháp (Draft)</option>
+                                                <option value="INACTIVE">Tạm Ẩn (Inactive)</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold">
+                                            <i class="fas fa-paper-plane me-1"></i>Đăng Bài
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Hình ảnh đại diện -->
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-light fw-bold">Hình Đại Diện</div>
+                                    <div class="card-body text-center">
+                                        <div id="previewBox" class="border rounded bg-light cursor-pointer position-relative overflow-hidden mb-3" 
+                                             style="height: 200px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-style: dashed !important; border-width: 2px !important;"
+                                             onclick="document.getElementById('imgUpload').click()" title="Nhấn để tải ảnh lên">
+                                            <span id="previewText" class="text-muted"><i class="fas fa-cloud-upload-alt fa-3x mb-2 d-block"></i>Chọn Ảnh Cover</span>
+                                        </div>
+                                        <input type="file" name="hinhAnhFile" id="imgUpload" accept="image/*" class="d-none" onchange="previewImage(event)">
+                                        <small class="text-muted">Kích thước khuyên dùng: 800x450px</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function previewImage(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var box = document.getElementById('previewBox');
+                var text = document.getElementById('previewText');
+                
+                var oldImg = box.querySelector('img');
+                if (oldImg) oldImg.remove();
+                
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'img-fluid w-100 h-100';
+                img.style.objectFit = 'cover';
+                
+                box.appendChild(img);
+                if (text) text.style.display = 'none';
+                box.classList.remove('bg-light');
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+### Mẫu Nội Dung Bài Viết (Rich HTML)
+Dán mã này vào ô "Nội Dung Chi Tiết" để tạo bài viết đẹp mắt.
+
+---
+
+<div style="font-family: inherit; line-height: 1.8; color: #333;">
+    <p>Chào mừng bạn đến với <strong>LaptopShop</strong>. Hôm nay chúng tôi sẽ hướng dẫn bạn cách chọn phụ kiện phù hợp cho chiếc laptop yêu quý của mình.</p>
+    
+    <div style="background: #e9ecef; padding: 20px; border-radius: 10px; margin: 20px 0;">
+        <h4 style="margin-top: 0; color: #ff9800;"><i class="fas fa-keyboard me-2"></i>Tại sao nên mua bàn phím cơ?</h4>
+        <p style="margin-bottom: 0;">Bàn phím cơ không chỉ giúp bạn gõ phím nhanh hơn mà còn giảm thiểu tình trạng mỏi tay khi làm việc lâu dài.</p>
+    </div>
+
+    <h3 style="color: #f57c00; border-bottom: 2px solid #f57c00; padding-bottom: 5px; margin-top: 30px;">Danh sách phụ kiện cần thiết:</h3>
+    <ul style="padding-left: 20px;">
+        <li style="margin-bottom: 10px;">
+            <strong style="color: #007bff;">Chuột không dây:</strong> Giúp không gian làm việc gọn gàng hơn.
+        </li>
+        <li style="margin-bottom: 10px;">
+            <strong style="color: #007bff;">Đế tản nhiệt:</strong> Duy trì hiệu suất tối đa cho máy khi chạy tác vụ nặng.
+        </li>
+        <li style="margin-bottom: 10px;">
+            <strong style="color: #007bff;">Túi chống sốc:</strong> Bảo vệ máy khỏi những va đập không đáng có.
+        </li>
+    </ul>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <hr style="border: 0; border-top: 1px solid #ddd;">
+        <p style="font-style: italic; color: #777;">&copy; 2024 LaptopShop - Laptop & Phụ Kiện Chính Hãng</p>
+    </div>
+</div>

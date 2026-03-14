@@ -1,0 +1,37 @@
+@startuml "Activity Diagram: Danh gia san pham"
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam nodesep 60
+skinparam ranksep 50
+skinparam activityDiamondSize 40
+
+|Khách hàng|
+start
+:Truy cập trang "Chi tiết sản phẩm";
+:Kéo xuống phần "Đánh giá";
+:Nhập nội dung & Chọn số sao (1-5);
+:Nhấn nút "Gửi đánh giá";
+
+|Hệ thống|
+:Kiểm tra trạng thái đăng nhập;
+if (Đã đăng nhập?) then (Không)
+    :Yêu cầu đăng nhập;
+    |Khách hàng|
+    :Đăng nhập tài khoản;
+    |Hệ thống|
+else (Có)
+endif
+
+:Kiểm tra lịch sử mua hàng;
+if (Đã mua sản phẩm này và nhận hàng thành công?) then (Chưa)
+    :Thông báo: Bạn chỉ có thể đánh giá sản phẩm đã mua;
+    stop
+else (Rồi)
+    :Lưu đánh giá vào CSDL;
+    :Tính toán lại điểm trung bình sao cho sản phẩm;
+    :Thông báo: Đánh giá thành công;
+    |Khách hàng|
+    :Hiển thị đánh giá mới trong danh sách;
+    stop
+endif
+@enduml

@@ -80,9 +80,9 @@
                 </button>
                 <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                     <div class="navbar-nav mx-auto fs-5 fw-medium">
-                        <a th:href="@{/index}" class="nav-item nav-link">Home</a>
-                        <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                        <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                        <a th:href="@{/index}" class="nav-item nav-link">Trang Chủ</a>
+                        <a th:href="@{/shop}" class="nav-item nav-link">Cửa Hàng</a>
+                        <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                         <a th:href="@{/testimonial}" class="nav-item nav-link">Tin Tức</a>
                     </div>
                     <div class="d-flex m-3 me-0">
@@ -126,7 +126,7 @@
     <div class="container-fluid page-header py-5">
         <h1 class="text-center text-white display-6">Tài Khoản Của Tôi</h1>
         <ol class="breadcrumb justify-content-center mb-0">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/">Trang Chủ</a></li>
             <li class="breadcrumb-item active text-white">Tài Khoản</li>
         </ol>
     </div>
@@ -484,6 +484,12 @@
                 html += '</div><div class="col-md-6 text-end">';
                 html += '<p class="mb-1">Trạng thái: ' + (statusMap[data.trangThai] || data.trangThai) + '</p>';
                 html += '<p class="mb-0 fw-bold text-primary" style="font-size:1.2rem">Tổng: ' + formatMoney(data.tongTien) + '</p>';
+                
+                // Nút hủy đơn nếu trạng thái là Chờ thanh toán hoặc Chờ xác nhận
+                if (data.trangThai === 'Chờ thanh toán' || data.trangThai === 'Chờ xác nhận') {
+                    html += '<button class="btn btn-sm btn-outline-danger mt-2" onclick="cancelOrder(' + data.orderId + ')"><i class="fas fa-times me-1"></i>Hủy đơn hàng</button>';
+                }
+                
                 html += '</div></div></div>';
 
                 html += '<table class="table table-hover align-middle small">';
@@ -502,6 +508,35 @@
                 }
                 html += '</tbody></table>';
                 $('#orderDetailBody').html(html);
+            });
+        }
+
+        function cancelOrder(orderId) {
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) return;
+            
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+            
+            $.ajax({
+                url: '/account/order/cancel',
+                type: 'POST',
+                data: { orderId: orderId },
+                beforeSend: function(xhr) {
+                    if (csrfToken && csrfHeader) {
+                        xhr.setRequestHeader(csrfHeader, csrfToken);
+                    }
+                },
+                success: function(res) {
+                    if (res.success) {
+                        alert('Hủy đơn hàng thành công!');
+                        location.reload();
+                    } else {
+                        alert(res.message || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra, vui lòng thử lại!');
+                }
             });
         }
 

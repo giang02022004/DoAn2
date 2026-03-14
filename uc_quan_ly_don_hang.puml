@@ -1,0 +1,34 @@
+@startuml "Chi tiet Use Case: Quan ly don hang - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Nhân viên" as Employee
+actor "Quản trị viên" as Admin
+
+' Hierarchy (Generalization)
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Xem danh sách đơn hàng" as UC_List
+    usecase "Xem chi tiết đơn hàng" as UC_Detail
+    usecase "Cập nhật trạng thái (Giao/Hủy)" as UC_Status
+    usecase "Xác nhận thanh toán COD" as UC_Confirm
+    usecase "Tìm kiếm & Lọc đơn hàng" as UC_Search
+    
+    ' --- Logic ---
+    ' 1. Include: Luồng xem danh sách cơ bản (Base -> Sub)
+    UC_List .down.> UC_Detail : <<include>>
+    UC_List .right.> UC_Search : <<include>>
+    
+    ' 2. Extend: Các cập nhật đơn hàng là các nhánh mở rộng (Extension -> Base)
+    UC_Status .up.> UC_Detail : <<extend>>
+    UC_Confirm .up.> UC_Detail : <<extend>>
+}
+
+' Connections
+Employee --> UC_List
+
+@enduml

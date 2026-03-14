@@ -1,0 +1,40 @@
+@startuml "System Context Diagram: DFD Level 0"
+skinparam backgroundcolor white
+skinparam shadowing false
+' Sử dụng ortho để có mũi tên thẳng, vuông góc, chuyên nghiệp
+skinparam linetype ortho 
+skinparam nodesep 120
+skinparam ranksep 100
+skinparam WrapWidth 150
+
+' --- Styles ---
+skinparam usecase {
+    BackgroundColor white
+    BorderColor black
+    FontSize 16
+    Padding 20
+}
+skinparam rectangle {
+    BackgroundColor white
+    BorderColor black
+    Padding 10
+}
+
+' --- Elements ---
+usecase "Hệ thống Bán hàng\nLaptop DoAn2" as System
+rectangle "Admin / Nhân viên" as Admin
+rectangle "Khách hàng" as Customer
+rectangle "Cổng thanh toán\nVNPay" as VNPay
+rectangle "Hệ thống Email" as Email
+
+' --- Layout Positioning ---
+' Gom các luồng lại để mũi tên thẳng và đẹp hơn
+Admin <-[#black,bold]-> System : (1) Quản lý sản phẩm, đơn hàng\n(2) Báo cáo doanh thu & kho
+
+System <-[#black,bold]-> Customer : (1) Hàng hóa, hóa đơn, thông báo\n(2) Tìm kiếm, đặt hàng, thanh toán
+
+System <-[#black,bold]-> VNPay : (1) Yêu cầu thanh toán\n(2) Kết quả giao dịch (IPN)
+
+System -[#black,bold]down-> Email : Yêu cầu gửi mail thông báo\n(OTP, Hóa đơn, Xác nhận)
+
+@enduml

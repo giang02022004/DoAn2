@@ -1,0 +1,40 @@
+@startuml "Chi tiet Use Case: Quan ly bai viet - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Nhân viên" as Employee
+actor "Quản trị viên" as Admin
+
+' Hierarchy
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Xem danh sách bài viết" as UC_List
+    usecase "Tìm kiếm bài viết" as UC_Search
+    
+    usecase "Đăng bài viết mới" as UC_Add
+    usecase "Chỉnh sửa bài viết" as UC_Edit
+    usecase "Xóa bài viết" as UC_Delete
+    
+    usecase "Quản lý danh mục bài viết" as UC_Category
+    
+    ' --- Logic ---
+    ' 1. Include: Luồng xem danh sách cơ bản (Base -> Sub)
+    UC_List .down.> UC_Search : <<include>>
+    
+    ' 2. Extend: Các hành động quản trị là mở rộng từ danh sách (Extension -> Base)
+    UC_Add .left.> UC_List : <<extend>>
+    UC_Edit .left.> UC_List : <<extend>>
+    UC_Delete .left.> UC_List : <<extend>>
+    
+    ' Quản lý danh mục mở rộng từ quản trị bài viết
+    UC_Category .up.> UC_List : <<extend>>
+}
+
+' Connections
+Employee --> UC_List
+
+@enduml

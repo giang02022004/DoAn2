@@ -1,0 +1,49 @@
+@startuml "Chi tiet Use Case: Bao mat & Tai khoan - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Khách vãng lai" as Guest
+actor "Khách hàng" as Customer
+actor "Quản trị viên" as Admin
+
+' Hierarchy (Generalization - Mũi tên tam giác rỗng)
+Customer -|> Guest
+Admin -|> Customer : "Admin có quyền như KH"
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    
+    ' Authentication
+    usecase "Đăng nhập" as UC_LOGIN
+    usecase "Quên mật khẩu" as UC_FORGOT
+    usecase "Gửi thông báo Email" as UC_EMAIL
+    
+    ' Management Actions (Precondition: Logged In)
+    usecase "Quản lý tài khoản" as Main
+    usecase "Cập nhật hồ sơ" as UC1
+    usecase "Đổi mật khẩu" as UC2
+    
+    ' Admin specific
+    usecase "Khóa/Mở khóa tài khoản" as UC_LOCK
+    
+    ' --- Logic ---
+    ' 1. Extend: Extension -> Base (Mũi tên trỏ về phía Base)
+    UC_FORGOT .up.> UC_LOGIN : <<extend>>
+    UC_EMAIL .up.> UC2 : <<extend>>
+    UC_EMAIL .up.> UC_LOCK : <<extend>>
+    
+    ' 2. Include: Base -> Sub (Mũi tên trỏ về phía Sub)
+    Main .down.> UC1 : <<include>>
+    Main .down.> UC2 : <<include>>
+}
+
+' --- Connections (Actor to Core Actions) ---
+Guest --> UC_FORGOT
+Customer --> UC_LOGIN
+Customer --> Main
+Admin --> UC_LOCK
+
+' Admin cũng cần đăng nhập (Đã có qua kế thừa từ Customer)
+@enduml

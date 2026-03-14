@@ -1,0 +1,28 @@
+@startuml "Use Case Diagram: Khach vang lai"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Khách vãng lai" as Guest
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+  usecase "Xem danh sách sản phẩm" as UC_ViewProd
+  usecase "Xem chi tiết sản phẩm" as UC_ViewDetail
+  usecase "Tìm kiếm sản phẩm" as UC_Search
+  usecase "Xem tin tức công nghệ" as UC_News
+  usecase "Gửi liên hệ/góp ý" as UC_Contact
+  usecase "Đăng ký tài khoản" as UC_Register
+  usecase "Đăng nhập" as UC_Login
+  
+  UC_ViewDetail .up.> UC_ViewProd : <<extend>>
+  UC_Search .up.> UC_ViewProd : <<extend>>
+}
+
+Guest --> UC_ViewProd
+Guest --> UC_News
+Guest --> UC_Contact
+Guest --> UC_Register
+Guest --> UC_Login
+
+@enduml

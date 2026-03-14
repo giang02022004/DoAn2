@@ -9,42 +9,47 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
-    // LẤY TOP 15 THEO LOẠI
-    Page<SanPham> findByLoaiSanPham_TenLoaiOrderByIdDesc(
+    // LẤY TOP 15 SẢN PHẨM ĐANG HOẠT ĐỘNG THEO LOẠI (Dùng cho Trang chủ)
+    Page<SanPham> findByTrangThaiAndLoaiSanPham_TenLoaiOrderByIdDesc(
+            String trangThai,
             String tenLoai,
             Pageable pageable
     );
 
-    // LẤY TOP 15 THEO LOẠI + HÃNG
-    Page<SanPham> findByLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(
+    // LẤY TOP 15 SẢN PHẨM ĐANG HOẠT ĐỘNG THEO LOẠI + HÃNG (Dùng cho Trang chủ khi lọc)
+    Page<SanPham> findByTrangThaiAndLoaiSanPham_TenLoaiAndHangSanXuat_IdOrderByIdDesc(
+            String trangThai,
             String tenLoai,
             Integer hangId,
             Pageable pageable
     );
 
-    // LẤY TẤT CẢ THEO HÃNG (Phân trang)
-    Page<SanPham> findByHangSanXuat_Id(Integer hangId, Pageable pageable);
+    // LẤY TẤT CẢ SẢN PHẨM ĐANG HOẠT ĐỘNG THEO HÃNG (Phân trang)
+    Page<SanPham> findByTrangThaiAndHangSanXuat_Id(String trangThai, Integer hangId, Pageable pageable);
 
-    // LỌC THEO GIÁ (Max Price)
-    Page<SanPham> findByGiaLessThanEqual(Integer maxPrice, Pageable pageable);
+    // LỌC SẢN PHẨM ĐANG HOẠT ĐỘNG THEO GIÁ (Max Price)
+    Page<SanPham> findByTrangThaiAndGiaLessThanEqual(String trangThai, Integer maxPrice, Pageable pageable);
 
-    // LỌC THEO HÃNG + GIÁ
-    Page<SanPham> findByHangSanXuat_IdAndGiaLessThanEqual(Integer hangId, Integer maxPrice, Pageable pageable);
+    // LỌC SẢN PHẨM ĐANG HOẠT ĐỘNG THEO HÃNG + GIÁ
+    Page<SanPham> findByTrangThaiAndHangSanXuat_IdAndGiaLessThanEqual(String trangThai, Integer hangId, Integer maxPrice, Pageable pageable);
 
-    // LỌC THEO LOẠI + HÃNG + GIÁ
-    Page<SanPham> findByLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc(
+    // LỌC SẢN PHẨM ĐANG HOẠT ĐỘNG THEO LOẠI + HÃNG + GIÁ
+    Page<SanPham> findByTrangThaiAndLoaiSanPham_TenLoaiAndHangSanXuat_IdAndGiaLessThanEqualOrderByIdDesc(
+            String trangThai,
             String tenLoai,
             Integer hangId,
             Integer maxPrice,
             Pageable pageable
     );
 
-    // LẤY SẢN PHẨM LIÊN QUAN (Theo loại, trừ sản phẩm hiện tại)
-    Page<SanPham> findByLoaiSanPham_IdAndIdNot(Integer loaiId, Integer excludeId, Pageable pageable);
+    // LẤY SẢN PHẨM LIÊN QUAN ĐANG HOẠT ĐỘNG (Theo loại, trừ sản phẩm hiện tại)
+    Page<SanPham> findByTrangThaiAndLoaiSanPham_IdAndIdNot(String trangThai, Integer loaiId, Integer excludeId, Pageable pageable);
 
-    // TÌM KIẾM KẾT HỢP (Từ khóa + Hãng + Loại + Giá)
+    // TÌM KIẾM KẾT HỢP (Từ khóa + Hãng + Loại + Giá) + CHỈ HIỂN THỊ SẢN PHẨM ACTIVE
+    // Cập nhật: Thêm cứng điều kiện s.trangThai = 'ACTIVE' để loại bỏ các sản phẩm đã xóa mềm (INACTIVE) khỏi trang Shop 
     // Nếu tham số truyền vào là NULL, điều kiện đó sẽ bị bỏ qua (luôn đúng)
     @org.springframework.data.jpa.repository.Query("SELECT s FROM SanPham s WHERE " +
+            "(s.trangThai = 'ACTIVE') AND " +
             "(:keyword IS NULL OR LOWER(s.tenSanPham) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
             "(:hangId IS NULL OR s.hangSanXuat.id = :hangId) AND " +
             "(:loai IS NULL OR s.loaiSanPham.tenLoai = :loai) AND " +
@@ -53,7 +58,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
             @org.springframework.data.repository.query.Param("keyword") String keyword,
             @org.springframework.data.repository.query.Param("hangId") Integer hangId,
             @org.springframework.data.repository.query.Param("loai") String loai,
-    @org.springframework.data.repository.query.Param("maxPrice") Integer maxPrice,
+            @org.springframework.data.repository.query.Param("maxPrice") Integer maxPrice,
             Pageable pageable
     );
 

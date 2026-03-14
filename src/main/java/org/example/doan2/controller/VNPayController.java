@@ -11,20 +11,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * VNPayController - Xử lý luồng thanh toán VNPay.
- *
- * Luồng hoạt động:
- *   1. GET /vnpay/tao-thanh-toan?maDonHang= → Tạo URL và redirect sang VNPay sandbox
- *   2. GET /vnpay/ket-qua?vnp_...           → VNPay callback, xác thực, cập nhật trạng thái
- */
 @Controller
 @RequestMapping("/vnpay")
 public class VNPayController {
+
+    private static final String STATUS_DA_THANH_TOAN = "\u0110\u00E3 thanh to\u00E1n";
+    private static final String STATUS_DA_HUY = "\u0110\u00E3 h\u1EE7y";
 
     private final VNPayService vnPayService;
     private final DonHangRepository donHangRepository;
@@ -37,60 +35,40 @@ public class VNPayController {
                            CartService cartService,
                            org.example.doan2.service.EmailService emailService,
                            org.example.doan2.service.OrderService orderService) {
-        this.vnPayService       = vnPayService;
-        this.donHangRepository  = donHangRepository;
-        this.cartService        = cartService;
-        this.emailService       = emailService;
-        this.orderService       = orderService;
+        this.vnPayService = vnPayService;
+        this.donHangRepository = donHangRepository;
+        this.cartService = cartService;
+        this.emailService = emailService;
+        this.orderService = orderService;
     }
 
-    /**
-     * Bước 1: Tạo URL thanh toán VNPay và chuyển hướng khách hàng.
-     * Được gọi từ CheckoutController sau khi đơn hàng đã được lưu ở trạng thái "Chờ thanh toán".
-     *
-     * @param maDonHang  ID của đơn hàng đã tạo
-     * @param yeuCau     HttpServletRequest để lấy IP khách
-     * @return Redirect sang trang thanh toán VNPay sandbox
-     */
     @GetMapping("/tao-thanh-toan")
     public String taoThanhToan(@RequestParam("maDonHang") int maDonHang,
-                                HttpServletRequest yeuCau,
-                                Principal nguoiDungHienTai,
-                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        
-        // [BẢO MẬT/LOGIC] Lớp kiểm tra 0: Yêu cầu đăng nhập.
-        // Chỉ khách hàng đã đăng nhập mới được gọi API này.
+                               HttpServletRequest yeuCau,
+                               Principal nguoiDungHienTai,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
         if (nguoiDungHienTai == null) {
             return "redirect:/login";
         }
 
-        // [BẢO MẬT/LOGIC] Lớp kiểm tra 1: Tồn tại đơn hàng.
-        // Chặn trường hợp truyền ID đơn hàng ảo (không có trong DB) lên URL.
         DonHang donHang = donHangRepository.findById(maDonHang).orElse(null);
         if (donHang == null) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn hàng!");
+            redirectAttributes.addFlashAttribute("error", "Kh\u00F4ng t\u00ECm th\u1EA5y \u0111\u01A1n h\u00E0ng!");
             return "redirect:/";
         }
 
-        // [BẢO MẬT/LOGIC] Lớp kiểm tra 2: Quyền sở hữu đơn hàng.
-        // Ngăn chặn kịch bản User A đổi tham số trên URL để thanh toán/xem trộm đơn hàng của User B.
         if (donHang.getNguoiDung() == null || !donHang.getNguoiDung().getEmail().equals(nguoiDungHienTai.getName())) {
-            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thanh toán đơn hàng này!");
+            redirectAttributes.addFlashAttribute("error", "B\u1EA1n kh\u00F4ng c\u00F3 quy\u1EC1n thanh to\u00E1n \u0111\u01A1n h\u00E0ng n\u00E0y!");
             return "redirect:/account";
         }
 
-        // [BẢO MẬT/LOGIC] Lớp kiểm tra 3: Trạng thái hợp lệ.
-        // Ngăn chặn việc thanh toán lại một đơn hàng đã được thanh toán thành công trước đó,
-        // hoặc đơn hàng đã bị quản trị viên / hệ thống huỷ bỏ.
-        if ("Đã thanh toán".equals(donHang.getTrangThaiThanhToan()) || "Đã hủy".equals(donHang.getTrangThai())) {
-            redirectAttributes.addFlashAttribute("error", "Đơn hàng này không hợp lệ để thanh toán!");
+        if (STATUS_DA_THANH_TOAN.equals(donHang.getTrangThaiThanhToan()) || STATUS_DA_HUY.equals(donHang.getTrangThai())) {
+            redirectAttributes.addFlashAttribute("error", "\u0110\u01A1n h\u00E0ng n\u00E0y kh\u00F4ng h\u1EE3p l\u1EC7 \u0111\u1EC3 thanh to\u00E1n!");
             return "redirect:/account";
         }
 
-        // Tạo nội dung thanh toán hiển thị trên cổng VNPay
         String noiDungThanhToan = "Thanh toan don hang #" + maDonHang;
-
-        // Gọi service tạo URL (đã ký HMAC-SHA512)
         String duongDanThanhToan = vnPayService.taoUrlThanhToan(
                 maDonHang,
                 donHang.getTongTien().longValue(),
@@ -98,77 +76,113 @@ public class VNPayController {
                 yeuCau
         );
 
-        // Redirect khách sang cổng VNPay
         return "redirect:" + duongDanThanhToan;
     }
 
-    /**
-     * Bước 2: Xử lý kết quả VNPay trả về sau khi khách thanh toán.
-     * VNPay gọi URL này với các tham số vnp_ResponseCode, vnp_TxnRef, vnp_SecureHash...
-     *
-     * @param tatCaThamSo Toàn bộ query params VNPay gửi về
-     * @param phienLam    Session (để xóa giỏ hàng sau thanh toán thành công)
-     * @param model       Model để truyền dữ liệu sang view
-     * @return Trang kết quả thanh toán vnpay-ket-qua.html
-     */
     @GetMapping("/ket-qua")
     public String xuLyKetQuaThanhToan(HttpServletRequest yeuCau,
-                                       HttpSession phienLam,
-                                       Principal nguoiDungHienTai,
-                                       Model model) {
-        
-        // --- Bước 0: Quét toàn bộ tham số từ request (cách làm chuẩn của VNPay) ---
-        Map<String, String> tatCaThamSo = new java.util.HashMap<>();
-        java.util.Enumeration<String> danhSachThamSo = yeuCau.getParameterNames();
-        while (danhSachThamSo.hasMoreElements()) {
-            String tenThamSo = danhSachThamSo.nextElement();
-            String giaTriThamSo = yeuCau.getParameter(tenThamSo);
-            if (giaTriThamSo != null && !giaTriThamSo.isEmpty()) {
-                tatCaThamSo.put(tenThamSo, giaTriThamSo);
-            }
+                                      HttpSession phienLam,
+                                      Principal nguoiDungHienTai,
+                                      Model model) {
+
+        Map<String, String> tatCaThamSo = vnpParamsMap(yeuCau);
+
+        boolean chuKyHopLe = vnPayService.xacThucChuKy(tatCaThamSo);
+        String maGiaoDich = tatCaThamSo.get("vnp_TxnRef");
+        String maKetQuaVNP = tatCaThamSo.get("vnp_ResponseCode");
+
+        if (maGiaoDich == null || !maGiaoDich.contains("_")) {
+            model.addAttribute("thanhCong", false);
+            model.addAttribute("error", "Tham số giao dịch không hợp lệ.");
+            return "vnpay-ket-qua";
         }
 
-        // ── Bước 2a: Xác thực chữ ký HMAC-SHA512 để chống giả mạo ──────────
-        boolean chuKyHopLe = vnPayService.xacThucChuKy(tatCaThamSo);
-
-        // ── Bước 2b: Lấy mã giao dịch (VD: "5_20250306143022") → tách lấy maDonHang ──
-        String maGiaoDich  = tatCaThamSo.get("vnp_TxnRef");   // VD: "5_20250306143022"
-        String maKetQuaVNP = tatCaThamSo.get("vnp_ResponseCode"); // "00" = thành công
-
-        // Lấy maDonHang từ maGiaoDich (phần trước dấu gạch dưới đầu tiên)
         int maDonHang = Integer.parseInt(maGiaoDich.split("_")[0]);
-
-        // ── Bước 2c: Cập nhật trạng thái đơn hàng ───────────────────────────
         DonHang donHang = donHangRepository.findById(maDonHang).orElse(null);
 
         boolean thanhToanThanhCong = chuKyHopLe && "00".equals(maKetQuaVNP) && donHang != null;
 
-        if (thanhToanThanhCong && donHang != null) {
-            // Thanh toán thành công: cập nhật trạng thái và trừ tồn kho
+        if (thanhToanThanhCong) {
+            // Xác nhận đơn hàng (Idempotent)
             orderService.xacNhanDonHangVNPayThanhCong(maDonHang, tatCaThamSo.get("vnp_TransactionNo"));
-
-            // Lấy thông tin giỏ hàng trước khi xóa để gửi mail
+            
+            // Xóa giỏ hàng trong Session (vì khách đang thao tác trên trình duyệt)
             String emailDangNhap = (nguoiDungHienTai != null) ? nguoiDungHienTai.getName() : null;
-            java.util.List<org.example.doan2.dto.CartItem> cartItems = cartService.getCart(phienLam, emailDangNhap);
-
-            // Gửi email xác nhận
-            try {
-                emailService.sendOrderConfirmationEmail(donHang.getEmailNhan(), donHang, cartItems);
-            } catch (Exception e) {
-                System.out.println("Lỗi gửi mail VNPay: " + e.getMessage());
-            }
-
-            // Xóa giỏ hàng sau khi thanh toán thành công
             cartService.clearCart(phienLam, emailDangNhap);
         }
-        // Nếu thất bại, đơn hàng giữ nguyên "Chờ thanh toán" → admin có thể xem và hủy
 
-        // ── Bước 2d: Truyền dữ liệu sang trang kết quả ──────────────────────
-        model.addAttribute("thanhCong",     thanhToanThanhCong);
-        model.addAttribute("donHang",       donHang);
-        model.addAttribute("maKetQuaVNP",   maKetQuaVNP);
+        model.addAttribute("thanhCong", thanhToanThanhCong);
+        model.addAttribute("donHang", donHang);
+        model.addAttribute("maKetQuaVNP", maKetQuaVNP);
         model.addAttribute("maGiaoDichVNP", tatCaThamSo.get("vnp_TransactionNo"));
 
-        return "vnpay-ket-qua"; // → templates/vnpay-ket-qua.html
+        return "vnpay-ket-qua";
+    }
+
+    /**
+     * IPN Endpoint: VNPay Server gọi ngầm đến đây để xác nhận trạng thái thanh toán.
+     * Đảm bảo đơn hàng được xác nhận kể cả khi khách đóng trình duyệt.
+     */
+    @GetMapping("/vnpay-ipn")
+    @ResponseBody
+    public Map<String, String> vnpayIPN(HttpServletRequest request) {
+        Map<String, String> params = vnpParamsMap(request);
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            if (vnPayService.xacThucChuKy(params)) {
+                String txnRef = params.get("vnp_TxnRef");
+                if (txnRef == null || !txnRef.contains("_")) {
+                    response.put("RspCode", "01");
+                    response.put("Message", "Order not found");
+                    return response;
+                }
+                int orderId = Integer.parseInt(txnRef.split("_")[0]);
+                String vnpResponseCode = params.get("vnp_ResponseCode");
+
+                if ("00".equals(vnpResponseCode)) {
+                    // Xử lý xác nhận đơn hàng thành công
+                    boolean isFirstSuccess = orderService.xacNhanDonHangVNPayThanhCong(orderId, params.get("vnp_TransactionNo"));
+                    
+                    if (isFirstSuccess) {
+                        // Gửi email xác nhận (IPN là nơi uy tín nhất để gửi)
+                        DonHang donHang = donHangRepository.findById(orderId).orElse(null);
+                        if (donHang != null) {
+                            try {
+                                emailService.sendOrderConfirmationEmail(donHang.getEmailNhan(), donHang, java.util.Collections.emptyList());
+                            } catch (Exception e) {
+                                System.out.println("Loi gui mail IPN: " + e.getMessage());
+                            }
+                        }
+                    }
+                    
+                    response.put("RspCode", "00");
+                    response.put("Message", "Confirm Success");
+                } else {
+                    response.put("RspCode", "00");
+                    response.put("Message", "Payment Failed recorded");
+                }
+            } else {
+                response.put("RspCode", "97");
+                response.put("Message", "Invalid Checksum");
+            }
+        } catch (Exception e) {
+            response.put("RspCode", "99");
+            response.put("Message", "Unknown Error");
+        }
+        return response;
+    }
+
+    private Map<String, String> vnpParamsMap(HttpServletRequest request) {
+        Map<String, String> vnpParams = new HashMap<>();
+        java.util.Enumeration<String> parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            String paramValue = request.getParameter(paramName);
+            if (paramValue != null && !paramValue.isEmpty()) {
+                vnpParams.put(paramName, paramValue);
+            }
+        }
+        return vnpParams;
     }
 }

@@ -1,0 +1,33 @@
+@startuml "Chi tiet Use Case: Dang nhap - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Khách hàng" as Customer
+actor "Nhân viên" as Employee
+actor "Quản trị viên" as Admin
+
+' Hierarchy
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "<b>Đăng nhập</b>" as Main #Yellow
+    usecase "Kiểm tra thông tin đăng nhập" as UC_Check
+    usecase "Quên mật khẩu" as UC_Forgot
+    
+    ' --- Logic ---
+    ' 1. Include: Đăng nhập bắt buộc phải kiểm tra thông tin (Base -> Sub)
+    Main .down.> UC_Check : <<include>>
+    
+    ' 2. Extend: Quên mật khẩu trỏ về phía Đăng nhập (Extension -> Base)
+    UC_Forgot .up.> Main : <<extend>>
+}
+
+' Connections
+Customer --> Main
+Employee --> Main
+' Admin kế thừa Employee nên cũng có quyền login
+
+@enduml

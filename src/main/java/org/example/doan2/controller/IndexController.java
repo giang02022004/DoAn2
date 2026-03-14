@@ -20,7 +20,7 @@ public class IndexController {
     }
 
     // Trang index ban đầu
-    @GetMapping("/index")
+    @GetMapping({"/", "/index"})
     public String index(Model model) {
         model.addAttribute("hangLaptop",
                 hangSanXuatService.getHangByLoai("LAPTOP"));

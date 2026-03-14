@@ -4,7 +4,7 @@
     <div class="col-md-6 col-lg-4 col-xl-3"
          th:each="sp : ${dsLaptop}">
 
-      <div class="rounded position-relative fruite-item">
+      <div class="rounded position-relative fruite-item border border-secondary d-flex flex-column h-100 shadow-sm">
 
         <!-- HÌNH ẢNH -->
         <div class="fruite-img">
@@ -21,15 +21,15 @@
         </div>
 
         <!-- THÔNG TIN -->
-        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+        <div class="p-4 rounded-bottom d-flex flex-column flex-grow-1">
 
           <!-- TÊN -->
           <h6 th:text="${sp.tenSanPham}"></h6>
 
           <!-- GIÁ + NÚT MUA -->
-          <div class="d-flex justify-content-between flex-lg-wrap">
+          <div class="d-flex justify-content-between flex-lg-wrap mt-auto">
             <p class="text-dark fs-5 fw-bold mb-0"
-               th:text="${#numbers.formatDecimal(sp.gia,0,'COMMA',0,'POINT')} + ' VNĐ'">
+               th:text="${#numbers.formatDecimal(sp.getGiaDaGiam(),0,'COMMA',0,'POINT')} + ' VNĐ'">
             </p>
 
             <a th:href="@{/shop-detail/{id}(id=${sp.id})}"

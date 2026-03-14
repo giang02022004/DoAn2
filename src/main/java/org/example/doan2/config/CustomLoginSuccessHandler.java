@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Xử lý redirect sau khi đăng nhập thành công:
  * - Nếu là ADMIN → chuyển đến /admin
- * - Nếu là CUSTOMER → chuyển đến trang chủ /
+ * - Nếu là CUSTOMER → chuyển đến trang chủ /index
  */
 @Component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -31,6 +31,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_EMPLOYEE")) {
             response.sendRedirect(request.getContextPath() + "/admin");
         } else {
+            // Mặc định khách hàng hoặc các vai trò khác sẽ về trang chủ
             response.sendRedirect(request.getContextPath() + "/");
         }
     }

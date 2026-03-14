@@ -1,0 +1,43 @@
+@startuml "Sequence Diagram: Quan ly san pham"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Admin / Nhân viên" as Admin
+participant "Admin Dashboard" as View
+participant "SanPhamController" as Controller
+participant "SanPhamService" as Service
+participant "FileStorageService" as Storage
+database "Database" as DB
+
+Admin -> View : Chọn "Thêm sản phẩm mới"
+Admin -> View : Nhập thông tin & Chọn ảnh (MultipartFile)
+Admin -> View : Nhấn "Lưu sản phẩm"
+View -> Controller : POST /admin/product/save
+activate Controller
+
+Controller -> Controller : Validate dữ liệu (BindingResult)
+
+Controller -> Service : saveProduct(productDTO, imageFile)
+activate Service
+
+Service -> Storage : storeFile(imageFile)
+activate Storage
+Storage -> Storage : Xử lý & Lưu file vào thư mục /uploads
+Storage --> Service : Trả về fileName (String)
+deactivate Storage
+
+Service -> Service : Map DTO to Entity (Set fileName)
+Service -> DB : save(SanPhamEntity)
+activate DB
+DB --> Service : SanPham object (Saved)
+deactivate DB
+
+Service --> Controller : Success
+deactivate Service
+
+Controller -> View : Redirect /admin/products (Success toast)
+deactivate Controller
+View --> Admin : Hiển thị bảng sản phẩm đã cập nhật
+
+@enduml

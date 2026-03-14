@@ -1,0 +1,53 @@
+@startuml "State Diagram: Vong doi Don hang"
+skinparam backgroundcolor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam state {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
+    FontSize 14
+}
+
+title Sơ đồ trạng thái Đơn hàng (Order State Machine)
+
+[*] --> CHO_XAC_NHAN : Khách hàng đặt hàng thành công
+
+state CHO_XAC_NHAN {
+  CHO_XAC_NHAN : Đơn hàng mới tạo
+  CHO_XAC_NHAN : Chờ Admin kiểm tra
+}
+
+CHO_XAC_NHAN --> DA_XAC_NHAN : Admin nhấn "Xác nhận"
+CHO_XAC_NHAN --> DA_HUY : Khách hàng/Admin hủy đơn
+
+state DA_XAC_NHAN {
+  DA_XAC_NHAN : Đã kiểm tra kho
+  DA_XAC_NHAN : Đang đóng gói
+}
+
+DA_XAC_NHAN --> DANG_GIAO_HANG : Admin nhấn "Giao hàng"
+DA_XAC_NHAN --> DA_HUY : Hết hàng/Lỗi hệ thống
+
+state DANG_GIAO_HANG {
+  DANG_GIAO_HANG : Shipper đang vận chuyển
+  DANG_GIAO_HANG : Khách hàng chờ nhận
+}
+
+DANG_GIAO_HANG --> DA_GIAO_HANG : Giao hàng thành công
+DANG_GIAO_HANG --> TRA_HANG : Khách hàng từ chối nhận
+
+state DA_GIAO_HANG {
+  DA_GIAO_HANG : Kết thúc chu trình
+  DA_GIAO_HANG : Khách có thể đánh giá
+}
+
+state DA_HUY {
+  DA_HUY : Đơn hàng không còn hiệu lực
+}
+
+DA_GIAO_HANG --> [*]
+DA_HUY --> [*]
+TRA_HANG --> DA_HUY : Hoàn tất trả hàng
+
+@enduml

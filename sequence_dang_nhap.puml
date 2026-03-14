@@ -1,0 +1,41 @@
+@startuml "Sequence Diagram: Dang nhap"
+autonumber
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Người dùng" as User
+participant "Trang Đăng nhập (View)" as View
+participant "AuthController" as Controller
+participant "CustomUserDetailsService" as AuthService
+participant "PasswordEncoder (BCrypt)" as Encoder
+database "Database (MySQL)" as DB
+
+User -> View : Nhập Email & Mật khẩu
+User -> View : Nhấn "Đăng nhập"
+View -> Controller : POST /login
+activate Controller
+
+Controller -> AuthService : loadUserByUsername(email)
+activate AuthService
+AuthService -> DB : SELECT * FROM nguoi_dung WHERE email = ?
+activate DB
+DB --> AuthService : Trả về NguoiDung & VaiTro
+deactivate DB
+AuthService --> Controller : Trả về UserDetails
+deactivate AuthService
+
+Controller -> Encoder : matches(rawPassword, encodedPassword)
+activate Encoder
+Encoder --> Controller : Kết quả (True/False)
+deactivate Encoder
+
+alt Xác thực thành công
+    Controller -> View : Chuyển hướng (Redirect /)
+    View --> User : Hiển thị trang chủ với trạng thái Đã đăng nhập
+else Thất bại
+    Controller -> View : Trả về lỗi (Error message)
+    View --> User : Hiển thị thông báo "Email hoặc mật khẩu sai"
+end
+deactivate Controller
+
+@enduml

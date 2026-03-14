@@ -1,0 +1,43 @@
+@startuml "Deployment Diagram: DoAn2 System"
+skinparam backgroundcolor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam node {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam database {
+    BackgroundColor white
+    BorderColor black
+}
+
+title Sơ đồ triển khai hệ thống (Deployment Diagram)
+
+node "Thiết bị khách hàng" <<Device>> {
+    node "Web Browser" <<Execution Environment>> {
+        artifact "Frontend (HTML/CSS/JS/Thymeleaf)" as UI
+    }
+}
+
+node "Server phía Backend" <<Server>> {
+    node "Apache Tomcat" <<Execution Environment>> {
+        artifact "Spring Boot Application (.jar/.war)" as App
+    }
+}
+
+database "Database Server" <<Server>> {
+    database "MySQL Database" as DB
+}
+
+node "Hệ thống bên thứ 3" <<External System>> {
+    node "VNPay API" as VNPay
+    node "Mail Server (SMTP)" as Mail
+}
+
+' Connections
+UI -- App : HTTPS / REST API
+App -- DB : JDBC / JPA (Port 3306)
+App -- VNPay : API Request / IPN
+App -- Mail : SMTP (Port 587)
+
+@enduml

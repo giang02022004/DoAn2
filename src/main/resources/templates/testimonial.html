@@ -61,9 +61,9 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto fs-5 fw-medium">
-                            <a th:href="@{/index}" class="nav-item nav-link">Home</a>
-                            <a th:href="@{/shop}" class="nav-item nav-link">Shop</a>
-                            <a th:href="@{/cart}" class="nav-item nav-link">Cart</a>
+                            <a th:href="@{/index}" class="nav-item nav-link">Trang Chủ</a>
+                            <a th:href="@{/shop}" class="nav-item nav-link">Cửa Hàng</a>
+                            <a th:href="@{/cart}" class="nav-item nav-link">Giỏ Hàng</a>
                             <a th:href="@{/testimonial}" class="nav-item nav-link active">Tin Tức</a>
                         </div>
                         <div class="d-flex m-3 me-0">
@@ -123,130 +123,43 @@
                     <p class="text-muted mx-auto" style="max-width: 600px;">Khám phá những xu hướng công nghệ mới nhất, đánh giá sản phẩm và mẹo hữu ích cho người dùng laptop.</p>
                 </div>
 
-                <!-- News Item 1 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptop1.jpg}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Laptop mới 2026"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-primary rounded-pill px-3 py-2 me-3">Đánh giá</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 18/02/2026</small>
+                <!-- Hiển thị khi có bài viết -->
+                <th:block th:if="${not #lists.isEmpty(articles)}">
+                    <!-- News Items Loop -->
+                    <div class="bg-light rounded overflow-hidden shadow-sm mb-4" th:each="art : ${articles}">
+                        <div class="row g-0">
+                            <!-- Cột Hình Ảnh -->
+                            <div class="col-md-4 overflow-hidden">
+                                <img th:if="${art.hinhAnh != null}" th:src="@{'/img/' + ${art.hinhAnh}}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" th:alt="${art.tieuDe}"
+                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <img th:if="${art.hinhAnh == null}" th:src="@{/img/laptop/laptop1.jpg}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Tin Tức"
+                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            </div>
+                            <!-- Cột Nội Dung -->
+                            <div class="col-md-8 d-flex align-items-center">
+                                <div class="p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-primary rounded-pill px-3 py-2 me-3">Tin Tức</span>
+                                        <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> <span th:text="${#temporals.format(art.ngayTao, 'dd/MM/yyyy')}"></span></small>
+                                        <small class="text-muted ms-3"><i class="fas fa-user-edit me-1"></i> <span th:text="${art.tacGia != null ? art.tacGia.hoTen : 'Admin'}"></span></small>
+                                    </div>
+                                    <h4 class="mb-3 text-dark fw-bold" th:text="${art.tieuDe}">Tiêu Đề</h4>
+                                    <p class="text-muted mb-3" th:text="${art.noiDungNgan}">Mô tả ngắn...</p>
+                                    
+                                    <!-- Nút đọc chi tiết trỏ tới endpoint mới -->
+                                    <a th:href="@{'/testimonial/' + ${art.id}}" class="btn border border-primary rounded-pill px-4 py-2 text-primary">
+                                        <i class="fas fa-book-reader me-2"></i>Đọc chi tiết
+                                    </a>
                                 </div>
-                                <h5 class="mb-3">Top 5 Laptop Đáng Mua Nhất Đầu Năm 2026</h5>
-                                <p class="text-muted mb-3">Tổng hợp những mẫu laptop nổi bật nhất đầu năm 2026 với hiệu năng mạnh mẽ, thiết kế đẹp mắt và mức giá hợp lý cho mọi nhu cầu sử dụng.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
                             </div>
                         </div>
                     </div>
-                </div>
+                </th:block>
 
-                <!-- News Item 2 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptop2.jpg}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Mẹo bảo quản laptop"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-success rounded-pill px-3 py-2 me-3">Mẹo hay</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 15/02/2026</small>
-                                </div>
-                                <h5 class="mb-3">7 Cách Giữ Laptop Luôn Mới Và Bền Bỉ</h5>
-                                <p class="text-muted mb-3">Hướng dẫn chi tiết cách vệ sinh, bảo quản và sử dụng laptop đúng cách để kéo dài tuổi thọ thiết bị của bạn lên nhiều năm.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- News Item 3 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptop3.png}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Xu hướng AI"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 me-3">Xu hướng</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 12/02/2026</small>
-                                </div>
-                                <h5 class="mb-3">AI Tích Hợp Trên Laptop: Tương Lai Đã Đến</h5>
-                                <p class="text-muted mb-3">Trí tuệ nhân tạo đang thay đổi cách chúng ta sử dụng laptop. Tìm hiểu các tính năng AI mới nhất được tích hợp trên các dòng laptop hiện đại.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- News Item 4 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptop4.jpg}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="So sánh laptop"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-info text-dark rounded-pill px-3 py-2 me-3">So sánh</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 10/02/2026</small>
-                                </div>
-                                <h5 class="mb-3">So Sánh MacBook vs Dell XPS: Đâu Là Lựa Chọn Tốt?</h5>
-                                <p class="text-muted mb-3">Phân tích chi tiết ưu nhược điểm giữa hai dòng laptop cao cấp hàng đầu, giúp bạn đưa ra quyết định phù hợp nhất.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- News Item 5 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptop5.png}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Phụ kiện laptop"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-danger rounded-pill px-3 py-2 me-3">Phụ kiện</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 08/02/2026</small>
-                                </div>
-                                <h5 class="mb-3">Phụ Kiện Không Thể Thiếu Cho Dân Văn Phòng</h5>
-                                <p class="text-muted mb-3">Khám phá những phụ kiện laptop thiết yếu giúp nâng cao hiệu suất làm việc: chuột, bàn phím, tai nghe và nhiều hơn nữa.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- News Item 6 -->
-                <div class="bg-light rounded overflow-hidden shadow-sm mb-4">
-                    <div class="row g-0">
-                        <div class="col-md-4 overflow-hidden">
-                            <img th:src="@{/img/laptop/laptopal1.jpg}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px; transition: transform 0.3s;" alt="Laptop gaming"
-                                 onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        </div>
-                        <div class="col-md-8 d-flex align-items-center">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="badge bg-dark rounded-pill px-3 py-2 me-3">Gaming</span>
-                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 05/02/2026</small>
-                                </div>
-                                <h5 class="mb-3">Laptop Gaming 2026: Mạnh Mẽ Hơn, Mỏng Nhẹ Hơn</h5>
-                                <p class="text-muted mb-3">Các hãng laptop đang chạy đua ra mắt laptop gaming mỏng nhẹ nhưng vẫn đảm bảo hiệu năng khủng cho game thủ.</p>
-                                <a href="#" class="btn border border-primary rounded-pill px-3 py-1 text-primary"><i class="fas fa-arrow-right me-2"></i>Đọc thêm</a>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Hiển thị khi danh sách trống -->
+                <div th:if="${#lists.isEmpty(articles)}" class="text-center py-5">
+                    <i class="fas fa-newspaper fa-4x text-muted mb-3 opacity-50"></i>
+                    <h5 class="text-muted">Chưa có bài viết nào được xuất bản.</h5>
                 </div>
 
             </div>

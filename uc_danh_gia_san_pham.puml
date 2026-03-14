@@ -1,0 +1,36 @@
+@startuml "Chi tiet Use Case: Danh gia san pham - 10/10 Accuracy"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+' --- Actors ---
+actor "Khách hàng" as Customer
+actor "Nhân viên" as Employee
+actor "Quản trị viên" as Admin
+
+' Hierarchy
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+    usecase "Đánh giá sản phẩm" as Main
+    usecase "Chọn số sao (Rating)" as UC_Star
+    usecase "Viết nội dung nhận xét" as UC_Comment
+    usecase "Đăng tải hình ảnh thực tế" as UC_Image
+    
+    usecase "Quản lý/Duyệt đánh giá" as UC_Manage
+    
+    ' --- Logic ---
+    ' 1. Include: Đánh giá cơ bản (Base -> Sub)
+    Main .down.> UC_Star : <<include>>
+    Main .down.> UC_Comment : <<include>>
+    
+    ' 2. Extend: Ảnh là tùy chọn mở rộng (Extension -> Base)
+    UC_Image .up.> Main : <<extend>>
+}
+
+' Connections
+Customer --> Main
+Employee --> UC_Manage
+
+@enduml

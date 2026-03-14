@@ -10,6 +10,7 @@ import org.example.doan2.service.SanPhamService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,13 +48,15 @@ public class CartController {
                             @RequestParam(defaultValue = "1") int quantity,
                             @RequestParam(required = false) Integer variantId,
                             HttpSession session,
-                            java.security.Principal principal) {
+                            java.security.Principal principal,
+                            RedirectAttributes redirectAttributes) {
         String email = principal != null ? principal.getName() : null;
         SanPham sp = sanPhamService.getSanPhamById(productId);
         if (sp != null) {
             Integer price = sp.getGia();
             String variantInfo = null;
 
+            // 1. Nếu có chọn cấu hình biến thể, giá = giá gốc + giá cộng thêm của biến thể
             if (variantId != null) {
                 BienTheSanPham bienThe = bienTheSanPhamRepository.findById(variantId).orElse(null);
                 if (bienThe != null) {
@@ -62,8 +65,20 @@ public class CartController {
                 }
             }
 
+            // 2. Logic Khuyến Mãi: Kiểm tra KM còn hiệu lực (ACTIVE + Trong thời hạn)
+            if (sp.isDangKhuyenMai()) {
+                int phanTramGiam = sp.getKhuyenMai().getPhanTramGiam();
+                price = price - (price * phanTramGiam / 100);
+            }
+
+            // 3. Đẩy giá cuối cùng (đã giảm) vào giỏ hàng
             CartItem item = new CartItem(sp.getId(), sp.getTenSanPham(), price, quantity, sp.getHinhAnh(), variantId, variantInfo);
-            cartService.addToCart(session, email, item);
+            try {
+                cartService.addToCart(session, email, item);
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("error", e.getMessage());
+                return "redirect:/shop-detail/" + productId;
+            }
         }
         return "redirect:/cart";
     }
@@ -88,20 +103,28 @@ public class CartController {
                                                HttpSession session,
                                                java.security.Principal principal) {
         String email = principal != null ? principal.getName() : null;
-        cartService.updateQuantity(session, email, productId, variantId, quantity);
-        
-        List<CartItem> cart = cartService.getCart(session, email);
-        CartItem currentItem = cart.stream()
-                .filter(item -> item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId))
-                .findFirst()
-                .orElse(null);
-        
         Map<String, Object> response = new HashMap<>();
-        if (currentItem != null) {
-            response.put("itemTotal", currentItem.getTotalPrice());
+        
+        try {
+            cartService.updateQuantity(session, email, productId, variantId, quantity);
+            
+            List<CartItem> cart = cartService.getCart(session, email);
+            CartItem currentItem = cart.stream()
+                    .filter(item -> item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (currentItem != null) {
+                response.put("itemTotal", currentItem.getTotalPrice());
+            }
+            response.put("totalPrice", cartService.getTotalPrice(session, email));
+            response.put("cartCount", cartService.getCount(session, email));
+            response.put("success", true);
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
         }
-        response.put("totalPrice", cartService.getTotalPrice(session, email));
-        response.put("cartCount", cartService.getCount(session, email));
+        
         return response;
     }
 }

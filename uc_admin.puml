@@ -1,0 +1,27 @@
+@startuml "Use Case Diagram: Quan tri vien"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Quản trị viên" as Admin
+actor "Nhân viên" as Employee
+
+Admin -|> Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+  usecase "Quản lý tài khoản nhân sự" as UC_ManageStaff
+  usecase "Cấu hình hệ thống" as UC_Config
+  usecase "Phân quyền người dùng" as UC_Security
+  usecase "Xem thống kê doanh thu" as UC_Stats
+  usecase "Xuất báo cáo định kỳ" as UC_Report
+  
+  UC_Report .up.> UC_Stats : <<extend>>
+}
+
+Admin --> UC_ManageStaff
+Admin --> UC_Config
+Admin --> UC_Security
+Admin --> UC_Stats
+
+@enduml

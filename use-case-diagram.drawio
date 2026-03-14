@@ -1,0 +1,114 @@
+﻿<mxfile host="app.diagrams.net" modified="2026-03-09T16:20:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="usecase-1" name="Use Case">
+    <mxGraphModel dx="1640" dy="920" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Website ban hang laptop va phu kien" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="240" y="60" width="1180" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Khach hang" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="580" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="Nhan vien" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="770" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="VNPay" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="360" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="Email Service" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="620" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="Dang ky/Dang nhap" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="70" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Xem tim kiem san pham" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="170" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="Quan ly gio hang" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="270" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="Dat hang" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="370" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="Theo doi/Huy don" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="470" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Quan ly tai khoan" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="70" y="570" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="Nhap thong tin giao hang" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="360" y="330" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="Chon phuong thuc thanh toan" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="360" y="430" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="18" value="Thanh toan COD" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="720" y="370" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="Thanh toan VNPay" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="720" y="470" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="Xac nhan giao dich VNPay" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="980" y="430" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="Cap nhat trang thai don" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="980" y="540" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="Gui email xac nhan" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="980" y="650" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="23" value="Quan ly san pham" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="360" y="650" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="Quan ly danh muc-thuong hieu" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="360" y="740" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="Quan ly khuyen mai" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="360" y="830" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="26" value="Quan ly bai viet" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="700" y="650" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="27" value="Quan ly don hang" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="700" y="740" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="28" value="Quan ly nguoi dung-nhan vien" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="700" y="830" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="29" value="Xem dashboard-thong ke" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="2">
+          <mxGeometry x="1020" y="830" width="230" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="30" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="31" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="32" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="33" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="13"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="34" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="14"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="35" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="15"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="36" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="18"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="37" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="3" target="19"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="38" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="23"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="39" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="24"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="40" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="25"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="41" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="26"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="42" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="27"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="43" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="28"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="44" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="4" target="29"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="45" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="5" target="24"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="46" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="5" target="25"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="47" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="5" target="27"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="48" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="6" target="20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="49" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="7" target="22"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="50" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="13" target="16"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="51" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="13" target="17"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="52" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="13" target="22"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="53" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="19" target="20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="54" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="20" target="21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="55" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="2" source="27" target="21"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

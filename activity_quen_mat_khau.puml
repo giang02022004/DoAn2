@@ -1,0 +1,58 @@
+@startuml "Activity Diagram: Quen mat khau"
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam nodesep 70
+skinparam ranksep 50
+skinparam activityDiamondSize 40
+
+|Khách hàng|
+start
+:Nhấn "Quên mật khẩu" tại trang Đăng nhập;
+:Nhập Email tài khoản;
+:Nhấn "Gửi yêu cầu";
+
+|Hệ thống|
+:Kiểm tra Email trong CSDL;
+if (Email tồn tại?) then (Không)
+    :Thông báo: Email không tồn tại;
+    |Khách hàng|
+    stop
+else (Có)
+    |Hệ thống|
+    :Tạo mã Token bảo mật (UUID);
+    :Lưu Token vào CSDL (hết hạn sau 24h);
+    :Gửi Email chứa link khôi phục;
+    |Khách hàng|
+    :Kiểm tra hòm thư Email;
+    :Nhấn vào Link khôi phục mật khẩu;
+    
+    |Hệ thống|
+    :Kiểm tra tính hợp lệ & thời hạn của Token;
+    if (Token hợp lệ?) then (Không)
+        :Thông báo: Link đã hết hạn hoặc không hợp lệ;
+        stop
+    else (Có)
+        |Khách hàng|
+        label retry_input
+        :Nhập mật khẩu mới;
+        :Nhập lại mật khẩu xác nhận;
+        :Nhấn "Cập nhật mật khẩu";
+        |Hệ thống|
+        :Kiểm tra khớp mật khẩu & độ mạnh;
+        if (Dữ liệu hợp lệ?) then (Không)
+            |Khách hàng|
+            goto retry_input
+        else (Có)
+        endif
+        
+        |Hệ thống|
+        :Băm mật khẩu mới (BCrypt);
+        :Cập nhật mật khẩu vào CSDL;
+        :Vô hiệu hóa Token đã sử dụng;
+        :Thông báo khôi phục thành công;
+        |Khách hàng|
+        :Chuyển hướng về trang Đăng nhập;
+        stop
+    endif
+endif
+@enduml

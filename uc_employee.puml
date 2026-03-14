@@ -1,0 +1,28 @@
+@startuml "Use Case Diagram: Nhan vien"
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor "Nhân viên" as Employee
+
+rectangle "Hệ thống Bán hàng DoAn2" {
+  usecase "Đăng nhập trang quản trị" as UC_AdminLogin
+  usecase "Quản lý sản phẩm" as UC_ManageProd
+  usecase "Quản lý danh mục & hãng" as UC_ManageCat
+  usecase "Quản lý đơn hàng" as UC_ManageOrder
+  usecase "Quản lý khuyến mãi" as UC_ManagePromo
+  usecase "Quản lý bài viết/tin tức" as UC_ManageBlog
+  usecase "Xác nhận & Giao đơn hàng" as UC_HandleOrder
+  
+  UC_ManageOrder .down.> UC_HandleOrder : <<include>>
+}
+
+Employee --> UC_AdminLogin
+Employee --> UC_ManageProd
+Employee --> UC_ManageCat
+Employee --> UC_ManageOrder
+Employee --> UC_ManagePromo
+Employee --> UC_ManageBlog
+
+@enduml
