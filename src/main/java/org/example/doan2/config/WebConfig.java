@@ -19,15 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
         this.adminRedirectInterceptor = adminRedirectInterceptor;
     }
 
-    @Override
-    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
-        // Lấy đường dẫn tuyệt đối tĩnh để Spring Boot trên Windows hiểu chính xác
-        String uploadPath = java.nio.file.Paths.get("src/main/resources/static/img/").toAbsolutePath().toUri().toString();
-        
-        // Cần ánh xạ thư mục tĩnh `/img/**` trực tiếp tới thư mục mã nguồn vật lý
-        registry.addResourceHandler("/img/**")
-                .addResourceLocations(uploadPath);
-    }
+
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
