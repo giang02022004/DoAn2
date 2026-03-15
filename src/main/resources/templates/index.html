@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
     <head>
@@ -118,15 +118,15 @@
                         <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
                             <div class="carousel-inner" role="listbox">
                                 <div class="carousel-item active rounded">
-                                    <img src="img/laptop/rogces20211_FOYX.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop gaming">
+                                    <img th:src="@{/img/laptop/rogces20211_FOYX.jpg}" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop gaming">
                                     <a href="#" class="btn px-4 py-2 text-white rounded">Laptop</a>
                                 </div>
                                 <div class="carousel-item rounded">
-                                    <img src="img/laptop/file-poster-banner-quang-cao-laptop-14-demo.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop 14">
+                                    <img th:src="@{/img/laptop/file-poster-banner-quang-cao-laptop-14-demo.jpg}" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop 14">
                                     <a href="#" class="btn px-4 py-2 text-white rounded">Khuyến Mãi</a>
                                 </div>
                                 <div class="carousel-item rounded">
-                                    <img src="img/laptop/photo-1-15470930389662024470690.jpg" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop hiện đại">
+                                    <img th:src="@{/img/laptop/photo-1-15470930389662024470690.jpg}" class="img-fluid w-100 rounded" style="height:280px;object-fit:cover;" alt="Laptop hiện đại">
                                     <a href="#" class="btn px-4 py-2 text-white rounded">Phụ Kiện</a>
                                 </div>
                             </div>
@@ -346,7 +346,7 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="position-relative">
-                            <img src="img/hero-img.jpg" class="img-fluid w-100 rounded" alt="">
+                            <img th:src="@{/img/hero-img.jpg}" class="img-fluid w-100 rounded" alt="">
                             <div class="d-flex align-items-center justify-content-center bg-white rounded-circle position-absolute" style="width: 140px; height: 140px; top: 0; left: 0;">
                                 <h1 style="font-size: 100px;">1</h1>
                                 <div class="d-flex flex-column">
@@ -438,7 +438,7 @@
                             <p>Email: laptopshop@gmail.com</p>
                             <p>Điện Thoại: 0798 021 794</p>
                             <p>Phương Thức Thanh Toán</p>
-                            <img src="img/payment.png" class="img-fluid" alt="">
+                            <img th:src="@{/img/payment.png}" class="img-fluid" alt="">
                         </div>
                     </div>
                 </div>
