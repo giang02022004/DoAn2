@@ -1,8 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="layout(title, pageHeader, content)">
 <head>
     <meta charset="utf-8">
-    <title th:replace="${title}"></title>
+    <title th:text="${title} ?: 'Admin Dashboard'"></title>
+    <link rel="icon" th:href="@{/img/favicon.png}" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Google Fonts - Roboto like Material -->
