@@ -8,6 +8,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
@@ -32,6 +35,22 @@ public class SecurityConfig {
     public AccessDeniedHandler customAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
             response.sendRedirect(request.getContextPath() + "/");
+        };
+    }
+
+    @Bean
+    public AuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return (request, response, exception) -> {
+            String errorMessage = "Email hoặc mật khẩu không chính xác.";
+            if (exception instanceof LockedException) {
+                errorMessage = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.";
+            } else if (exception instanceof BadCredentialsException) {
+                errorMessage = "Email hoặc mật khẩu không chính xác.";
+            }
+            
+            System.out.println("[AUTH DEBUG] Login failed: " + exception.getMessage());
+            request.getSession().setAttribute("loginError", errorMessage);
+            response.sendRedirect(request.getContextPath() + "/login?error");
         };
     }
 
@@ -61,6 +80,7 @@ public class SecurityConfig {
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
                                 .successHandler(customLoginSuccessHandler)  // Redirect thông minh theo role
+                                .failureHandler(customAuthenticationFailureHandler()) // Xử lý lỗi chi tiết
                                 .permitAll()
                 )
                 .logout(

@@ -30,10 +30,16 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public void createPasswordResetTokenForUser(String email) {
-        Optional<NguoiDung> userOpt = userRepository.findByEmail(email);
+    public void createPasswordResetTokenForUser(String email, String siteUrl) {
+        // Sanitize email: trim and lowercase
+        String sanitizedEmail = (email != null) ? email.trim().toLowerCase() : "";
+        System.out.println("[AUTH DEBUG] Password reset requested for: " + sanitizedEmail);
+
+        Optional<NguoiDung> userOpt = userRepository.findByEmail(sanitizedEmail);
         if (userOpt.isPresent()) {
             NguoiDung user = userOpt.get();
+            System.out.println("[AUTH DEBUG] User found for reset: " + user.getEmail() + " (ID: " + user.getId() + ")");
+            
             // Delete old token if exists
             tokenRepository.deleteByUser(user);
             
@@ -41,9 +47,11 @@ public class PasswordResetService {
             PasswordResetToken myToken = new PasswordResetToken(token, user);
             tokenRepository.save(myToken);
             
-            emailService.sendPasswordResetEmail(email, token);
+            System.out.println("[AUTH DEBUG] Generated reset token: " + token);
+            emailService.sendPasswordResetEmail(sanitizedEmail, token, siteUrl);
         } else {
-            throw new RuntimeException("Email kh\u00F4ng t\u1ED3n t\u1EA1i trong h\u1EC7 th\u1ED1ng.");
+            System.out.println("[AUTH DEBUG] Password reset failed: Email not found: " + sanitizedEmail);
+            throw new RuntimeException("Email không tồn tại trong hệ thống.");
         }
     }
 

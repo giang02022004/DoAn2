@@ -23,9 +23,19 @@ public class PasswordResetController {
     }
 
     @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
+    public String processForgotPassword(@RequestParam("email") String email, 
+                                       jakarta.servlet.http.HttpServletRequest request,
+                                       RedirectAttributes redirectAttributes) {
         try {
-            passwordResetService.createPasswordResetTokenForUser(email);
+            // Dynamic URL generation (Localhost vs Production/Render)
+            String siteUrl = request.getScheme() + "://" + request.getServerName();
+            if ((request.getScheme().equals("http") && request.getServerPort() != 80) ||
+                (request.getScheme().equals("https") && request.getServerPort() != 443)) {
+                siteUrl += ":" + request.getServerPort();
+            }
+            siteUrl += request.getContextPath();
+
+            passwordResetService.createPasswordResetTokenForUser(email, siteUrl);
             redirectAttributes.addFlashAttribute("success", "Vui l\u00F2ng ki\u1EC3m tra email c\u1EE7a b\u1EA1n \u0111\u1EC3 nh\u1EADn li\u00EAn k\u1EBFt kh\u00F4i ph\u1EE5c m\u1EADt kh\u1EA9u.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

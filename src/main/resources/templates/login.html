@@ -91,7 +91,7 @@
                             
                             <!-- Error Alert -->
                             <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                                Email hoặc mật khẩu không chính xác.
+                                <span th:text="${session.loginError} ?: 'Email hoặc mật khẩu không chính xác.'"></span>
                             </div>
                             <!-- Logout Alert -->
                             <div th:if="${param.logout}" class="alert alert-success" role="alert">

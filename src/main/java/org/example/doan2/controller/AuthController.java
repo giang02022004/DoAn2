@@ -41,7 +41,15 @@ public class AuthController {
     
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user") NguoiDung user) {
+        // Sanitize email: trim and lowercase to prevent case-sensitive login issues
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().trim().toLowerCase());
+        }
+        
+        System.out.println("[AUTH DEBUG] Attempting to register user: " + user.getEmail());
+
         if (nguoiDungRepository.findByEmail(user.getEmail()).isPresent()) {
+            System.out.println("[AUTH DEBUG] Registration failed: Email already exists: " + user.getEmail());
             return "redirect:/register?error";
         }
         
@@ -53,10 +61,13 @@ public class AuthController {
         
         VaiTro role = vaiTroRepository.findByTenVaiTro("CUSTOMER")
                 .or(() -> vaiTroRepository.findById(2))
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new RuntimeException("Role CUSTOMER not found in database"));
+        
         user.setVaiTro(role);
+        System.out.println("[AUTH DEBUG] Assigning role: " + role.getTenVaiTro() + " (ID: " + role.getId() + ")");
 
         nguoiDungRepository.save(user);
+        System.out.println("[AUTH DEBUG] User registered successfully: " + user.getEmail() + " | Type: " + user.getLoaiTaiKhoan() + " | Status: " + user.getTrangThai());
 
         return "redirect:/login?success";
     }

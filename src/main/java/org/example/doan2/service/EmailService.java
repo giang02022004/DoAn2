@@ -34,8 +34,9 @@ public class EmailService {
             jakarta.mail.internet.MimeMessage message = javaMailSender.createMimeMessage();
             org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
             
-            helper.setFrom("giang220239@student.nctu.edu.vn"); 
-            helper.setTo(toEmail);
+            String senderEmail = "giang220239@student.nctu.edu.vn";
+            helper.setFrom(senderEmail); 
+            if (toEmail != null) helper.setTo(toEmail);
             helper.setSubject("Đơn hàng mới: #" + order.getId());
             
             String orderDate = order.getNgayTao() != null ? order.getNgayTao().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
@@ -123,7 +124,7 @@ public class EmailService {
                 if (item.getImage() != null && !item.getImage().isEmpty()) {
                     String imgPath = "src/main/resources/static/img/" + item.getImage();
                     java.io.File imgFile = new java.io.File(imgPath);
-                    if (imgFile.exists()) {
+                    if (imgFile.exists() && item.getId() != null) {
                         org.springframework.core.io.FileSystemResource res = new org.springframework.core.io.FileSystemResource(imgFile);
                         try {
                             helper.addInline("img_" + item.getId(), res);
@@ -142,13 +143,14 @@ public class EmailService {
     }
 
     @org.springframework.scheduling.annotation.Async
-    public void sendPasswordResetEmail(String toEmail, String token) {
+    public void sendPasswordResetEmail(String toEmail, String token, String siteUrl) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("giang220239@student.nctu.edu.vn");
         message.setTo(toEmail);
         message.setSubject("Yêu cầu khôi phục mật khẩu");
         
-        String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        String resetUrl = siteUrl + "/reset-password?token=" + token;
+        System.out.println("[MAIL DEBUG] Final Reset URL: " + resetUrl);
         
         message.setText("Chào bạn,\n\nBạn đã yêu cầu khôi phục mật khẩu cho tài khoản của mình.\n" +
                 "Vui lòng nhấp vào đường dẫn dưới đây để đặt lại mật khẩu (liên kết có hiệu lực trong 30 phút):\n\n" +
@@ -157,10 +159,12 @@ public class EmailService {
                 "Trân trọng,\nĐội ngũ LaptopShop.");
 
         try {
+            System.out.println("[MAIL DEBUG] Attempting to send reset email to: " + toEmail);
             javaMailSender.send(message);
+            System.out.println("[MAIL DEBUG] Reset email sent successfully to: " + toEmail);
         } catch (Exception e) {
+            System.out.println("[MAIL ERROR] Failed to send email to " + toEmail + ": " + e.getMessage());
             e.printStackTrace();
-            System.out.println("Lỗi khi gửi email khôi phục mật khẩu: " + e.getMessage());
         }
     }
 }
