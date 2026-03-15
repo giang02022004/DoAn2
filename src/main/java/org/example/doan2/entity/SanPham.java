@@ -1,3 +1,4 @@
+package org.example.doan2.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
