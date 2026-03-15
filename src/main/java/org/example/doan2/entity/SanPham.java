@@ -1,4 +1,4 @@
-package org.example.doan2.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,7 +52,7 @@ public class SanPham {
     @ManyToOne
     @JoinColumn(name = "khuyen_mai_id")
     private KhuyenMai khuyenMai;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "loai_san_pham_id", nullable = false)
     private LoaiSanPham loaiSanPham;
 
@@ -60,7 +60,7 @@ public class SanPham {
     private List<HinhAnhSanPham> danhSachHinhAnh;
 
     @OneToMany(mappedBy = "sanPham", fetch = FetchType.LAZY)
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @JsonIgnore
     private List<BienTheSanPham> bienTheList;
 
     /** ─── NGHIỆP VỤ: Kiểm tra sản phẩm có đang trong đợt giảm giá không ─── */
