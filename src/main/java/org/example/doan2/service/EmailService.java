@@ -1,6 +1,5 @@
-package org.example.doan2.service;
-
-import org.example.doan2.entity.DonHang;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -8,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -142,15 +142,16 @@ public class EmailService {
         }
     }
 
-    @org.springframework.scheduling.annotation.Async
+    // TEMPORARILY REMOVED @Async to debug synchronous errors on Render
     public void sendPasswordResetEmail(String toEmail, String token, String siteUrl) {
+        log.info("[MAIL DEBUG] Preparing reset email for: {}", toEmail);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("giang220239@student.nctu.edu.vn");
         message.setTo(toEmail);
         message.setSubject("Yêu cầu khôi phục mật khẩu");
         
         String resetUrl = siteUrl + "/reset-password?token=" + token;
-        System.out.println("[MAIL DEBUG] Final Reset URL: " + resetUrl);
+        log.info("[MAIL DEBUG] Reset URL: {}", resetUrl);
         
         message.setText("Chào bạn,\n\nBạn đã yêu cầu khôi phục mật khẩu cho tài khoản của mình.\n" +
                 "Vui lòng nhấp vào đường dẫn dưới đây để đặt lại mật khẩu (liên kết có hiệu lực trong 30 phút):\n\n" +
@@ -159,12 +160,12 @@ public class EmailService {
                 "Trân trọng,\nĐội ngũ LaptopShop.");
 
         try {
-            System.out.println("[MAIL DEBUG] Attempting to send reset email to: " + toEmail);
+            log.info("[MAIL DEBUG] Sending email via SMTP...");
             javaMailSender.send(message);
-            System.out.println("[MAIL DEBUG] Reset email sent successfully to: " + toEmail);
+            log.info("[MAIL DEBUG] Email sent successfully!");
         } catch (Exception e) {
-            System.out.println("[MAIL ERROR] Failed to send email to " + toEmail + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("[MAIL ERROR] SMTP Failure: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi máy chủ email: " + e.getMessage());
         }
     }
 }

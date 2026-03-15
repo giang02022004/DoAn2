@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Service
 public class PasswordResetService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PasswordResetService.class);
 
     private final PasswordResetTokenRepository tokenRepository;
     private final NguoiDungRepository userRepository;
@@ -33,12 +34,12 @@ public class PasswordResetService {
     public void createPasswordResetTokenForUser(String email, String siteUrl) {
         // Sanitize email: trim and lowercase
         String sanitizedEmail = (email != null) ? email.trim().toLowerCase() : "";
-        System.out.println("[AUTH DEBUG] Password reset requested for: " + sanitizedEmail);
+        log.info("[AUTH DEBUG] Password reset requested for: {}", sanitizedEmail);
 
         Optional<NguoiDung> userOpt = userRepository.findByEmail(sanitizedEmail);
         if (userOpt.isPresent()) {
             NguoiDung user = userOpt.get();
-            System.out.println("[AUTH DEBUG] User found for reset: " + user.getEmail() + " (ID: " + user.getId() + ")");
+            log.info("[AUTH DEBUG] User found for reset: {} (ID: {})", user.getEmail(), user.getId());
             
             // Delete old token if exists
             tokenRepository.deleteByUser(user);
@@ -47,10 +48,10 @@ public class PasswordResetService {
             PasswordResetToken myToken = new PasswordResetToken(token, user);
             tokenRepository.save(myToken);
             
-            System.out.println("[AUTH DEBUG] Generated reset token: " + token);
+            log.info("[AUTH DEBUG] Generated reset token: {}", token);
             emailService.sendPasswordResetEmail(sanitizedEmail, token, siteUrl);
         } else {
-            System.out.println("[AUTH DEBUG] Password reset failed: Email not found: " + sanitizedEmail);
+            log.warn("[AUTH DEBUG] Password reset failed: Email not found: {}", sanitizedEmail);
             throw new RuntimeException("Email không tồn tại trong hệ thống.");
         }
     }
