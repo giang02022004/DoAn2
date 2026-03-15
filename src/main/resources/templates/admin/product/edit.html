@@ -102,7 +102,7 @@
                                 <div class="card mb-3">
                                     <div class="card-header bg-light fw-bold">Ảnh Hiện Tại</div>
                                     <div class="card-body text-center">
-                                        <img th:src="@{'/img/' + ${product.hinhAnh}}" alt="Ảnh Sản Phẩm" style="max-width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 4px;">
+                                        <img th:src="@{${product.hinhAnh.contains('/') ? '/img/' + product.hinhAnh : (product.loaiSanPham.tenLoai == 'LAPTOP' ? '/img/laptop/' + product.hinhAnh : '/img/phu-kien/' + product.hinhAnh)}}" alt="Ảnh Sản Phẩm" style="max-width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 4px;">
                                     </div>
                                 </div>
                                 <div class="mb-3">

@@ -1,4 +1,4 @@
-﻿<div th:fragment="laptopList">
+<div th:fragment="laptopList">
   <div class="row g-4">
 
     <div class="col-md-6 col-lg-4 col-xl-3"
@@ -8,7 +8,7 @@
 
         <!-- HÌNH ẢNH -->
         <div class="fruite-img">
-          <img th:src="@{'/img/' + ${sp.hinhAnh}}"
+          <img th:src="@{${sp.hinhAnh.contains('/') ? '/img/' + sp.hinhAnh : (sp.loaiSanPham.tenLoai == 'LAPTOP' ? '/img/laptop/' + sp.hinhAnh : '/img/phu-kien/' + sp.hinhAnh)}}"
                class="img-fluid w-100 rounded-top"
                style="height:200px; object-fit:contain;"
                alt="">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
     <head>
@@ -189,7 +189,7 @@
                                     <div class="col-md-6 col-lg-6 col-xl-4" th:each="sp : ${dsSanPham.content}">
                                         <div class="rounded position-relative fruite-item border border-secondary shadow-sm d-flex flex-column h-100">
                                             <div class="fruite-img">
-                                                <img th:src="@{'/img/' + ${sp.hinhAnh}}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: contain;">
+                                                <img th:src="@{${sp.hinhAnh.contains('/') ? '/img/' + sp.hinhAnh : (sp.loaiSanPham.tenLoai == 'LAPTOP' ? '/img/laptop/' + sp.hinhAnh : '/img/phu-kien/' + sp.hinhAnh)}}" class="img-fluid w-100 rounded-top" alt="" style="height: 250px; object-fit: contain;">
                                             </div>
                                             <div class="text-white px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px; background-color: #ffb524;" th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(sp.loaiSanPham.tenLoai, '_', ' ')))}">Type</div>
                                             <div class="text-white bg-danger px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;" 
