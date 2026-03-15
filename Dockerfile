@@ -10,4 +10,4 @@ FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 COPY --from=build /app/target/DoAn2-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT java -Xmx512m -Dserver.port=${PORT:-8080} -jar app.jar
+ENTRYPOINT java -Xmx512m -Djava.security.egd=file:/dev/./urandom -Dspring.jpa.show-sql=false -Dspring.jpa.properties.hibernate.format_sql=false -Dserver.port=${PORT:-8080} -jar app.jar
