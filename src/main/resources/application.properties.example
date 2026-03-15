@@ -2,9 +2,9 @@ spring.application.name=DoAn2
 # ===============================
 # DATABASE
 # ===============================
-spring.datasource.url=jdbc:mysql://localhost:3306/quan_ly_ban_hang?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-spring.datasource.username=root
-spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/YOUR_DATABASE_NAME?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 # ===============================
 # JPA / HIBERNATE
@@ -12,7 +12,6 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.open-in-view=true
-# Hibernate KHONG tu tao bang (vi ban da tao bang bang SQL)
 spring.jpa.hibernate.ddl-auto=update
 # ===============================
 # UTF-8 (TIENG VIET)
@@ -26,8 +25,8 @@ spring.jpa.properties.hibernate.connection.CharSet=UTF-8
 # ===============================
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=giang220239@student.nctu.edu.vn
-spring.mail.password=nbws mtja vidj bvkz
+spring.mail.username=YOUR_EMAIL@student.nctu.edu.vn
+spring.mail.password=YOUR_GMAIL_APP_PASSWORD
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
@@ -35,16 +34,16 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 # VNPAY SANDBOX CONFIGURATION
 # ===============================
 # Mã website tại VNPay (dùng tài khoản sandbox đã đăng ký)
-vnpay.ma-website=EEF9ZFP5
+vnpay.ma-website=YOUR_VNPAY_MA_WEBSITE
 # Chuỗi bí mật để tạo chữ ký HMAC-SHA512
-vnpay.chuoi-bi-mat=QRJOCF4TWWIVJWIQJMYB96JQ1G5T1KZ0
+vnpay.chuoi-bi-mat=YOUR_VNPAY_SECRET_KEY
 # Đường dẫn cổng thanh toán sandbox VNPay
 vnpay.duong-dan-cong-thanh-toan=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 # URL VNPay sẽ redirect về sau khi thanh toán xong (phải khớp với cấu hình trên cổng VNPay)
 vnpay.url-ket-qua-tra-ve=http://localhost:8080/vnpay/ket-qua
 
 # ===============================
-# MULTIPART CONF: FILE UPLOAD (Fix 413 Payload Too Large)
+# MULTIPART CONF: FILE UPLOAD
 # ===============================
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=50MB
