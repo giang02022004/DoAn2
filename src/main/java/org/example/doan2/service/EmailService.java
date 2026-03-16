@@ -31,8 +31,18 @@ public class EmailService {
     @Autowired // Đối tượng dùng để gửi mail qua SMTP
     private JavaMailSender javaMailSender;
 
-    @Value("${RESEND_API_KEY:}")
+    @Value("${RESEND_API_KEY:${ESEND_API_KEY:}}")
     private String resendApiKey;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        if (resendApiKey != null && !resendApiKey.isEmpty()) {
+            log.info("[MAIL INIT] Resend API Key detected (ends with: ...{})", 
+                resendApiKey.substring(Math.max(0, resendApiKey.length() - 4)));
+        } else {
+            log.warn("[MAIL INIT] No Resend API Key found. Emails will use SMTP fallback (this will fail on Render!).");
+        }
+    }
 
     private final RestTemplate restTemplate = new RestTemplate();
 
