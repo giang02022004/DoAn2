@@ -12,11 +12,63 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    @org.springframework.beans.factory.annotation.Value("${RESEND_API_KEY:}")
+    private String resendApiKey;
+
+    private final org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+
+    private void sendViaResend(String toEmail, String subject, String content, boolean isHtml) {
+        log.info("[MAIL DEBUG] Attempting to send email via Resend API to: {}", toEmail);
+        
+        if (resendApiKey == null || resendApiKey.isEmpty()) {
+            throw new RuntimeException("RESEND_API_KEY is missing. Cannot send via API.");
+        }
+
+        String url = "https://api.resend.com/emails";
+        
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        // Resend "onboarding@resend.dev" can be used for testing, but since user has a key, they might want to use their own or stay with onborading
+        // Usually, for free accounts, you must send from onboarding@resend.dev or verified domain
+        body.put("from", "LaptopShop <onboarding@resend.dev>");
+        body.put("to", java.util.List.of(toEmail));
+        body.put("subject", subject);
+        
+        if (isHtml) {
+            body.put("html", content);
+        } else {
+            body.put("text", content);
+        }
+
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + resendApiKey);
+
+        org.springframework.http.HttpEntity<java.util.Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(body, headers);
+
+        try {
+            restTemplate.postForEntity(url, entity, String.class);
+            log.info("[MAIL DEBUG] Email sent successfully via Resend API!");
+        } catch (Exception e) {
+            log.error("[MAIL ERROR] Resend API Failure: {}", e.getMessage());
+            throw new RuntimeException("Lỗi API Resend: " + e.getMessage());
+        }
+    }
 
     @org.springframework.scheduling.annotation.Async
     public void sendPasswordChangeNotification(String toEmail) {
+        log.info("[MAIL DEBUG] Sending password change notification to: {}", toEmail);
+        String subject = "Thông báo: Thay đổi mật khẩu thành công";
+        String content = "Chào bạn,\n\nMật khẩu tài khoản của bạn trên hệ thống đã được thay đổi thành công.\n\nNếu bạn không thực hiện việc này, vui lòng liên hệ ngay với ban quản trị để được hỗ trợ.\n\nTrân trọng,\nĐội ngũ LaptopShop.";
+
+        if (resendApiKey != null && !resendApiKey.isEmpty()) {
+            try {
+                sendViaResend(toEmail, subject, content, false);
+                return;
+            } catch (Exception e) {
+                log.warn("[MAIL WARN] Resend API failed, falling back to SMTP: {}", e.getMessage());
+            }
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("giang220239@student.nctu.edu.vn"); 
         message.setTo(toEmail);
@@ -148,19 +200,31 @@ public class EmailService {
     // TEMPORARILY REMOVED @Async to debug synchronous errors on Render
     public void sendPasswordResetEmail(String toEmail, String token, String siteUrl) {
         log.info("[MAIL DEBUG] Preparing reset email for: {}", toEmail);
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("giang220239@student.nctu.edu.vn");
-        message.setTo(toEmail);
-        message.setSubject("Yêu cầu khôi phục mật khẩu");
         
         String resetUrl = siteUrl + "/reset-password?token=" + token;
-        log.info("[MAIL DEBUG] Reset URL: {}", resetUrl);
-        
-        message.setText("Chào bạn,\n\nBạn đã yêu cầu khôi phục mật khẩu cho tài khoản của mình.\n" +
+        String subject = "Yêu cầu khôi phục mật khẩu";
+        String content = "Chào bạn,\n\nBạn đã yêu cầu khôi phục mật khẩu cho tài khoản của mình.\n" +
                 "Vui lòng nhấp vào đường dẫn dưới đây để đặt lại mật khẩu (liên kết có hiệu lực trong 30 phút):\n\n" +
                 resetUrl + "\n\n" +
                 "Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.\n\n" +
-                "Trân trọng,\nĐội ngũ LaptopShop.");
+                "Trân trọng,\nĐội ngũ LaptopShop.";
+
+        if (resendApiKey != null && !resendApiKey.isEmpty()) {
+            try {
+                sendViaResend(toEmail, subject, content, false);
+                return;
+            } catch (Exception e) {
+                log.warn("[MAIL WARN] Resend API failed, falling back to SMTP: {}", e.getMessage());
+            }
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("giang220239@student.nctu.edu.vn");
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        
+        log.info("[MAIL DEBUG] Reset URL: {}", resetUrl);
+        message.setText(content);
 
         try {
             log.info("[MAIL DEBUG] Sending email via SMTP...");
