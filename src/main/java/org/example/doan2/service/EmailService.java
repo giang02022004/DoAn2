@@ -1,21 +1,40 @@
 package org.example.doan2.service;
 
+import jakarta.mail.internet.MimeMessage;
+import org.example.doan2.dto.CartItem;
 import org.example.doan2.entity.DonHang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.File;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    
+    @Autowired // Đối tượng dùng để gửi mail qua SMTP
+    private JavaMailSender javaMailSender;
 
-    @org.springframework.beans.factory.annotation.Value("${RESEND_API_KEY:}")
+    @Value("${RESEND_API_KEY:}")
     private String resendApiKey;
 
-    private final org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     private void sendViaResend(String toEmail, String subject, String content, boolean isHtml) {
         log.info("[MAIL DEBUG] Attempting to send email via Resend API to: {}", toEmail);
@@ -26,11 +45,9 @@ public class EmailService {
 
         String url = "https://api.resend.com/emails";
         
-        java.util.Map<String, Object> body = new java.util.HashMap<>();
-        // Resend "onboarding@resend.dev" can be used for testing, but since user has a key, they might want to use their own or stay with onborading
-        // Usually, for free accounts, you must send from onboarding@resend.dev or verified domain
+        Map<String, Object> body = new HashMap<>();
         body.put("from", "LaptopShop <onboarding@resend.dev>");
-        body.put("to", java.util.List.of(toEmail));
+        body.put("to", List.of(toEmail));
         body.put("subject", subject);
         
         if (isHtml) {
@@ -39,11 +56,11 @@ public class EmailService {
             body.put("text", content);
         }
 
-        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + resendApiKey);
 
-        org.springframework.http.HttpEntity<java.util.Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
         try {
             restTemplate.postForEntity(url, entity, String.class);
@@ -54,7 +71,7 @@ public class EmailService {
         }
     }
 
-    @org.springframework.scheduling.annotation.Async
+    @Async
     public void sendPasswordChangeNotification(String toEmail) {
         log.info("[MAIL DEBUG] Sending password change notification to: {}", toEmail);
         String subject = "Thông báo: Thay đổi mật khẩu thành công";
@@ -83,18 +100,18 @@ public class EmailService {
         }
     }
 
-    @org.springframework.scheduling.annotation.Async
-    public void sendOrderConfirmationEmail(String toEmail, DonHang order, java.util.List<org.example.doan2.dto.CartItem> cartItems) {
+    @Async
+    public void sendOrderConfirmationEmail(String toEmail, DonHang order, List<CartItem> cartItems) {
         try {
-            jakarta.mail.internet.MimeMessage message = javaMailSender.createMimeMessage();
-            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             String senderEmail = "giang220239@student.nctu.edu.vn";
             helper.setFrom(senderEmail); 
             if (toEmail != null) helper.setTo(toEmail);
             helper.setSubject("Đơn hàng mới: #" + order.getId());
             
-            String orderDate = order.getNgayTao() != null ? order.getNgayTao().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+            String orderDate = order.getNgayTao() != null ? order.getNgayTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
             
             StringBuilder html = new StringBuilder();
             html.append("<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">");
@@ -116,7 +133,7 @@ public class EmailService {
             html.append("<th style=\"padding: 10px 0; text-align: right;\">Giá</th>");
             html.append("</tr></thead><tbody>");
             
-            for (org.example.doan2.dto.CartItem item : cartItems) {
+            for (CartItem item : cartItems) {
                 String imgUrl = "cid:img_" + item.getId();
                 String priceStr = String.format("%,d", item.getPrice()).replace(',', '.') + " VND";
                 String variantInfo = item.getVariantInfo() != null ? item.getVariantInfo() : "";
@@ -175,12 +192,12 @@ public class EmailService {
             helper.setText(html.toString(), true); 
 
             // Đính kèm hình ảnh dưới dạng inline
-            for (org.example.doan2.dto.CartItem item : cartItems) {
+            for (CartItem item : cartItems) {
                 if (item.getImage() != null && !item.getImage().isEmpty()) {
                     String imgPath = "src/main/resources/static/img/" + item.getImage();
-                    java.io.File imgFile = new java.io.File(imgPath);
+                    File imgFile = new File(imgPath);
                     if (imgFile.exists() && item.getId() != null) {
-                        org.springframework.core.io.FileSystemResource res = new org.springframework.core.io.FileSystemResource(imgFile);
+                        FileSystemResource res = new FileSystemResource(imgFile);
                         try {
                             helper.addInline("img_" + item.getId(), res);
                         } catch (Exception ex) {
