@@ -37,7 +37,7 @@ public class SecurityConfig {
             response.sendRedirect(request.getContextPath() + "/");
         };
     }
-
+//xử lý khi đăng nhập thất bại.
     @Bean
     public AuthenticationFailureHandler customAuthenticationFailureHandler() {
         return (request, response, exception) -> {

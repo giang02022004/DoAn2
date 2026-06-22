@@ -32,17 +32,28 @@ public class CartController {
         this.bienTheSanPhamRepository = bienTheSanPhamRepository;
     }
 
-    // Hiển thị giỏ hàng
+    /**
+     * Hiển thị trang giỏ hàng (Cart Page).
+     * Lấy danh sách sản phẩm và tổng tiền để đưa vào Model cho Thymeleaf hiển thị.
+     */
     @GetMapping
     public String viewCart(HttpSession session, Model model, java.security.Principal principal) {
+        // Principal: Lấy thông tin người dùng đang đăng nhập thông qua Spring Security
         String email = principal != null ? principal.getName() : null;
+        
+        // Lấy danh sách sản phẩm trong giỏ (tự động phân biệt Session khách hoặc DB User)
         List<CartItem> cart = cartService.getCart(session, email);
+        
         model.addAttribute("cartItems", cart);
         model.addAttribute("totalPrice", cartService.getTotalPrice(session, email));
+        
         return "cart";
     }
 
-    // Thêm vào giỏ hàng
+    /**
+     * Xử lý yêu cầu thêm sản phẩm vào giỏ hàng từ trang danh sách hoặc chi tiết.
+     * Hỗ trợ xử lý biến thể (RAM/CPU/Màu sắc) và tính toán giá khuyến mãi ngay lập tức.
+     */
     @PostMapping("/add")
     public String addToCart(@RequestParam Integer productId, 
                             @RequestParam(defaultValue = "1") int quantity,
@@ -52,38 +63,46 @@ public class CartController {
                             RedirectAttributes redirectAttributes) {
         String email = principal != null ? principal.getName() : null;
         SanPham sp = sanPhamService.getSanPhamById(productId);
+        
         if (sp != null) {
             Integer price = sp.getGia();
             String variantInfo = null;
 
-            // 1. Nếu có chọn cấu hình biến thể, giá = giá gốc + giá cộng thêm của biến thể
+            // 1. Tính giá dựa trên cấu hình biến thể (nếu có)
             if (variantId != null) {
                 BienTheSanPham bienThe = bienTheSanPhamRepository.findById(variantId).orElse(null);
                 if (bienThe != null) {
+                    // Giá cuối = Giá gốc + Giá cộng thêm của cấu hình
                     price = sp.getGia() + (bienThe.getGiaThem() != null ? bienThe.getGiaThem() : 0);
                     variantInfo = bienThe.getCpu() + " / " + bienThe.getBoNho() + " / " + bienThe.getMauSac();
                 }
             }
 
-            // 2. Logic Khuyến Mãi: Kiểm tra KM còn hiệu lực (ACTIVE + Trong thời hạn)
+            // 2. Kiểm tra và áp dụng giá khuyến mãi trực tiếp vào item giỏ hàng
             if (sp.isDangKhuyenMai()) {
                 int phanTramGiam = sp.getKhuyenMai().getPhanTramGiam();
                 price = price - (price * phanTramGiam / 100);
             }
 
-            // 3. Đẩy giá cuối cùng (đã giảm) vào giỏ hàng
+            // 3. Đóng gói dữ liệu vào DTO CartItem
             CartItem item = new CartItem(sp.getId(), sp.getTenSanPham(), price, quantity, sp.getHinhAnh(), variantId, variantInfo);
+            
             try {
+                // Gọi service để thực hiện lưu vào DB hoặc Session
                 cartService.addToCart(session, email, item);
             } catch (RuntimeException e) {
+                // Xử lý lỗi nghiệp vụ (ví dụ: Hết hàng) và báo lại cho người dùng
                 redirectAttributes.addFlashAttribute("error", e.getMessage());
                 return "redirect:/shop-detail/" + productId;
             }
         }
+        // Sau khi thêm thành công, chuyển hướng người dùng đến trang giỏ hàng
         return "redirect:/cart";
     }
     
-    // Xóa sản phẩm
+    /**
+     * Xóa một mặt hàng khỏi giỏ hàng.
+     */
     @GetMapping("/remove/{id}")
     public String removeFromCart(@PathVariable Integer id,
                                  @RequestParam(required = false) Integer variantId,
@@ -94,7 +113,12 @@ public class CartController {
         return "redirect:/cart";
     }
 
-    // Cập nhật số lượng (AJAX)
+    /**
+     * Cập nhật số lượng sản phẩm ngay tại trang giỏ hàng.
+     * Sử dụng AJAX (@ResponseBody) để cập nhật UI mượt mà không cần load lại trang.
+     * 
+     * @return Map dữ liệu JSON chứa trạng thái thành công, tổng tiền mới, và số lượng Badge giỏ hàng.
+     */
     @PostMapping("/update")
     @ResponseBody
     public Map<String, Object> updateQuantity(@RequestParam Integer productId,
@@ -106,21 +130,29 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // 1. Thực hiện cập nhật số lượng (có kiểm tra tồn kho)
             cartService.updateQuantity(session, email, productId, variantId, quantity);
             
+            // 2. Lấy lại dữ liệu giỏ hàng mới nhất sau khi cập nhật
             List<CartItem> cart = cartService.getCart(session, email);
             CartItem currentItem = cart.stream()
                     .filter(item -> item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId))
                     .findFirst()
                     .orElse(null);
             
+            // 3. Phản hồi các thông số cần thiết để Frontend cập nhật DOM
             if (currentItem != null) {
+                // Tổng tiền của duy nhất dòng sản phẩm đó (Giá x Số lượng)
                 response.put("itemTotal", currentItem.getTotalPrice());
             }
+            // Tổng tiền của cả giỏ hàng
             response.put("totalPrice", cartService.getTotalPrice(session, email));
+            // Tổng số lượng item để cập nhật Badge Icon ở Header
             response.put("cartCount", cartService.getCount(session, email));
+            
             response.put("success", true);
         } catch (RuntimeException e) {
+            // Trả về thông báo lỗi (ví dụ: "Số lượng vượt quá tồn kho")
             response.put("success", false);
             response.put("message", e.getMessage());
         }

@@ -49,6 +49,12 @@ public class CartService {
         this.bienTheSanPhamRepository = bienTheSanPhamRepository;
     }
 
+    /**
+     * Lấy giỏ hàng của người dùng trong DB.
+     * Nếu chưa có giỏ thì tạo mới một bản ghi GioHang với tổng số lượng ban đầu = 0.
+     * @param nguoiDung Thực thể người dùng
+     * @return Thực thể GioHang (luôn có dữ liệu)
+     */
     private GioHang getOrCreateGioHang(NguoiDung nguoiDung) {
         return gioHangRepository.findByNguoiDung(nguoiDung)
                 .orElseGet(() -> {
@@ -59,14 +65,19 @@ public class CartService {
                 });
     }
 
+    /**
+     * Tìm đối tượng người dùng dựa trên email.
+     * @param email Email đăng nhập của người dùng
+     * @return Đối tượng NguoiDung hoặc null nếu là khách vãng lai
+     */
     private NguoiDung getUser(String email) {
         if (email == null || email.isEmpty()) return null;
         return nguoiDungRepository.findByEmail(email).orElse(null);
     }
 
     /**
-     * Đồng bộ giỏ hàng từ Session sang Database ngay sau khi người dùng đăng nhập thành công.
-     * Tránh việc khách nhặt đồ vào giỏ lúc chưa đăng nhập bị biến mất sau khi login.
+     * Đồng bộ giỏ hàng từ Session (trình duyệt) vào Database ngay sau khi đăng nhập.
+     * Giúp người dùng giữ lại các mặt hàng đã chọn trước khi đăng nhập.
      */
     public void syncSessionCartToDb(HttpSession session, String email) {
         NguoiDung user = getUser(email);
@@ -76,20 +87,26 @@ public class CartService {
             for (CartItem item : sessionCart) {
                 addToCart(session, email, item);
             }
+            // Xóa giỏ hàng trong session sau khi đã đồng bộ thành công vào DB
             session.removeAttribute(CART_SESSION_KEY);
         }
     }
 
     /**
-     * Lấy toàn bộ danh sách sản phẩm đang có trong giỏ hàng để hiển thị.
-     * Logic:
-     * - Nếu đã đăng nhập: Đồng bộ Session trước, sau đó lấy cấu trúc giỏ hàng từ Database, chuyển đổi sang danh sách CartItem (DTO) để trả về cho giao diện HTML dễ dàng in ra.
-     * - Nếu chưa đăng nhập: Lấy trực tiếp từ Session.
+     * Lấy danh sách sản phẩm trong giỏ hàng để hiển thị lên giao diện.
+     * 
+     * Logic tính giá cực kỳ quan trọng:
+     * Giá cuối = (Giá gốc sản phẩm + Giá cộng thêm của cấu hình) - Tiền giảm giá (nếu có khuyến mãi).
+     * 
+     * @param session Session hiện tại
+     * @param email Email người dùng (nếu đã login)
+     * @return Danh sách CartItem DTO
      */
     public List<CartItem> getCart(HttpSession session, String email) {
         NguoiDung user = getUser(email);
         if (user != null) {
-            syncSessionCartToDb(session, email); // Sync in case there are session items before login
+            // Nếu đã đăng nhập, ưu tiên lấy từ Database
+            syncSessionCartToDb(session, email); 
             GioHang gioHang = getOrCreateGioHang(user);
             List<ChiTietGioHang> items = chiTietGioHangRepository.findByGioHang(gioHang);
             List<CartItem> result = new ArrayList<>();
@@ -98,12 +115,13 @@ public class CartService {
                 String vInfo = null;
                 int currentPrice = ct.getSanPham().getGia();
 
+                // 1. Tính giá dựa trên cấu hình (Biến thể)
                 if (ct.getBienThe() != null) {
                      vInfo = ct.getBienThe().getCpu() + " / " + ct.getBienThe().getBoNho() + " / " + ct.getBienThe().getMauSac();
                      currentPrice += (ct.getBienThe().getGiaThem() != null ? ct.getBienThe().getGiaThem() : 0);
                 }
 
-                // Apply Active Promotion dynamically (Check status + time)
+                // 2. Kiểm tra và áp dụng khuyến mãi (nếu chương trình còn hiệu lực)
                 if (ct.getSanPham().isDangKhuyenMai()) {
                     int phanTramGiam = ct.getSanPham().getKhuyenMai().getPhanTramGiam();
                     currentPrice = currentPrice - (currentPrice * phanTramGiam / 100);
@@ -122,12 +140,13 @@ public class CartService {
             return result;
         }
 
+        // Trường hợp Khách vãng lai: Lấy giỏ hàng từ Session
         List<CartItem> cart = (List<CartItem>) session.getAttribute(CART_SESSION_KEY);
         if (cart == null) {
             cart = new ArrayList<>();
             session.setAttribute(CART_SESSION_KEY, cart);
         } else {
-            // Apply Dynamic Pricing to Session Cart too
+            // Cập nhật lại giá mới nhất (giá có thể thay đổi do Admin cập nhật) cho giỏ hàng Session
             for (CartItem ci : cart) {
                 sanPhamRepository.findById(ci.getId()).ifPresent(sp -> {
                     int[] priceWrapper = new int[]{sp.getGia()};
@@ -140,40 +159,44 @@ public class CartService {
                         int phanTramGiam = sp.getKhuyenMai().getPhanTramGiam();
                         priceWrapper[0] = priceWrapper[0] - (priceWrapper[0] * phanTramGiam / 100);
                     }
-                    ci.setPrice(priceWrapper[0]); // Update object directly
+                    ci.setPrice(priceWrapper[0]); 
                 });
             }
         }
         return cart;
     }
 
+    /**
+     * So sánh 2 item trong giỏ có phải cùng một sản phẩm-cấu hình hay không.
+     * Điều kiện trùng: cùng productId và cùng variantId (kể cả null).
+     */
     private boolean isSameItem(CartItem a, CartItem b) {
         if (!a.getId().equals(b.getId())) return false;
         return Objects.equals(a.getVariantId(), b.getVariantId());
     }
 
     /**
-     * Thêm một món hàng mới vào giỏ.
-     * Logic xử lý:
-     * - Kiểm tra xem Sản phẩm + Biến thể đó đã tồn tại trong giỏ chưa.
-     * - Nếu CÓ RỒI: Chỉ việc cộng dồn thêm số lượng (quantity) vào dữ liệu cũ.
-     * - Nếu CHƯA CÓ: Tạo mới một dòng ChiTietGioHang, lưu ID sản phẩm, ID biến thể, số lượng, giá và đẩy vào DB.
+     * Thêm sản phẩm vào giỏ hàng.
+     * 
+     * Ràng buộc nghiệp vụ (Business Rules):
+     * 1. Sản phẩm phải đang ở trạng thái ACTIVE (đang kinh doanh).
+     * 2. Số lượng phải lớn hơn 0.
+     * 3. Số lượng thêm vào không được vượt quá tồn kho thực tế (của sản phẩm hoặc biến thể).
+     * 4. Nếu sản phẩm đã có trong giỏ -> Cộng dồn số lượng.
      */
     public void addToCart(HttpSession session, String email, CartItem item) {
-        // KIỂM TRA NGHIỆP VỤ: XÓA MỀM (INACTIVE)
-        // Lấy thông tin sản phẩm chuẩn từ Database để kiểm tra trạng thái trước khi cho vào giỏ.
-        // Tránh lỗi bảo mật khi hacker dò API đẩy ID của sản phẩm đã bị Admin xóa mềm vào Giỏ hàng.
+        // Kiểm tra tồn tại và trạng thái kinh doanh
         SanPham spCheck = sanPhamRepository.findById(item.getId()).orElse(null);
         if (spCheck == null || !"ACTIVE".equalsIgnoreCase(spCheck.getTrangThai())) {
             throw new RuntimeException("Sản phẩm đã ngừng kinh doanh hoặc không tồn tại!");
         }
 
-        // NGHIỆP VỤ: Chặn số lượng không hợp lệ (<= 0)
+        // Chặn số lượng không hợp lệ
         if (item.getQuantity() <= 0) {
             throw new RuntimeException("Số lượng sản phẩm phải lớn hơn 0.");
         }
 
-        // NGHIỆP VỤ: Lấy số lượng tồn kho thực tế
+        // Kiểm tra tồn kho thực tế
         int availableStock = spCheck.getSoLuong();
         if (item.getVariantId() != null) {
             availableStock = bienTheSanPhamRepository.findById(item.getVariantId())
@@ -185,6 +208,8 @@ public class CartService {
         if (user != null) {
             GioHang gh = getOrCreateGioHang(user);
             Optional<ChiTietGioHang> existing;
+            
+            // Tìm sản phẩm cùng loại trong giỏ hàng DB
             if (item.getVariantId() != null) {
                 existing = chiTietGioHangRepository.findByGioHangAndSanPhamIdAndBienTheId(gh, item.getId(), item.getVariantId());
             } else {
@@ -192,6 +217,7 @@ public class CartService {
             }
 
             if (existing.isPresent()) {
+                // Đã tồn tại: Cộng dồn và kiểm tra kho
                 ChiTietGioHang ct = existing.get();
                 if (ct.getSoLuong() + item.getQuantity() > availableStock) {
                     throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
@@ -199,12 +225,13 @@ public class CartService {
                 ct.setSoLuong(ct.getSoLuong() + item.getQuantity());
                 chiTietGioHangRepository.save(ct);
             } else {
+                // Chưa có: Tạo mới
                 if (item.getQuantity() > availableStock) {
                     throw new RuntimeException("Số lượng trong kho không đủ (Còn lại: " + availableStock + ").");
                 }
                 ChiTietGioHang ct = new ChiTietGioHang();
                 ct.setGioHang(gh);
-                ct.setSanPham(spCheck); // Sử dụng luôn entity đã query ở trên đỡ tốn 1 lần truy vấn
+                ct.setSanPham(spCheck); 
                 if (item.getVariantId() != null) {
                     ct.setBienThe(bienTheSanPhamRepository.findById(item.getVariantId()).orElse(null));
                 }
@@ -212,10 +239,12 @@ public class CartService {
                 ct.setSoLuong(item.getQuantity());
                 chiTietGioHangRepository.save(ct);
             }
+            // Cập nhật tổng số lượng hiển thị trên Badge icon
             updateTotalQuantity(gh);
             return;
         }
 
+        // Xử lý cho Khách vãng lai (Session)
         List<CartItem> cart = getCart(session, null);
         boolean exists = false;
         for (CartItem cartItem : cart) {
@@ -238,9 +267,7 @@ public class CartService {
     }
 
     /**
-     * Bỏ một mặt hàng ra khỏi giỏ.
-     * Yêu cầu truyền vào cả Mã Sản phẩm (productId) và Mã Biến thể (variantId nếu có) 
-     * để phần mềm dò tìm và xóa chính xác dòng chứa sản phẩm đó trong cơ sở dữ liệu.
+     * Xóa một mặt hàng khỏi giỏ hàng.
      */
     public void removeFromCart(HttpSession session, String email, Integer productId, Integer variantId) {
         NguoiDung user = getUser(email);
@@ -253,7 +280,6 @@ public class CartService {
                 existing = chiTietGioHangRepository.findByGioHangAndSanPhamIdAndBienTheIsNull(gh, productId);
             }
             existing.ifPresent(chiTietGioHangRepository::delete);
-            // Must flush or retrieve dynamically to calculate correct total
             chiTietGioHangRepository.flush(); 
             updateTotalQuantity(gh);
             return;
@@ -265,12 +291,13 @@ public class CartService {
     }
 
     /**
-     * Cập nhật số lượng của một sản phẩm bất kỳ ngay từ bên trong Giỏ Hàng
-     * (thường được thực thi qua AJAX khi người dùng bấm nút [+] hoặc [-]).
+     * Cập nhật số lượng mới cho một mặt hàng.
+     * Thường dùng khi khách thay đổi trực tiếp số lượng tại trang Giỏ hàng.
      */
     public void updateQuantity(HttpSession session, String email, Integer productId, Integer variantId, int quantity) {
         NguoiDung user = getUser(email);
         if (user != null) {
+            // Xử lý với Database
             GioHang gh = getOrCreateGioHang(user);
             Optional<ChiTietGioHang> existing;
             if (variantId != null) {
@@ -279,12 +306,11 @@ public class CartService {
                 existing = chiTietGioHangRepository.findByGioHangAndSanPhamIdAndBienTheIsNull(gh, productId);
             }
             if (existing.isPresent()) {
-                // NGHIỆP VỤ: Chặn số lượng <= 0
                 if (quantity <= 0) {
                     throw new RuntimeException("Số lượng phải lớn hơn 0.");
                 }
 
-                // NGHIỆP VỤ: Kiểm tra tồn kho
+                // Kiểm tồn kho
                 int availableStock = existing.get().getSanPham().getSoLuong();
                 if (existing.get().getBienThe() != null) {
                     availableStock = existing.get().getBienThe().getSoLuong();
@@ -301,15 +327,14 @@ public class CartService {
             return;
         }
 
+        // Xử lý với Session
         List<CartItem> cart = getCart(session, null);
         for (CartItem item : cart) {
             if (item.getId().equals(productId) && Objects.equals(item.getVariantId(), variantId)) {
-                // Chặn số lượng <= 0
                 if (quantity <= 0) {
                     throw new RuntimeException("Số lượng phải lớn hơn 0.");
                 }
 
-                // Kiểm tra tồn kho cho Session Cart
                 SanPham sp = sanPhamRepository.findById(productId).orElse(null);
                 int stock = 0;
                 if (sp != null) {
@@ -330,8 +355,7 @@ public class CartService {
     }
 
     /**
-     * Xóa sạch toàn bộ sản phẩm trong giỏ hàng.
-     * Chức năng này thường được tự động gọi ngay sau khi Khách hàng Nhấn "Đặt hàng" thành công.
+     * Làm trống giỏ hàng (Sau khi đặt hàng thành công).
      */
     public void clearCart(HttpSession session, String email) {
         NguoiDung user = getUser(email);
@@ -348,19 +372,24 @@ public class CartService {
         }
     }
     
+    /**
+     * Lấy tổng giá trị tiền của giỏ hàng.
+     */
     public Integer getTotalPrice(HttpSession session, String email) {
         List<CartItem> cart = getCart(session, email);
         return cart.stream().mapToInt(CartItem::getTotalPrice).sum();
     }
     
+    /**
+     * Lấy tổng số lượng item trong giỏ.
+     */
     public int getCount(HttpSession session, String email) {
         List<CartItem> cart = getCart(session, email);
         return cart.stream().mapToInt(CartItem::getQuantity).sum();
     }
 
     /**
-     * Tính toán lại tổng số lượng tất cả các món hàng đang có trong ChiTietGioHang (hàm phụ trợ),
-     * sau đó cập nhật con số này ngược lại vào bảng GioHang cha để dễ dàng thống kê báo cáo.
+     * Đồng bộ tổng số lượng vào thực thể GioHang để dễ dàng truy vấn nhanh badge badge-count.
      */
     private void updateTotalQuantity(GioHang gh) {
         List<ChiTietGioHang> items = chiTietGioHangRepository.findByGioHang(gh);

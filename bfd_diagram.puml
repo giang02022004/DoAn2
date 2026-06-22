@@ -1,0 +1,50 @@
+@startwbs "Business Function Diagram: DoAn2"
+skinparam backgroundcolor white
+skinparam shadowing false
+' Tông màu chuyên nghiệp
+<style>
+wbsDiagram {
+  .root {
+      BackgroundColor #004d40
+      FontColor white
+  }
+  .main {
+      BackgroundColor #4db6ac
+      FontColor black
+  }
+  .sub {
+      BackgroundColor #e0f2f1
+  }
+}
+</style>
+
+* Hệ thống Bán hàng Laptop DoAn2 <<root>>
+** Quản lý Sản phẩm & Danh mục <<main>>
+*** Quản lý Sản phẩm (CRUD) <<sub>>
+*** Quản lý Danh mục/Loại máy <<sub>>
+*** Quản lý Hãng sản xuất <<sub>>
+*** Quản lý Khuyến mãi <<sub>>
+
+** Quản lý Người dùng & Bảo mật <<main>>
+*** Đăng ký & Đăng nhập <<sub>>
+*** Quên mật khẩu & Bảo mật <<sub>>
+*** Quản lý Thông tin cá nhân <<sub>>
+*** Phân quyền & Vai trò <<sub>>
+
+** Quản lý Bán hàng & Thanh toán <<main>>
+*** Quản lý Giỏ hàng <<sub>>
+*** Xử lý Đặt hàng <<sub>>
+*** Thanh toán VNPay <<sub>>
+*** Quản lý Trạng thái đơn hàng <<sub>>
+
+** Quản lý Nội dung & Tương tác <<main>>
+*** Quản lý Bài viết/Tin tức <<sub>>
+*** Quản lý Đánh giá/Bình luận <<sub>>
+*** Quản lý Liên hệ/Góp ý <<sub>>
+
+** Thống kê & Báo cáo <<main>>
+*** Thống kê Doanh thu <<sub>>
+*** Thống kê Sản phẩm bán chạy <<sub>>
+*** Thống kê Khách hàng <<sub>>
+
+@endwbs

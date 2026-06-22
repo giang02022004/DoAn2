@@ -160,54 +160,80 @@ public class AdminController {
 
 
 
+    /**
+     * Hiển thị danh sách sản phẩm trong trang quản trị.
+     * Hỗ trợ lọc sản phẩm theo tên (từ khóa) và theo Hãng sản xuất.
+     */
     @GetMapping("/products")
     public String products(@RequestParam(required = false) Integer categoryId, 
                            @RequestParam(required = false) String keyword, 
                            Model model) {
+        // 1. Đánh dấu menu "Sản phẩm" đang được chọn trên Sidebar
         model.addAttribute("activeMenu", "products");
         
         List<SanPham> productList;
         boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
         boolean hasCategory = (categoryId != null);
 
-        // Logic lọc sản phẩm theo từ khóa (tên) và ID của Hãng Sản Xuất
+        // 2. Logic lọc sản phẩm đa điều kiện
         if (hasKeyword && hasCategory) {
+            // Trường hợp: Có cả từ khóa và chọn Hãng
             productList = sanPhamRepository.findByTenSanPhamContainingIgnoreCaseAndHangSanXuat_Id(keyword.trim(), categoryId);
         } else if (hasKeyword) {
+            // Trường hợp: Chỉ tìm kiếm theo tên
             productList = sanPhamRepository.findByTenSanPhamContainingIgnoreCase(keyword.trim());
         } else if (hasCategory) {
+            // Trường hợp: Chỉ lọc theo Hãng sản xuất
             productList = sanPhamRepository.findByHangSanXuat_Id(categoryId);
         } else {
+            // Trường hợp mặc định: Lấy toàn bộ sản phẩm
             productList = sanPhamRepository.findAll();
         }
         
-        // Đẩy danh sách sản phẩm (admin xem tất cả, dù đang ẩn hay chưa) và danh sách Hãng ra giao diện
+        // 3. Đưa dữ liệu ra giao diện (Admin xem được tất cả trạng thái sản phẩm)
         model.addAttribute("products", productList);
+        
+        // Lấy danh sách Hãng sản xuất để đổ vào dropdown bộ lọc
         model.addAttribute("categories", hangSanXuatRepository.findAll());
         
-        // Lưu lại trạng thái của form tìm kiếm để hiển thị lại trên giao diện
+        // 4. Giữ lại giá trị tìm kiếm trên Form sau khi tải lại trang (UX)
         model.addAttribute("currentKeyword", keyword);
         model.addAttribute("currentCategoryId", categoryId);
         
         return "admin/product/list";
     }
 
-    /** ─── Mở Form Sửa Sản Phẩm ─── */
+    /**
+     * Mở giao diện chỉnh sửa thông tin của một sản phẩm hiện có.
+     * Cung cấp toàn bộ dữ liệu cần thiết (Hãng, Loại SP, Khuyến mãi) để người dùng chọn từ Dropdown.
+     */
     @GetMapping("/products/edit/{id}")
     public String editProductForm(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
-        // Tìm sản phẩm theo ID
+        // 1. Tìm kiếm sản phẩm trong database theo ID truyền vào từ URL
         SanPham product = sanPhamRepository.findById(id).orElse(null);
+        
+        // 2. Nếu không tìm thấy sản phẩm (ví dụ người dùng nhập sai ID trên URL)
         if (product == null) {
+            // Hiển thị thông báo lỗi (FlashAttribute - chỉ hiện 1 lần sau khi redirect)
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm có ID: " + id);
+            // Quay trở lại trang danh sách sản phẩm
             return "redirect:/admin/products";
         }
         
+        // 3. Chuẩn bị dữ liệu cho giao diện chỉnh sửa
         model.addAttribute("activeMenu", "products");
-        model.addAttribute("product", product);
+        model.addAttribute("product", product); // Thông tin sản phẩm hiện tại
+        
+        // Lấy danh sách các hãng sản xuất (Brand) để hiển thị ô Chọn Hãng
         model.addAttribute("categories", hangSanXuatRepository.findAll());
-        model.addAttribute("types", loaiSanPhamRepository.findAll()); // Để chọn Loại (Laptop, Phụ kiện, ...)
+        
+        // Lấy danh sách các loại sản phẩm (Category: Laptop, Chuột...)
+        model.addAttribute("types", loaiSanPhamRepository.findAll());
+        
+        // Lấy danh sách các chương trình khuyến mãi đang khả dụng
         model.addAttribute("promotions", khuyenMaiRepository.findAllAvailable());
         
+        // 4. Trả về template edit.html nằm trong thư mục admin/product/
         return "admin/product/edit";
     }
 
@@ -264,7 +290,10 @@ public class AdminController {
         return "admin/product/create";
     }
 
-    /** ─── Xử Lý Nút Lưu (Thêm Mới Sản Phẩm) ─── */
+    /**
+     * Xử lý yêu cầu lưu sản phẩm mới vào hệ thống.
+     * Đây là quy trình phức tạp bao gồm: Lưu thông tin cơ bản, Upload ảnh, và Tạo các biến thể cấu hình.
+     */
     @PostMapping("/products/store")
     public String storeProduct(
             @RequestParam("tenSanPham") String tenSanPham,
@@ -283,22 +312,16 @@ public class AdminController {
             @RequestParam(value = "soLuongBienThes", required = false) List<Integer> soLuongBienThes,
             RedirectAttributes redirectAttributes) {
         try {
-            System.out.println("[DEBUG] storeProduct HTTP POST hit: " + tenSanPham);
-            
-            // Lookup managed entities từ database để tránh detached entity constraint violation
+            // 1. Xác thực các thực thể liên quan (Hãng & Loại) từ Database
             HangSanXuat hangSanXuat = hangSanXuatRepository.findById(hangSanXuatId).orElse(null);
             LoaiSanPham loaiSanPham = loaiSanPhamRepository.findById(loaiSanPhamId).orElse(null);
             
-            System.out.println("[DEBUG] hxID=" + hangSanXuatId + " -> " + (hangSanXuat != null ? "Found" : "Null"));
-            System.out.println("[DEBUG] loaiID=" + loaiSanPhamId + " -> " + (loaiSanPham != null ? "Found" : "Null"));
-            
             if (hangSanXuat == null || loaiSanPham == null) {
-                System.out.println("[DEBUG] Returning error due to invalid Hang or Loai");
                 redirectAttributes.addFlashAttribute("error", "Hãng hoặc Loại sản phẩm không hợp lệ.");
                 return "redirect:/admin/products";
             }
 
-            // Build SanPham mới từ các tham số riêng lẻ
+            // 2. Khởi tạo và thiết lập các thông tin cơ bản cho sản phẩm mới
             SanPham formProduct = new SanPham();
             formProduct.setTenSanPham(tenSanPham);
             formProduct.setGia(gia);
@@ -307,16 +330,19 @@ public class AdminController {
             formProduct.setMoTaChiTiet(moTaChiTiet);
             formProduct.setHangSanXuat(hangSanXuat);
             formProduct.setLoaiSanPham(loaiSanPham);
+            
+            // Xử lý khuyến mãi nếu có
             if (khuyenMaiId != null) {
                 formProduct.setKhuyenMai(khuyenMaiRepository.findById(khuyenMaiId).orElse(null));
             }
-            // Các trường mặc định
+
+            // Thiết lập các giá trị mặc định cho sản phẩm mới
             formProduct.setNgayTao(LocalDateTime.now());
             formProduct.setNgayCapNhat(LocalDateTime.now());
             formProduct.setDaBan(0);
             formProduct.setTrangThai("ACTIVE");
             
-            // Xử lý upload file hình ảnh (lấy ảnh đầu tiên làm ảnh đại diện chính)
+            // 3. Xử lý Upload hình ảnh (Lưu vào thư mục vật lý)
             List<String> savedFileNames = new ArrayList<>();
             if (imageFiles != null && !imageFiles.isEmpty()) {
                 Path uploadDir = Paths.get("src/main/resources/static/img").toAbsolutePath();
@@ -324,11 +350,12 @@ public class AdminController {
                     Files.createDirectories(uploadDir);
                 }
                 
-                // Giới hạn tối đa 5 ảnh
+                // Lưu tối đa 5 file ảnh
                 int limit = Math.min(imageFiles.size(), 5);
                 for (int i = 0; i < limit; i++) {
                     MultipartFile file = imageFiles.get(i);
                     if (file != null && !file.isEmpty()) {
+                        // Tạo tên file duy nhất bằng timestamp để tránh trùng lặp
                         String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
                         Path filePath = uploadDir.resolve(fileName);
                         file.transferTo(filePath.toFile());
@@ -336,35 +363,35 @@ public class AdminController {
                     }
                 }
                 
-                // Gắn ảnh đầu tiên làm ảnh đại diện của bảng SanPham
+                // Chọn ảnh đầu tiên làm ảnh đại diện chính của sản phẩm
                 if (!savedFileNames.isEmpty()) {
                     formProduct.setHinhAnh(savedFileNames.get(0));
                 }
             }
 
-            // Tính tổng số lượng từ các biến thể (nếu là Laptop và có nhập cấu hình)
+            // 4. Xử lý biến thể (Variants) - Dành cho các sản phẩm có nhiều cấu hình (như Laptop)
             boolean hasVariants = cpus != null && !cpus.isEmpty();
             if (hasVariants && soLuongBienThes != null) {
+                // Tính toán lại tổng số lượng dựa trên tổng số lượng của các biến thể
                 int totalQuantity = 0;
                 for (Integer q : soLuongBienThes) {
                     if (q != null) totalQuantity += q;
                 }
-                // Ghi đè số lượng gốc bằng tổng số lượng biến thể
                 formProduct.setSoLuong(totalQuantity);
             }
 
-            // Lưu sản phẩm chính xuống DB trước để lấy ID
+            // 5. Lưu sản phẩm chính xuống Database để sinh ID
             SanPham savedProduct = sanPhamRepository.save(formProduct);
 
-            // Lưu tất cả các ảnh vào bảng HinhAnhSanPham
+            // 6. Lưu thông tin các ảnh phụ vào bảng HinhAnhSanPham
             for (String fileName : savedFileNames) {
                 HinhAnhSanPham hinhAnh = new HinhAnhSanPham();
                 hinhAnh.setDuongDan(fileName);
-                hinhAnh.setSanPham(savedProduct);
+                hinhAnh.setSanPham(savedProduct); // Liên kết với sản phẩm vừa tạo
                 hinhAnhSanPhamRepository.save(hinhAnh);
             }
 
-            // Lưu các biến thể (Nếu có)
+            // 7. Lưu thông tin các biến thể cấu hình vào bảng BienTheSanPham
             if (hasVariants) {
                 for (int i = 0; i < cpus.size(); i++) {
                     BienTheSanPham bienThe = new BienTheSanPham();
@@ -374,7 +401,7 @@ public class AdminController {
                     bienThe.setGiaThem(giaThems != null && i < giaThems.size() ? giaThems.get(i) : 0);
                     bienThe.setSoLuong(soLuongBienThes != null && i < soLuongBienThes.size() ? soLuongBienThes.get(i) : 0);
                     bienThe.setDaBan(0);
-                    bienThe.setSanPham(savedProduct);
+                    bienThe.setSanPham(savedProduct); // Liên kết với sản phẩm vừa tạo
                     
                     bienTheSanPhamRepository.save(bienThe);
                 }
@@ -440,44 +467,59 @@ public class AdminController {
         return "redirect:/admin/products";
     }
 
+    /**
+     * Hiển thị danh sách tất cả đơn hàng trong trang quản trị.
+     * Hỗ trợ lọc đơn hàng theo trạng thái (Ví dụ: Chờ xác nhận, Đã giao, Đã hủy...).
+     */
     @GetMapping("/orders")
     public String orders(@RequestParam(required = false) String status, Model model) {
+        // 1. Đánh dấu menu "Đơn hàng" đang được chọn để highlight trên thanh điều hướng
         model.addAttribute("activeMenu", "orders");
         
         List<org.example.doan2.entity.DonHang> ordersList;
+        
+        // 2. Logic lọc đơn hàng dựa trên trạng thái (status)
         if (status == null || status.trim().isEmpty() || status.equalsIgnoreCase("all")) {
-            // Nạp tất cả đơn hàng từ mới nhất đến cũ nhất
+            // Trường hợp: Xem tất cả đơn hàng, sắp xếp từ mới nhất đến cũ nhất
             ordersList = donHangRepository.findAllByOrderByNgayTaoDesc();
             model.addAttribute("currentStatus", "all");
         } else {
-            // Lọc đơn hàng theo trạng thái
+            // Trường hợp: Lọc đơn hàng theo một trạng thái cụ thể (vẫn sắp xếp theo ngày tạo)
             ordersList = donHangRepository.findByTrangThaiOrderByNgayTaoDesc(status);
             model.addAttribute("currentStatus", status);
         }
         
-        // Đẩy danh sách ra giao diện `admin/order/list.html`
+        // 3. Truyền danh sách đơn hàng sang giao diện danh sách (admin/order/list)
         model.addAttribute("orders", ordersList);
         return "admin/order/list";
     }
 
-    /** ─── Xem Chi Tiết Đơn Hàng ─── */
+    /**
+     * Hiển thị trang chi tiết của một đơn hàng cụ thể dành cho quản trị viên.
+     * Cung cấp thông tin khách hàng và danh sách các sản phẩm trong đơn hàng đó.
+     */
     @GetMapping("/orders/detail/{id}")
     public String orderDetail(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("activeMenu", "orders");
         
-        // Tìm kiếm đơn hàng
+        // 1. Tìm kiếm đơn hàng trong database dựa trên ID truyền từ URL
         org.example.doan2.entity.DonHang order = donHangRepository.findById(id).orElse(null);
+        
+        // 2. Nếu không tìm thấy đơn hàng (VD: ID sai)
         if (order == null) {
+            // Báo lỗi và quay lại trang danh sách đơn hàng
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn hàng #" + id);
             return "redirect:/admin/orders";
         }
         
-        // Lấy danh sách chi tiết đơn hàng (các sản phẩm khách đã đặt)
+        // 3. Truy vấn danh sách các sản phẩm (Item) chi tiết nằm trong đơn hàng này
         List<org.example.doan2.entity.ChiTietDonHang> orderDetails = chiTietDonHangRepository.findByDonHang(order);
         
+        // 4. Đẩy thông tin Đơn hàng và Thông tin Chi tiết sản phẩm ra giao diện
         model.addAttribute("order", order);
         model.addAttribute("orderDetails", orderDetails);
         
+        // Trả về view chi tiết đơn hàng (admin/order/detail)
         return "admin/order/detail";
     }
 
@@ -485,10 +527,16 @@ public class AdminController {
     @PostMapping("/orders/update-status")
     public String updateOrderStatus(@RequestParam Integer orderId,
                                     @RequestParam String trangThai,
+                                    Authentication authentication,
                                     RedirectAttributes redirectAttributes) {
-        orderService.updateStatus(orderId, trangThai);
-        
-        redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
+        try {
+            String actorEmail = authentication != null ? authentication.getName() : null;
+            orderService.updateStatus(orderId, trangThai, actorEmail);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+
         return "redirect:/admin/orders";
     }
 

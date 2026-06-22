@@ -226,8 +226,7 @@ public class OrderService {
 
         // Nếu là khách hàng, chỉ được hủy đơn "Chờ xác nhận" hoặc "Chờ thanh toán"
         NguoiDung actor = getUserByEmail(actorEmail);
-        boolean isAdmin = actor != null && actor.getVaiTro() != null && 
-                (actor.getVaiTro().getTenVaiTro().equals("ROLE_ADMIN") || actor.getVaiTro().getTenVaiTro().equals("ROLE_EMPLOYEE"));
+        boolean isAdmin = isPrivilegedActor(actor);
 
         if (!isAdmin) {
             if (!order.getNguoiDung().getEmail().equalsIgnoreCase(actorEmail)) {
@@ -253,12 +252,12 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateStatus(int orderId, String newStatus) {
+    public void updateStatus(int orderId, String newStatus, String actorEmail) {
         DonHang order = donHangRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
         if (STATUS_DA_HUY.equals(newStatus)) {
-            cancelOrder(orderId, null); // Thực hiện hủy đơn và hoàn tồn kho
+            cancelOrder(orderId, actorEmail); // Thực hiện hủy đơn và hoàn tồn kho
             return;
         }
 
@@ -307,6 +306,17 @@ public class OrderService {
             return null;
         }
         return nguoiDungRepository.findByEmail(email).orElse(null);
+    }
+
+    private boolean isPrivilegedActor(NguoiDung actor) {
+        if (actor == null || actor.getVaiTro() == null || actor.getVaiTro().getTenVaiTro() == null) {
+            return false;
+        }
+        String role = actor.getVaiTro().getTenVaiTro().trim().toUpperCase();
+        if (role.startsWith("ROLE_")) {
+            role = role.substring(5);
+        }
+        return "ADMIN".equals(role) || "EMPLOYEE".equals(role);
     }
 
     // Centralized stock validation used by COD and VNPay pending flow.
